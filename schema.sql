@@ -1,6 +1,6 @@
 -- BoardNest Database Schema
 -- Import this into MySQL before starting development
-
+-- ADD YOUR MODULES' TABLES AS YOU GROW THE TABLES- REFER TO THE DECISIONS.MD for DB rules
 CREATE DATABASE IF NOT EXISTS boardnest;
 USE boardnest;
 
@@ -17,12 +17,12 @@ CREATE TABLE users (
 
 -- Student extension table
 CREATE TABLE students (
-    student_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT AUTO_INCREMENT PRIMARY KEY,  /* problematic bc of dif formats in dif colleges*/
     user_id INT UNIQUE NOT NULL,
     nic_number VARCHAR(20),
     mobile VARCHAR(15),
     university VARCHAR(100),
-    academic_year VARCHAR(20),
+    academic_year VARCHAR(20), /* should be auto incremented*/
     verf_tier ENUM('tier1','tier2') DEFAULT 'tier1',
     verf_deadline DATE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
