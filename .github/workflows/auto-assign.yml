@@ -4,10 +4,10 @@ on:
     types: [opened]
 jobs:
   run:
+    if: ${{ github.event.issue.pull_request == null }}
     runs-on: ubuntu-latest
     permissions:
       issues: write
-      pull-requests: write
     steps:
     - name: 'Auto-assign issue'
       uses: pozil/auto-assign-issue@v1
@@ -15,3 +15,20 @@ jobs:
           repo-token: ${{ secrets.GITHUB_TOKEN }}
           assignees: leonigangoda
           numOfAssignee: 1
+# name: Auto Assign
+# on:
+#   issues:
+#     types: [opened]
+# jobs:
+#   run:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       issues: write
+#       pull-requests: write
+#     steps:
+#     - name: 'Auto-assign issue'
+#       uses: pozil/auto-assign-issue@v1
+#       with:
+#           repo-token: ${{ secrets.GITHUB_TOKEN }}
+#           assignees: leonigangoda
+#           numOfAssignee: 1
