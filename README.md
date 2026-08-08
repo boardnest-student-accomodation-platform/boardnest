@@ -1,6 +1,6 @@
 # BoardNest
 ### A Verified Student Boarding Platform for Sri Lanka
-<p> **BoardNest** is a web-based student boarding platform built specifically for the Sri Lankan university context. It enables landlords to list verified rooms, allows students to search and book accommodation, empowers Field Agents to physically verify properties before they go live, and gives Admin full oversight of the platform including listing approvals, user management, and monetisation controls. </p>
+<p> <b>BoardNest</b> is a web-based student boarding platform built specifically for the Sri Lankan university context. It enables landlords to list verified rooms, allows students to search and book accommodation, empowers Field Agents to physically verify properties before they go live, and gives Admin full oversight of the platform including listing approvals, user management, and monetisation controls. </p>
 
 <img width="1280" height="832" alt="Landing page" src="https://github.com/user-attachments/assets/ac17142a-ca5b-4ffd-947b-976be9dab16a" />
 
