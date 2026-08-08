@@ -35,7 +35,7 @@
 
 | | |
 |---|---|
-| **Platform Type** | Web-based Information System |
+| **Platform Type** | Web-based Information System (mobile responsive) |
 | **Target Domain** | Student accommodation / University boarding |
 | **Geographical Scope** | Island-wide Sri Lanka, with city-level Field Agent coverage |
 | **Tech Stack** | HTML5, CSS3, JavaScript, PHP, MySQL |
@@ -59,9 +59,9 @@ None of these channels offer identity verification for landlords, physical inspe
 
 ## 3. The Solution
 
-BoardNest's central and defining feature is its **Field Verification System**. Every room listing submitted by a landlord is assigned to a Field Agent employed by the platform and stationed in that city. The agent physically visits the property, completes a structured verification checklist, and submits a report. Only after the Admin reviews and approves that report does the listing become visible to students.
+BoardNest's central and defining feature is its **Field Verification System**. Every room listing submitted by a landlord is assigned to a Field Agent employed by the platform and stationed in that city. The agent physically visits the property, completes a structured verification checklist, and submits a report. Only after the Admin reviews and approves that report does the listing become visible to students. Boardnest also ensures the legibility of students (based on their true identity and college degree status) and field agents who are stakeholders of the system, to make the platform secure and reliable for every student using the service.
 
-This human-in-the-loop verification model is what fundamentally distinguishes BoardNest from every existing local alternative.
+This human-in-the-loop verification model related to Field Verification system, is what fundamentally distinguishes BoardNest from every existing local alternative.
 
 ---
 
