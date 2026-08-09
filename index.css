@@ -139,10 +139,22 @@ img {
   background: var(--sand);
 }
 
+.browse-intro::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: url("public/assets/uploads/angulra-gradient-above.png") center 58% / cover no-repeat;
+  opacity: 0.58;
+}
+
 .intro-copy {
   position: absolute;
+  z-index: 4;
   top: 83px;
-  right: 79px;
+  right: 170px;
+  width: 880px;
   margin: 0;
   color: #5d514c;
   font-size: 16px;
@@ -153,22 +165,22 @@ img {
 
 .browse-intro h2 {
   position: absolute;
-  z-index: 3;
+  z-index: 4;
   top: 247px;
-  left: 50%;
-  width: 990px;
-  transform: translateX(-28.7%);
+  right: 170px;
+  width: 880px;
   margin: 0;
   color: #49413f;
   font-size: clamp(45px, 4.3vw, 65px);
   font-weight: 500;
   line-height: 0.87;
   letter-spacing: 0;
-  text-align: center;
+  text-align: right;
 }
 
 .browser-shot {
   position: absolute;
+  z-index: 1;
   top: 267px;
   left: 67px;
   width: 1521px;
@@ -282,11 +294,25 @@ img {
 }
 
 .final-pitch {
+  position: relative;
+  overflow: hidden;
   min-height: 882px;
   padding-top: 66px;
-  background:
-    url("public/assets/uploads/angulra-gradient-above.png") center top / cover no-repeat,
-    #b79d84;
+  background: #b79d84;
+}
+
+.final-pitch::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url("public/assets/uploads/angulra-gradient-above.png") center top / cover no-repeat;
+}
+
+.final-pitch > * {
+  position: relative;
+  z-index: 1;
 }
 
 .small-note {
@@ -357,11 +383,25 @@ img {
 }
 
 .questions {
+  position: relative;
+  overflow: hidden;
   min-height: 820px;
   padding-top: 73px;
-  background:
-    url("public/assets/uploads/angular-gradient below.png") center bottom / cover no-repeat,
-    #c3ad92;
+  background: #c3ad92;
+}
+
+.questions::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: url("public/assets/uploads/angular-gradient below.png") center bottom / cover no-repeat;
+}
+
+.questions > * {
+  position: relative;
+  z-index: 1;
 }
 
 .questions h2 {
@@ -544,13 +584,14 @@ img {
   .intro-copy {
     position: static;
     padding: 54px 24px 0;
-    text-align: center;
+    width: auto;
+    text-align: right;
   }
 
   .browse-intro h2 {
     top: 178px;
-    width: calc(100% - 34px);
-    transform: translateX(-50%);
+    right: 24px;
+    width: calc(100% - 48px);
     font-size: clamp(34px, 8vw, 56px);
   }
 
