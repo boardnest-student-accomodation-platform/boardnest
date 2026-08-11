@@ -14,27 +14,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
-    if ($user && password_verify($password, $user['password_hash'])) {
-        $_SESSION['user_id'] = $user['user_id'];
-        $_SESSION['role'] = $user['role'];
-        $_SESSION['full_name'] = $user['full_name'];
+    if ($user) {
+        $isPasswordCorrect = false;
 
-        // Redirect based on role
-        switch ($user['role']) {
-            case 'student':
-                header('Location: student/dashboard.php');
-                break;
-            case 'landlord':
-                header('Location: landlord/dashboard.php');
-                break;
-            case 'field_agent':
-                header('Location: field_agent/dashboard.php');
-                break;
-            case 'admin':
-                header('Location: admin/dashboard.php');
-                break;
+        // 1. Password එක Hash එකක්දැයි පරීක්ෂා කිරීම (New Encrypted Passwords)
+        if (password_verify($password, $user['password_hash'])) {
+            $isPasswordCorrect = true;
+        } 
+        // 2. Hash නොවන Plain Text Password එකක්දැයි පරීක්ෂා කිරීම (Old Passwords)
+        elseif ($password === $user['password_hash']) {
+            $isPasswordCorrect = true;
+
+            // Optional: Plain text එකෙන් Log වූ පසු එය ස්වයංක්‍රීයව Hash කර Update කිරීම
+            $newHashedPassword = password_hash($password, PASSWORD_DEFAULT);
+            $updateStmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
+            $updateStmt->execute([$newHashedPassword, $user['user_id']]);
         }
-        exit();
+
+        // Password නිවැරදි නම් Session සාදා Direct කිරීම
+        if ($isPasswordCorrect) {
+            $_SESSION['user_id']   = $user['user_id'];
+            $_SESSION['role']      = $user['role'];
+            $_SESSION['full_name'] = $user['full_name'];
+
+            // Redirect based on role
+            switch ($user['role']) {
+                case 'student':
+                    header('Location: student/dashboard.php');
+                    break;
+                case 'landlord':
+                    header('Location: modules/landlord/dashboard.php');
+                    break;
+                case 'field_agent':
+                    header('Location: field_agent/dashboard.php');
+                    break;
+                case 'admin':
+                    header('Location: admin/dashboard.php');
+                    break;
+            }
+            exit();
+        } else {
+            $error = "Invalid email or password.";
+        }
     } else {
         $error = "Invalid email or password.";
     }
