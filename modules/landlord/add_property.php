@@ -9,78 +9,105 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'landlord') {
 
 require_once __DIR__ . '/../../config/db.php';
 
-$landlord_id = $_SESSION['user_id'];
-$error = '';
+$user_id = $_SESSION['user_id'];
+$error   = '';
 $success = '';
 
-// Landlord has Property check (1-Property Free Limit)
-$checkStmt = $pdo->prepare("SELECT COUNT(*) FROM properties WHERE landlord_id = ?");
-$checkStmt->execute([$landlord_id]);
-$propertyCount = $checkStmt->fetchColumn();
+// Get landlord_id
+$lStmt = $pdo->prepare("SELECT landlord_id FROM landlords WHERE user_id = ?");
+$lStmt->execute([$user_id]);
+$landlord = $lStmt->fetch();
+$landlord_id = $landlord['landlord_id'] ?? null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if ($propertyCount >= 1) {
-        $error = "You have reached your Free Plan limit. Please upgrade to Pro to add more properties.";
+    $title       = trim($_POST['title'] ?? '');
+    $city_id     = filter_input(INPUT_POST, 'city_id', FILTER_VALIDATE_INT) ?: 1;
+    $address     = trim($_POST['address'] ?? '');
+    $latitude    = trim($_POST['latitude'] ?? '');
+    $longitude   = trim($_POST['longitude'] ?? '');
+    $rent_amount = trim($_POST['rent_amount'] ?? '');
+    $description = trim($_POST['description'] ?? '');
+    $maps_url    = trim($_POST['maps_url'] ?? '');
+
+    if (empty($title) || empty($address)) {
+        $error = "Property Title and Address are required.";
+    } elseif (!empty($latitude) && !is_numeric($latitude)) {
+        $error = "Latitude must be a numeric value.";
+    } elseif (!empty($longitude) && !is_numeric($longitude)) {
+        $error = "Longitude must be a numeric value.";
+    } elseif (!empty($rent_amount) && !is_numeric($rent_amount)) {
+        $error = "Rent amount must be numeric.";
     } else {
-        $title       = trim($_POST['title'] ?? '');
-        $rent_amount = trim($_POST['rent_amount'] ?? '');
-        $address     = trim($_POST['address'] ?? '');
-        $description = trim($_POST['description'] ?? '');
-        $map_link    = trim($_POST['map_link'] ?? '');
-        $latitude    = trim($_POST['latitude'] ?? '');
-        $longitude   = trim($_POST['longitude'] ?? '');
+        $uploaded_photos = [];
+        $upload_dir = __DIR__ . '/../../public/uploads/properties/';
 
-        if (empty($title) || empty($rent_amount) || empty($address)) {
-            $error = "Please fill in all required fields.";
-        } else {
-            // Photos Multiple Upload Logic (Max 5 Limit)
-            $uploaded_images = [];
-            $upload_dir = __DIR__ . '/../../public/uploads/properties/';
+        if (!is_dir($upload_dir)) {
+            mkdir($upload_dir, 0755, true);
+        }
 
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+        // Image validation & upload (Max 5 photos, 5MB each)
+        if (!empty($_FILES['photos']['name'][0])) {
+            $allowed_types = ['image/jpeg', 'image/png', 'image/webp'];
+            $max_file_size = 5 * 1024 * 1024;
+            $file_count    = count($_FILES['photos']['name']);
 
-            if (!empty($_FILES['images']['name'][0])) {
-                $total_files = count($_FILES['images']['name']);
-                
-                // picture up to 5 check
-                if ($total_files > 5) {
-                    $error = "You can upload a maximum of 5 images only.";
-                } else {
-                    for ($i = 0; $i < $total_files; $i++) {
-                        $tmp_name = $_FILES['images']['tmp_name'][$i];
-                        $file_name = $_FILES['images']['name'][$i];
-                        $file_ext  = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-                        $allowed_exts = ['jpg', 'jpeg', 'png', 'webp'];
+            if ($file_count > 5) {
+                $error = "You can only upload a maximum of 5 images.";
+            } else {
+                for ($i = 0; $i < $file_count; $i++) {
+                    if ($_FILES['photos']['error'][$i] === UPLOAD_ERR_OK) {
+                        $tmp_name  = $_FILES['photos']['tmp_name'][$i];
+                        $file_size = $_FILES['photos']['size'][$i];
+                        $mime_type = mime_content_type($tmp_name);
 
-                        if (in_array($file_ext, $allowed_exts)) {
-                            $new_file_name = uniqid('prop_') . '_' . $i . '.' . $file_ext;
-                            $target_path   = $upload_dir . $new_file_name;
+                        if ($file_size > $max_file_size) {
+                            $error = "Each image must not exceed 5MB.";
+                            break;
+                        }
 
-                            if (move_uploaded_file($tmp_name, $target_path)) {
-                                $uploaded_images[] = $new_file_name;
-                            }
+                        if (!in_array($mime_type, $allowed_types, true)) {
+                            $error = "Only JPG, PNG, and WebP formats are allowed.";
+                            break;
+                        }
+
+                        $ext = pathinfo($_FILES['photos']['name'][$i], PATHINFO_EXTENSION);
+                        $filename = uniqid('prop_', true) . '.' . $ext;
+                        if (move_uploaded_file($tmp_name, $upload_dir . $filename)) {
+                            $uploaded_photos[] = $filename;
                         }
                     }
                 }
             }
+        }
 
-            if (empty($error)) {
-                try {
-                    $images_json = !empty($uploaded_images) ? json_encode($uploaded_images) : null;
+        if (empty($error) && $landlord_id) {
+            try {
+                $images_json = !empty($uploaded_photos) ? json_encode($uploaded_photos) : null;
+                $lat_val     = !empty($latitude) ? $latitude : null;
+                $lng_val     = !empty($longitude) ? $longitude : null;
+                $rent_val    = !empty($rent_amount) ? (float)$rent_amount : null;
 
-                    $sql = "INSERT INTO properties (landlord_id, title, rent_amount, address, description, map_link, latitude, longitude, images) 
-                            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                    
-                    $stmt = $pdo->prepare($sql);
-                    $stmt->execute([$landlord_id, $title, $rent_amount, $address, $description, $map_link, $latitude, $longitude, $images_json]);
+                $stmt = $pdo->prepare("
+                    INSERT INTO properties (landlord_id, title, city_id, address, maps_url, latitude, longitude, description, status, rent_amount, images) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?)
+                ");
+                $stmt->execute([
+                    $landlord_id,
+                    $title,
+                    $city_id,
+                    $address,
+                    $maps_url,
+                    $lat_val,
+                    $lng_val,
+                    $description,
+                    $rent_val,
+                    $images_json
+                ]);
 
-                    $success = "Property added successfully!";
-                    $propertyCount = 1;
-                } catch (PDOException $e) {
-                    $error = "Database Error: " . $e->getMessage();
-                }
+                $success = "Property submitted successfully!";
+            } catch (PDOException $e) {
+                error_log("Add property error: " . $e->getMessage());
+                $error = "An internal error occurred while saving the property.";
             }
         }
     }
@@ -91,153 +118,70 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Add Property — BoardNest</title>
-    <link rel="stylesheet" href="../../public/assets/css/style.css">
-    <style>
-        .form-card {
-            max-width: 540px;
-            margin: 40px auto;
-            padding: 25px;
-            background: #fff;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            font-family: Arial, sans-serif;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
-        }
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; }
-        .form-group input, .form-group textarea { width: 100%; padding: 10px; box-sizing: border-box; border: 1px solid #ccc; border-radius: 4px; }
-        .row { display: flex; gap: 10px; }
-        .row .form-group { flex: 1; }
-        .btn-submit { width: 100%; padding: 12px; background: #28a745; color: #fff; border: none; border-radius: 4px; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .msg-error { background: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px; word-break: break-all; }
-        .msg-success { background: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px; }
-        
-        .pro-upgrade-card {
-            background: #fff8e1;
-            border: 2px dashed #ffc107;
-            padding: 25px;
-            border-radius: 8px;
-            text-align: center;
-        }
-        .pro-badge {
-            background: #ffc107;
-            color: #000;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: bold;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .btn-upgrade {
-            display: inline-block;
-            margin-top: 15px;
-            padding: 10px 20px;
-            background: #007bff;
-            color: #fff;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-        }
-        #file_list ul { margin: 5px 0 0 0; padding-left: 20px; color: #333; font-weight: normal; }
-    </style>
+    <link rel="stylesheet" href="../../public/assets/css/landlord.css">
 </head>
 <body>
 
 <div class="form-card">
-    <h2>Add New Property</h2>
+    <div class="page-header">
+        <h2>Add New Property</h2>
+        <a href="dashboard.php" class="btn-back">← Dashboard</a>
+    </div>
 
-    <?php if (!empty($error)): ?>
-        <div class="msg-error"><?= htmlspecialchars($error) ?></div>
+    <?php if ($error): ?>
+        <div class="alert-error"><?= htmlspecialchars($error) ?></div>
     <?php endif; ?>
 
-    <?php if (!empty($success)): ?>
-        <div class="msg-success"><?= htmlspecialchars($success) ?></div>
+    <?php if ($success): ?>
+        <div class="alert-success"><?= htmlspecialchars($success) ?></div>
     <?php endif; ?>
 
-    <?php if ($propertyCount >= 1 && empty($error)): ?>
-        <div class="pro-upgrade-card">
-            <span class="pro-badge">FREE PLAN LIMIT REACHED</span>
-            <h3 style="margin: 10px 0 5px 0;">Want to add more properties?</h3>
-            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
-                You are currently on the Free Plan which allows only <strong>1 property</strong>. Upgrade to <strong>BoardNest Pro</strong> to publish unlimited properties!
-            </p>
-            <a href="upgrade.php" class="btn-upgrade">🚀 Get BoardNest Pro</a>
-            <br><br>
-            <a href="dashboard.php" style="color: #555; font-size: 14px;">Back to Dashboard</a>
+    <form method="POST" action="" enctype="multipart/form-data">
+        <div class="form-group">
+            <label>Property Title *</label>
+            <input type="text" name="title" required placeholder="e.g. Colombo Homestay">
         </div>
-    <?php else: ?>
-        <form method="POST" action="" enctype="multipart/form-data">
+
+        <div class="form-group">
+            <label>Address *</label>
+            <textarea name="address" rows="2" required placeholder="Full physical address"></textarea>
+        </div>
+
+        <div class="form-row">
             <div class="form-group">
-                <label>Property Title *</label>
-                <input type="text" name="title" required placeholder="e.g. Single Room near UCSC">
+                <label>Rent Amount (LKR)</label>
+                <input type="number" step="0.01" name="rent_amount" placeholder="e.g. 25000.00">
             </div>
-
             <div class="form-group">
-                <label>Monthly Rent (LKR) *</label>
-                <input type="number" name="rent_amount" required placeholder="e.g. 15000">
+                <label>Maps URL</label>
+                <input type="url" name="maps_url" placeholder="Google Maps link">
             </div>
+        </div>
 
+        <div class="form-row">
             <div class="form-group">
-                <label>Address *</label>
-                <input type="text" name="address" required placeholder="e.g. No. 12, Reid Avenue, Colombo 07">
+                <label>Latitude (Numeric)</label>
+                <input type="text" name="latitude" placeholder="e.g. 6.9271">
             </div>
-
             <div class="form-group">
-                <label>Google Maps Link</label>
-                <input type="url" name="map_link" placeholder="e.g. https://maps.google.com/?q=...">
+                <label>Longitude (Numeric)</label>
+                <input type="text" name="longitude" placeholder="e.g. 79.8612">
             </div>
+        </div>
 
-            <div class="row">
-                <div class="form-group">
-                    <label>Latitude</label>
-                    <input type="text" name="latitude" placeholder="e.g. 6.9022">
-                </div>
-                <div class="form-group">
-                    <label>Longitude</label>
-                    <input type="text" name="longitude" placeholder="e.g. 79.8612">
-                </div>
-            </div>
+        <div class="form-group">
+            <label>Description</label>
+            <textarea name="description" rows="3" placeholder="Facilities, nearby places, etc."></textarea>
+        </div>
 
-            <div class="form-group">
-                <label>Description</label>
-                <textarea name="description" rows="3" placeholder="Enter details about facilities, rules, etc."></textarea>
-            </div>
+        <div class="form-group">
+            <label>Property Images (Max 5, 5MB each)</label>
+            <input type="file" name="photos[]" multiple accept="image/jpeg,image/png,image/webp">
+        </div>
 
-            <div class="form-group">
-                <label>Property Photos (Maximum 5 Images)</label>
-                <input type="file" name="images[]" id="property_images" multiple accept="image/*" onchange="previewFiles()">
-                
-                <div id="file_list" style="margin-top: 10px; font-size: 13px;"></div>
-            </div>
-
-            <button type="submit" class="btn-submit">Add Property</button>
-        </form>
-    <?php endif; ?>
+        <button type="submit" class="btn btn-primary btn-block">Save Property</button>
+    </form>
 </div>
-
-<script>
-function previewFiles() {
-    const input = document.getElementById('property_images');
-    const output = document.getElementById('file_list');
-    
-    if (input.files.length > 5) {
-        output.style.color = '#721c24';
-        output.innerHTML = '⚠️ <strong>Warning:</strong> You can only select up to 5 photos!';
-        input.value = ''; // up o 5 cancel
-    } else if (input.files.length > 0) {
-        output.style.color = '#28a745';
-        let names = '<strong>Selected ' + input.files.length + ' photo(s):</strong><ul>';
-        for (let i = 0; i < input.files.length; i++) {
-            names += '<li>' + input.files[i].name + '</li>';
-        }
-        names += '</ul>';
-        output.innerHTML = names;
-    } else {
-        output.innerHTML = '';
-    }
-}
-</script>
 
 </body>
 </html>
