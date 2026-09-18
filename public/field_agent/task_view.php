@@ -79,6 +79,7 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/field_agent.css">
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <?php require PARTIALS . '_header.php'; ?>
@@ -86,12 +87,12 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
     <div class="main-container">
 
         <?php if ($success_msg): ?>
-            <div style="background:#D1E7DD;color:#0F5132;border:1px solid #BADBCE;padding:14px 20px;border-radius:12px;font-weight:600;font-size:13px;margin-bottom:16px;">
+            <div class="fa-alert fa-alert-success">
                 ✅ <?php echo htmlspecialchars($success_msg); ?>
             </div>
         <?php endif; ?>
         <?php if ($error_msg): ?>
-            <div style="background:#F8D7DA;color:#842029;border:1px solid #F5C2C7;padding:14px 20px;border-radius:12px;font-weight:600;font-size:13px;margin-bottom:16px;">
+            <div class="fa-alert fa-alert-danger">
                 ⚠️ <?php echo htmlspecialchars($error_msg); ?>
             </div>
         <?php endif; ?>
