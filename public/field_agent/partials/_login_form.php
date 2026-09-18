@@ -28,13 +28,13 @@
             </div>
 
             <div class="auth-form-group">
-                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                    <label class="auth-form-label" style="margin-bottom:0;">Password</label>
-                    <a href="forgot_password.php" style="font-size:12px;font-weight:700;color:#A4856D;text-decoration:none;">Forgot Password?</a>
+                <div class="fa-label-header">
+                    <label class="auth-form-label fa-label-no-margin">Password</label>
+                    <a href="forgot_password.php" class="fa-link-small">Forgot Password?</a>
                 </div>
-                <div style="position:relative;">
-                    <input type="password" id="loginPassword" name="password" class="auth-form-input" placeholder="Enter password" required style="padding-right:44px;">
-                    <button type="button" onclick="togglePasswordVisibility('loginPassword','loginEyeIcon')" style="position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#8C7B74;padding:4px;display:flex;align-items:center;">
+                <div class="fa-password-wrapper">
+                    <input type="password" id="loginPassword" name="password" class="auth-form-input fa-input-password" placeholder="Enter password" required>
+                    <button type="button" onclick="togglePasswordVisibility('loginPassword','loginEyeIcon')" class="fa-btn-toggle-pwd">
                         <svg id="loginEyeIcon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line></svg>
                     </button>
                 </div>
