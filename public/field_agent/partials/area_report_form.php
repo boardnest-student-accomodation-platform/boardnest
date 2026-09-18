@@ -1,5 +1,5 @@
 <?php
-// Partial: _area_report_form.php
+// Partial: area_report_form.php
 // Area observation submission form (Transport, Amenities, Safety)
 // Expects: $city (string)
 ?>
@@ -34,7 +34,7 @@
         </div>
 
         <!-- Dynamic Bus Routes -->
-        <div id="busRoutesFilterBox" class="fa-bus-filter-box" style="display:none;">
+        <div id="busRoutesFilterBox" class="fa-bus-filter-box" class="fa-d-none">
             <div class="fa-bus-filter-title">🚌 Select Active Regional Bus Routes:</div>
             <div class="fa-bus-grid">
                 <label class="fa-bus-label">

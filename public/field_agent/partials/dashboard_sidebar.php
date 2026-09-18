@@ -1,5 +1,5 @@
 <?php
-// Partial: _dashboard_sidebar.php
+// Partial: dashboard_sidebar.php
 // Left sidebar: agent profile card + nav tabs + area report link
 // Expects: $active_tab, $city, $count_pending, $count_claimed, $count_complaints, $count_completed, $agent_id
 ?>

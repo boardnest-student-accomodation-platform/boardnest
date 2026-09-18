@@ -100,8 +100,8 @@ define('PARTIALS', __DIR__ . '/partials/');
 
     <!-- Dashboard Grid -->
     <div class="dashboard-grid-layout">
-        <?php require PARTIALS . '_dashboard_sidebar.php'; ?>
-        <?php require PARTIALS . '_dashboard_main.php'; ?>
+        <?php require PARTIALS . 'dashboard_sidebar.php'; ?>
+        <?php require PARTIALS . 'dashboard_main.php'; ?>
     </div>
 
     <?php require '../../includes/agent_guide_modal.php'; ?>

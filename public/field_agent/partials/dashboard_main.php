@@ -1,5 +1,5 @@
 <?php
-// Partial: _dashboard_main.php
+// Partial: dashboard_main.php
 // Main content area: metric cards + tab panels
 // Expects: $active_tab, $city, $success_msg, $error_msg,
 //          $count_pending, $count_claimed, $count_complaints, $count_completed,

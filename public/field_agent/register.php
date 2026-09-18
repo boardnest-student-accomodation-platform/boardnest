@@ -72,7 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-page-body">
-    <?php require __DIR__ . '/partials/_register_form.php'; ?>
+    <?php require __DIR__ . '/partials/auth_register_form.php'; ?>
     <script src="../assets/js/field_agent.js"></script>
 </body>
 </html>

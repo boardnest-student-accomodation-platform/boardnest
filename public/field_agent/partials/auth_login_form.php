@@ -1,5 +1,5 @@
 <?php
-// Partial: _login_form.php
+// Partial: auth_login_form.php
 // Field agent login card
 // Expects: $error (string), $success_msg (string)
 ?>

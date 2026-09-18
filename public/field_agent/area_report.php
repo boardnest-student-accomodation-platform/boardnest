@@ -91,7 +91,7 @@ define('PARTIALS_AR', __DIR__ . '/partials/');
                 </div>
             <?php endif; ?>
 
-            <?php require PARTIALS_AR . '_area_report_form.php'; ?>
+            <?php require PARTIALS_AR . 'area_report_form.php'; ?>
         </div>
     </div>
 

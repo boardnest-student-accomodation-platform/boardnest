@@ -1,5 +1,5 @@
 <?php
-// Partial: _register_form.php
+// Partial: auth_register_form.php
 // Field agent registration card
 // Expects: $error (string)
 ?>

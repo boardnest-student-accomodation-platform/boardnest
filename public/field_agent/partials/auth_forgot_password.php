@@ -1,5 +1,5 @@
 <?php
-// Partial: _forgot_password_form.php
+// Partial: auth_forgot_password.php
 // Password reset card (Email + NIC verification)
 // Expects: $error (string)
 ?>

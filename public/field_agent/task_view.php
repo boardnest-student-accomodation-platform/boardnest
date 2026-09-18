@@ -82,7 +82,7 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <?php require PARTIALS . '_header.php'; ?>
+    <?php require PARTIALS . 'global_header.php'; ?>
 
     <div class="main-container">
 
@@ -100,46 +100,46 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
         <?php if ($complaint_id > 0): ?>
             <?php 
             $show_complaint_part = 'header';
-            require PARTIALS . '_complaint_view.php'; 
+            require PARTIALS . 'complaint_view.php'; 
             ?>
 
             <?php if (isset($complaint['status']) && $complaint['status'] === 'resolved'): ?>
                 <?php 
                 $show_complaint_part = 'form';
-                require PARTIALS . '_complaint_view.php'; 
+                require PARTIALS . 'complaint_view.php'; 
                 ?>
             <?php else: ?>
-                <?php require PARTIALS . '_gps_geofence.php'; ?>
+                <?php require PARTIALS . 'task_gps_geofence.php'; ?>
 
                 <?php if (isset($_SESSION['geofence_passed_comp_' . $complaint_id])): ?>
                     <?php 
                     $show_complaint_part = 'form';
-                    require PARTIALS . '_complaint_view.php'; 
+                    require PARTIALS . 'complaint_view.php'; 
                     ?>
                 <?php endif; ?>
             <?php endif; ?>
 
         <?php else: ?>
-            <?php require PARTIALS . '_checklist_item.php'; // loads renderChecklistItem() ?>
+            <?php require PARTIALS . 'task_checklist_item.php'; // loads renderChecklistItem() ?>
 
             <div class="audit-two-column-layout">
                 <!-- LEFT: Sticky property context -->
                 <div class="left-property-sidebar">
-                    <?php require PARTIALS . '_property_sidebar.php'; ?>
+                    <?php require PARTIALS . 'task_property_sidebar.php'; ?>
                 </div>
 
                 <!-- RIGHT: GPS gate + Audit form -->
                 <div>
                     <?php if (isset($task['status']) && $task['status'] === 'completed'): ?>
-                        <?php require PARTIALS . '_audit_form.php'; ?>
+                        <?php require PARTIALS . 'task_audit_form.php'; ?>
                     <?php else: ?>
-                        <?php require PARTIALS . '_gps_geofence.php'; ?>
+                        <?php require PARTIALS . 'task_gps_geofence.php'; ?>
 
                         <?php if (isset($_SESSION['geofence_passed_' . $task_id])): ?>
-                            <?php require PARTIALS . '_audit_form.php'; ?>
+                            <?php require PARTIALS . 'task_audit_form.php'; ?>
                         <?php endif; ?>
 
-                        <?php require PARTIALS . '_emergency_suspension.php'; ?>
+                        <?php require PARTIALS . 'task_emergency_suspension.php'; ?>
                     <?php endif; ?>
                 </div>
             </div>

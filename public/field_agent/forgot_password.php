@@ -55,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="auth-page-body">
-    <?php require __DIR__ . '/partials/_forgot_password_form.php'; ?>
+    <?php require __DIR__ . '/partials/auth_forgot_password.php'; ?>
     <script src="../assets/js/field_agent.js"></script>
 </body>
 </html>
