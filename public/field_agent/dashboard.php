@@ -80,20 +80,21 @@ define('PARTIALS', __DIR__ . '/partials/');
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/field_agent.css">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body style="font-family:'Plus Jakarta Sans',sans-serif;background-color:#FAF7F2;color:#3B3330;margin:0;">
+<body class="fa-dashboard-body">
 
     <!-- Navbar -->
     <header class="navbar-custom">
         <a href="../../index.html" class="navbar-brand-custom">BoardNest</a>
         <div class="navbar-user-pill">
-            <button type="button" onclick="openAgentGuide()" style="background:#FFF8F5;border:1.5px solid #E8DDD4;color:#6F4E37;padding:4px 12px;border-radius:50px;font-size:11px;font-weight:800;cursor:pointer;display:flex;align-items:center;gap:4px;margin-right:6px;">
+            <button type="button" onclick="openAgentGuide()" class="fa-nav-btn">
                 📖 Inspection Guide
             </button>
             <div class="user-avatar-circle"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
-            <div style="font-size:13px;font-weight:700;color:#3B3330;"><?php echo htmlspecialchars($_SESSION['full_name']); ?></div>
-            <span style="display:inline-block;background:#3B3330;color:#FFFFFF;font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;"><?php echo htmlspecialchars($city); ?> Agent</span>
-            <a href="logout.php" style="color:#C0392B;text-decoration:none;font-size:12px;font-weight:700;padding-left:8px;border-left:1px solid #E8DDD4;">Logout</a>
+            <div class="fa-nav-username"><?php echo htmlspecialchars($_SESSION['full_name']); ?></div>
+            <span class="fa-nav-role"><?php echo htmlspecialchars($city); ?> Agent</span>
+            <a href="logout.php" class="fa-nav-logout">Logout</a>
         </div>
     </header>
 
