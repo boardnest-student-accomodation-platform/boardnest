@@ -37,22 +37,23 @@ define('PARTIALS_AR', __DIR__ . '/partials/');
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/field_agent.css">
+    <link rel="stylesheet" href="style.css">
 </head>
-<body style="font-family:'Plus Jakarta Sans',sans-serif;background-color:#FAF7F2;color:#3B3330;margin:0;">
+<body class="fa-dashboard-body">
 
     <!-- Navbar -->
     <header class="navbar-custom">
-        <a href="../../index.html" style="font-family:'Outfit',sans-serif;font-size:26px;font-weight:900;color:#6F4E37;letter-spacing:-0.8px;text-decoration:none;">BoardNest</a>
-        <div style="display:flex;align-items:center;gap:12px;">
-            <span style="display:inline-block;background:#3B3330;color:#FFFFFF;font-size:11px;font-weight:700;padding:4px 12px;border-radius:50px;">
+        <a href="../../index.html" class="fa-report-brand">BoardNest</a>
+        <div class="fa-header-actions">
+            <span class="fa-report-role">
                 📍 <?php echo htmlspecialchars($city); ?> Regional Agent
             </span>
             <?php if ($task_id > 0): ?>
-                <a href="task_view.php?task_id=<?php echo $task_id; ?>" style="background:#A4856D;color:#FFFFFF;padding:6px 16px;border-radius:50px;font-size:12px;font-weight:800;text-decoration:none;box-shadow:0 2px 6px rgba(164,133,109,0.25);">
+                <a href="task_view.php?task_id=<?php echo $task_id; ?>" class="fa-report-btn-primary">
                     ← Back to Audit Task #VT-<?php echo $task_id; ?>
                 </a>
             <?php endif; ?>
-            <a href="dashboard.php" style="background:#FFF8F5;border:1.5px solid #E8DDD4;color:#3B3330;padding:6px 16px;border-radius:50px;font-size:12px;font-weight:700;text-decoration:none;">
+            <a href="dashboard.php" class="fa-report-btn-secondary">
                 ← Back to Dashboard
             </a>
         </div>
@@ -60,32 +61,32 @@ define('PARTIALS_AR', __DIR__ . '/partials/');
 
     <div class="main-container">
         <!-- Centered single-column layout container -->
-        <div style="max-width:860px;margin:0 auto;">
+        <div class="fa-report-wrapper">
             <!-- Hero Banner -->
-            <div class="hero-banner-card" style="margin-bottom:24px;">
+            <div class="hero-banner-card fa-mb-24">
                 <div>
-                    <span style="display:inline-block;background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.25);color:#FFFFFF;font-size:11px;font-weight:800;padding:4px 14px;border-radius:50px;text-transform:uppercase;letter-spacing:0.8px;margin-bottom:12px;">
+                    <span class="fa-hero-badge">
                         📍 Regional Profile Audit — <?php echo htmlspecialchars($city); ?>
                     </span>
-                    <h1 style="font-size:28px;font-weight:900;color:#FFFFFF;margin:0 0 8px 0;letter-spacing:-0.5px;">Area Profile Audit &amp; Observations</h1>
-                    <p style="font-size:14px;opacity:0.85;margin:0;max-width:600px;line-height:1.5;">
+                    <h1 class="fa-hero-title">Area Profile Audit &amp; Observations</h1>
+                    <p class="fa-hero-desc">
                         Log transport infrastructure, student amenities, and neighborhood security conditions to help students make safe housing choices.
                     </p>
                 </div>
-                <div style="background:rgba(255,255,255,0.1);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.2);padding:16px 24px;border-radius:18px;text-align:center;">
-                    <div style="font-size:24px;font-weight:800;color:#2ECC71;">100%</div>
-                    <div style="font-size:11px;font-weight:700;opacity:0.8;text-transform:uppercase;">Verified Coverage</div>
+                <div class="fa-hero-stat-card">
+                    <div class="fa-hero-stat-value">100%</div>
+                    <div class="fa-hero-stat-label">Verified Coverage</div>
                 </div>
             </div>
 
             <!-- Flash Alerts -->
             <?php if ($success_msg): ?>
-                <div style="background:rgba(39,174,96,0.08);border:1px solid rgba(39,174,96,0.25);color:#27AE60;padding:14px 20px;border-radius:14px;font-size:14px;font-weight:600;margin-bottom:24px;">
+                <div class="fa-alert fa-alert-success fa-mb-24">
                     ✅ <?php echo htmlspecialchars($success_msg); ?>
                 </div>
             <?php endif; ?>
             <?php if ($error_msg): ?>
-                <div style="background:rgba(192,57,43,0.08);border:1px solid rgba(192,57,43,0.25);color:#C0392B;padding:14px 20px;border-radius:14px;font-size:14px;font-weight:600;margin-bottom:24px;">
+                <div class="fa-alert fa-alert-danger fa-mb-24">
                     ⚠️ <?php echo htmlspecialchars($error_msg); ?>
                 </div>
             <?php endif; ?>
