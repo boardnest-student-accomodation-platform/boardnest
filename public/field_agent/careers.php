@@ -9,8 +9,9 @@
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/field_agent.css">
+  <link rel="stylesheet" href="style.css">
 </head>
-<body style="font-family:'Plus Jakarta Sans',sans-serif;background-color:#FAF7F2;color:#3B3330;margin:0;">
+<body class="fa-dashboard-body">
 
   <!-- Navbar — same as dashboard -->
   <header class="navbar-custom">
@@ -20,10 +21,10 @@
     </div>
   </header>
 
-  <main style="max-width:1200px;margin:0 auto;padding:48px 32px 80px;">
+  <main class="fa-careers-main">
 
     <!-- Hero Banner — same gradient as dashboard hero-banner-card -->
-    <div class="hero-banner-card" style="margin-bottom:40px;flex-direction:column;text-align:center;padding:56px 40px;">
+    <div class="hero-banner-card fa-careers-hero">
       <div class="careers-page-badge">
         <span class="careers-page-badge-dot"></span>
         NOW RECRUITING FIELD AGENTS
@@ -77,7 +78,7 @@
             <p class="step-desc">Work on your own terms</p>
           </div>
         </div>
-        <p style="font-size:14px;color:#8C7B74;line-height:1.6;margin:0;">
+        <p class="fa-careers-card-text">
           Take on verification tasks and audits at times that suit you. You are in total control of your time, fitting audits around your life.
         </p>
       </div>
@@ -91,7 +92,7 @@
             <p class="step-desc">Transparent weekly payouts</p>
           </div>
         </div>
-        <p style="font-size:14px;color:#8C7B74;line-height:1.6;margin:0;">
+        <p class="fa-careers-card-text">
           Get paid for every physical property verification and dispute resolution report you submit. Transparent pricing, weekly payouts.
         </p>
       </div>
@@ -105,7 +106,7 @@
             <p class="step-desc">Be the trusted local agent</p>
           </div>
         </div>
-        <p style="font-size:14px;color:#8C7B74;line-height:1.6;margin:0;">
+        <p class="fa-careers-card-text">
           Ensure student housing is safe and secure. Be the trusted local agent for university students navigating new cities.
         </p>
       </div>
