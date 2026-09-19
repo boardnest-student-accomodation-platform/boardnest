@@ -787,8 +787,10 @@ img {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 78px;
-  padding: 0 60px;
+/*   height: 78px;
+  padding: 0 60px; */
+  height: 90px;
+  padding: 0 70px;
   background: rgba(255, 250, 242, 0.92);
   border-bottom: 1px solid rgba(211, 196, 186, 0.45);
   backdrop-filter: blur(10px);
@@ -830,7 +832,8 @@ img {
 .careers-main {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 72px 40px 96px;
+/*   padding: 72px 40px 96px; */
+  padding: 72px 70px 96px;
 }
 
 /* ── Hero Card ── */
@@ -868,7 +871,8 @@ img {
 
 .careers-hero-h1 {
   font-size: clamp(32px, 3.5vw, 44px);
-  font-weight: 800;
+/*   font-weight: 800; */
+  font-weight: 500;
   color: #2a1707;
   margin: 0 0 14px;
   line-height: 1.2;
@@ -979,7 +983,7 @@ img {
   color: #3b3330;
   padding: 16px 42px;
   border-radius: 50px;
-  font-weight: 800;
+  font-weight: 00;
   font-size: 16px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
