@@ -49,7 +49,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: field_agent/dashboard.php');
                     break;
                 case 'admin':
-                    header('Location: admin/dashboard.php');
+                    header('Location: modules/admin/dashboard.php');
                     break;
             }
             exit();
