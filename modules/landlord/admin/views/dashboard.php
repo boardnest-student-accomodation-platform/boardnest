@@ -382,12 +382,11 @@ $complaintQueue = $stmt->fetchAll();*/
                             <p>Users waiting for approval.</p>
                         </div>
 
-                        <button
-                            type="button"
+                        <a
                             class="admin-text-button"
-                            data-admin-action="registrations">
+                            href="../../approvals/views/registration_approvals.php">
                             View All
-                        </button>
+                        </a>
 
                     </div>
 
@@ -463,7 +462,7 @@ $complaintQueue = $stmt->fetchAll();*/
                         </div>
 
                         <a
-                            href="listings_decisions.php"
+                            href="../../approvals/views/listings_decisions.php"
                             class="admin-text-button">
                             View All
                         </a>
@@ -560,7 +559,7 @@ $complaintQueue = $stmt->fetchAll();*/
                         </div>
 
                         <a
-                            href="Complaints.php"
+                            href="../../complaints/views/complaints.php"
                             class="admin-text-button">
                             View All
                         </a>
