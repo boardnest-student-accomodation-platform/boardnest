@@ -6,7 +6,6 @@
 require_once '../../includes/session.php';
 requireRole('field_agent');
 require_once '../../config/db.php';
-require_once '../../src/field_agent/db_init.php';
 
 // Fetch agent
 $stmt = $pdo->prepare("SELECT agent_id, assigned_city FROM field_agents WHERE user_id = ?");
