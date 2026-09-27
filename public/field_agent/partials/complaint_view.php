@@ -186,7 +186,7 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
                 </label>
                 <div class="fa-complaint-fee-wrapper">
                     <span class="fa-complaint-fee-symbol">LKR</span>
-                    <input type="number" class="form-input fa-complaint-fee-input" name="visit_fee" min="0" step="50" value="0" placeholder="0.00">
+                    <input type="number" class="form-input fa-complaint-fee-input" name="visit_fee" min="0" step="0.01" value="0" placeholder="0.00">
                 </div>
                 <div class="fa-complaint-fee-hint">
                     💡 Set to <strong>0</strong> if no fee is charged (e.g. waived or free visit).
