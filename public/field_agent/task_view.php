@@ -18,8 +18,7 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
     <title>BoardNest — Task Audit Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/field_agent.css">
-
+    <link rel="stylesheet" href="../assets/css/field_agent.css?v=2">
 </head>
 <body>
     <?php require PARTIALS . 'global_header.php'; ?>

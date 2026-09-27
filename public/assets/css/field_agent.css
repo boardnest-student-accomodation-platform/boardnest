@@ -20,10 +20,6 @@
         align-items: start;
     }
     .left-property-sidebar {
-        position: sticky;
-        top: 80px;
-        max-height: calc(100vh - 100px);
-        overflow-y: auto;
         padding-right: 4px;
     }
     .left-property-sidebar::-webkit-scrollbar { width: 4px; }
