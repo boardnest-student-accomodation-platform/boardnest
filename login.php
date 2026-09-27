@@ -30,43 +30,51 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (
                 $user &&
-                $user['status'] === 'active' &&
                 password_verify($password, $user['password_hash'])
             ) {
-                // Regenerate session ID after login
-                session_regenerate_id(true);
+                // Check account status
+                if (
+                    $user['role'] === 'landlord' &&
+                    $user['status'] === 'pending'
+                ) {
+                    $error = 'Your landlord account is waiting for admin approval. Please try again after approval.';
+                } elseif ($user['status'] !== 'active') {
+                    $error = 'Your account is not active. Please contact the administrator.';
+                } else {
+                    // Regenerate session ID after login
+                    session_regenerate_id(true);
 
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['role'] = $user['role'];
-                $_SESSION['full_name'] = $user['full_name'];
+                    $_SESSION['user_id'] = $user['user_id'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['full_name'] = $user['full_name'];
 
-                // Redirect according to user role
-                switch ($user['role']) {
-                    case 'student':
-                        header('Location: student/dashboard.php');
-                        break;
+                    // Redirect according to user role
+                    switch ($user['role']) {
+                        case 'student':
+                            header('Location: student/dashboard.php');
+                            break;
 
-                    case 'landlord':
-                        header('Location: modules/landlord/dashboard.php');
-                        break;
+                        case 'landlord':
+                            header('Location: modules/landlord/dashboard.php');
+                            break;
 
-                    case 'field_agent':
-                        header('Location: field_agent/dashboard.php');
-                        break;
+                        case 'field_agent':
+                            header('Location: field_agent/dashboard.php');
+                            break;
 
-                    case 'admin':
-                        header('Location: modules/admin/dashboard.php');
-                        break;
+                        case 'admin':
+                            header('Location: modules/admin/dashboard.php');
+                            break;
 
-                    default:
-                        // Clear session for unsupported roles
-                        $_SESSION = [];
-                        session_destroy();
-                        header('Location: login.php');
-                        exit();
+                        default:
+                            $_SESSION = [];
+                            session_destroy();
+                            header('Location: login.php');
+                            exit();
+                    }
+
+                    exit();
                 }
-
-                exit();
             } else {
                 $error = 'Invalid email or password.';
             }
@@ -81,8 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
     <title>BoardNest — Login</title>
+
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
@@ -103,6 +114,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         <form method="POST" action="login.php">
             <label for="email">Email</label>
+
             <input
                 type="email"
                 id="email"
@@ -117,6 +129,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             >
 
             <label for="password">Password</label>
+
             <input
                 type="password"
                 id="password"
