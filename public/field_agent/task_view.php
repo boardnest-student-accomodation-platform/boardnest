@@ -110,7 +110,7 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
             require PARTIALS . 'complaint_view.php'; 
             ?>
 
-            <?php if (isset($complaint['status']) && in_array($complaint['status'], ['upheld', 'dismissed', 'escalated'])): ?>
+            <?php if (isset($complaint['status']) && in_array($complaint['status'], array('upheld', 'dismissed', 'escalated'))): ?>
                 <?php 
                 $show_complaint_part = 'form';
                 require PARTIALS . 'complaint_view.php'; 
