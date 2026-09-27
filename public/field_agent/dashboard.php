@@ -55,10 +55,9 @@ $completed_tasks = $stmtCompleted->fetchAll();
 $stmtComplaints = $pdo->prepare("
     SELECT c.*, p.address, p.structural_type, u.full_name AS student_name
     FROM complaints c
-    INNER JOIN properties p ON c.property_id = p.property_id
-    INNER JOIN students   s ON c.student_id   = s.student_id
-    INNER JOIN users      u ON s.user_id       = u.user_id
-    WHERE c.assigned_agent_id = ? AND c.status IN ('assigned','investigating')
+    INNER JOIN properties p ON c.listing_id = p.property_id
+    INNER JOIN users      u ON c.complainant_user_id = u.user_id
+    WHERE c.complaint_investigations = ? AND c.status IN ('assigned','under_investigation')
 ");
 $stmtComplaints->execute(array($agent_id));
 $complaints_tasks = $stmtComplaints->fetchAll();

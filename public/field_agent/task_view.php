@@ -30,10 +30,10 @@ if ($complaint_id > 0) {
         SELECT c.*, p.address, p.structural_type, p.latitude, p.longitude,
                u.full_name AS student_name, s.mobile AS student_mobile
         FROM complaints c
-        INNER JOIN properties p ON c.property_id = p.property_id
-        INNER JOIN students   s ON c.student_id   = s.student_id
-        INNER JOIN users      u ON s.user_id       = u.user_id
-        WHERE c.complaint_id = ? AND c.assigned_agent_id = ?
+        INNER JOIN properties p ON c.listing_id = p.property_id
+        INNER JOIN users      u ON c.complainant_user_id = u.user_id
+        INNER JOIN students   s ON u.user_id = s.user_id
+        WHERE c.complaint_id = ? AND c.complaint_investigations = ?
     ");
     $stmtComp->execute(array($complaint_id, $agent_id));
     $complaint = $stmtComp->fetch();
