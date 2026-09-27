@@ -79,7 +79,7 @@ define('PARTIALS', __DIR__ . '/partials/');
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/field_agent.css">
-    <link rel="stylesheet" href="style.css">
+
 </head>
 <body class="fa-dashboard-body">
 
