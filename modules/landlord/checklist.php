@@ -56,9 +56,10 @@ if ($property_id && $landlord_id) {
 <head>
     <meta charset="UTF-8">
     <title>Property Checklist — BoardNest</title>
-    <link rel="stylesheet" href="../../public/assets/css/landlord.css">
+    <link rel="stylesheet" href="../../public/assets/css/landlord.css?v=2">
 </head>
 <body>
+    <?php include __DIR__ . '/nav.php'; ?>
 
 <div class="form-card">
     <div class="page-header">

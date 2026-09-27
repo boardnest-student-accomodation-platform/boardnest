@@ -68,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Landlord Registration — BoardNest</title>
-    <link rel="stylesheet" href="../../public/assets/css/style.css">
+    <link rel="stylesheet" href="../../public/assets/css/landlord.css?v=2">
     <style>
         .register-card {
             max-width: 480px;
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </style>
 </head>
 <body>
-
+<?php include __DIR__ . '/nav.php'; ?>
 <div class="register-card">
     <h2>Landlord Registration</h2>
     <p style="color: #666; font-size: 14px; margin-bottom: 20px;">Create an account to list your properties on BoardNest.</p>

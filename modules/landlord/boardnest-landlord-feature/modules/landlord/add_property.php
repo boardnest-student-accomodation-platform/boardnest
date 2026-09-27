@@ -157,13 +157,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Property — BoardNest</title>
-    <link rel="stylesheet" href="../../public/assets/css/landlord.css?v=2">
+    <link rel="stylesheet" href="../../public/assets/css/landlord.css">
 </head>
 <body>
-    <?php include __DIR__ . '/nav.php'; ?>
 <div class="form-card">
     <div class="page-header">
         <h2>Add New Property</h2>
+        <a href="dashboard.php" class="btn-back">← Dashboard</a>
     </div>
 
     <p>Plan: <strong><?= $is_pro ? 'Pro' : 'Standard' ?></strong> | Properties: <strong><?= (int)$property_count ?></strong><?= $is_pro ? '' : ' / 1' ?></p>

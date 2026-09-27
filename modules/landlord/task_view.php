@@ -60,14 +60,13 @@ try {
 <head>
     <meta charset="UTF-8">
     <title>Task View — BoardNest</title>
-    <link rel="stylesheet" href="../../public/assets/css/landlord.css">
+    <link rel="stylesheet" href="../../public/assets/css/landlord.css?v=2">
 </head>
 <body>
-
+<?php include __DIR__ . '/nav.php'; ?>
 <div class="landlord-container">
     <div class="page-header">
         <h2>My Tasks</h2>
-        <a href="dashboard.php" class="btn-back">← Back to Dashboard</a>
     </div>
 
     <?php if ($error): ?>

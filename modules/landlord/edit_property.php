@@ -63,9 +63,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Edit Property - BoardNest</title>
-    <link rel="stylesheet" href="../../public/assets/css/style.css">
+    <link rel="stylesheet" href="../../public/assets/css/landlord.css?v=2">
 </head>
 <body>
+    <?php include __DIR__ . '/nav.php'; ?>
 <div style="max-width: 600px; margin: 40px auto; padding: 20px; border: 1px solid #ccc; border-radius: 8px;">
     <h2>Edit Property Details</h2>
     <?= $message ?>
