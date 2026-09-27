@@ -177,5 +177,34 @@
                 </table>
             </div>
         <?php endif; ?>
+
+        <!-- Completed Complaints -->
+        <h2 class="fa-h2 fa-mt-20">Completed Complaints (Read Only)</h2>
+        <?php if (empty($completed_complaints)): ?>
+            <div class="empty-state-card">
+                <div class="fa-empty-icon success">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h3 class="fa-h3">No Completed Complaints</h3>
+                <p class="fa-empty-text">Completed complaint investigations will appear here.</p>
+            </div>
+        <?php else: ?>
+            <div class="table-wrapper-custom">
+                <table class="table-custom">
+                    <thead><tr><th>Complaint ID</th><th>Address</th><th>Status</th><th>Completed Date</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($completed_complaints as $comp): ?>
+                        <tr>
+                            <td><strong>#CP-<?php echo $comp['complaint_id']; ?></strong></td>
+                            <td><?php echo htmlspecialchars($comp['address']); ?></td>
+                            <td><span class="tag-custom"><?php echo htmlspecialchars(ucfirst($comp['status'])); ?></span></td>
+                            <td><?php echo htmlspecialchars($comp['investigated_at']); ?></td>
+                            <td><a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="btn btn--outline btn--sm fa-btn-table">View Report</a></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
     <?php endif; ?>
 </main>

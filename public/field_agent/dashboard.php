@@ -82,6 +82,20 @@ $stmtComplaints = $pdo->prepare("
 $stmtComplaints->execute(array($_SESSION['user_id']));
 $complaints_tasks = $stmtComplaints->fetchAll();
 
+// Completed complaints (History)
+$stmtCompletedComplaints = $pdo->prepare("
+    SELECT c.*, p.address, p.structural_type, u.full_name AS student_name, ci.investigated_at, ci.findings
+    FROM complaints c
+    INNER JOIN listings l ON c.listing_id = l.listing_id
+    INNER JOIN properties p ON l.property_id = p.property_id
+    INNER JOIN complaint_investigations ci ON c.complaint_id = ci.complaint_id
+    INNER JOIN users      u ON c.complainant_user_id = u.user_id
+    WHERE ci.field_agent_user_id = ? AND c.status NOT IN ('assigned','under_investigation', 'pending')
+    ORDER BY ci.investigated_at DESC
+");
+$stmtCompletedComplaints->execute(array($_SESSION['user_id']));
+$completed_complaints = $stmtCompletedComplaints->fetchAll();
+
 $count_pending   = count($pending_tasks);
 $count_claimed   = count($claimed_tasks);
 $count_completed = count($completed_tasks);
