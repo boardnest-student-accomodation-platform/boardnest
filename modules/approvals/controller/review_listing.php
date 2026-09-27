@@ -12,9 +12,8 @@ require_once '../../../config/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
-    header('Location: ../listings_decisions.php');
+    header('Location: ../views/listings_decisions.php');
     exit();
-
 }
 
 
@@ -44,9 +43,8 @@ if (!$listingId) {
     $_SESSION['error'] =
         'Invalid listing request.';
 
-    header('Location: ../listings_decisions.php');
+    header('Location: ../views/listings_decisions.php');
     exit();
-
 }
 
 
@@ -66,9 +64,8 @@ if (!in_array($decision, $validDecisions, true)) {
     $_SESSION['error'] =
         'Invalid listing decision.';
 
-    header('Location: ../listings_decisions.php');
+    header('Location: ../views/listings_decisions.php');
     exit();
-
 }
 
 
@@ -88,9 +85,8 @@ if (
     $_SESSION['error'] =
         'Please provide a reason for this decision.';
 
-    header('Location: ../listings_decisions.php');
+    header('Location: ../views/listings_decisions.php');
     exit();
-
 }
 
 
@@ -140,7 +136,6 @@ try {
         throw new Exception(
             'Listing could not be found.'
         );
-
     }
 
 
@@ -153,7 +148,6 @@ try {
         throw new Exception(
             'This listing has already been reviewed.'
         );
-
     }
 
 
@@ -189,7 +183,6 @@ try {
             throw new Exception(
                 'Invalid decision.'
             );
-
     }
 
 
@@ -251,26 +244,18 @@ try {
         $_SESSION['success'] =
             $listing['title'] .
             ' has been approved and is now live.';
-
-    }
-    elseif ($decision === 'rejected') {
+    } elseif ($decision === 'rejected') {
 
         $_SESSION['success'] =
             $listing['title'] .
             ' has been rejected.';
-
-    }
-    else {
+    } else {
 
         $_SESSION['success'] =
             $listing['title'] .
             ' has been sent for reverification.';
-
     }
-
-
-}
-catch (Exception $e) {
+} catch (Exception $e) {
 
 
     /*
@@ -280,14 +265,12 @@ catch (Exception $e) {
     if ($pdo->inTransaction()) {
 
         $pdo->rollBack();
-
     }
 
 
     $_SESSION['error'] =
         'Unable to process the listing: ' .
         $e->getMessage();
-
 }
 
 
@@ -295,8 +278,6 @@ catch (Exception $e) {
  * Redirect after POST.
  */
 
-header('Location: ../listings.php');
+header('Location: ../views/listings_decisions.php');
 
 exit();
-
-?>
