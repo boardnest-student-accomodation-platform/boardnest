@@ -69,7 +69,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/field_agent.css">
-    <link rel="stylesheet" href="style.css">
+
 </head>
 <body class="auth-page-body">
     <?php require __DIR__ . '/partials/auth_register_form.php'; ?>

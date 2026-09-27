@@ -127,9 +127,14 @@ $is_read_only = (isset($task['status']) && $task['status'] === 'completed') || !
             <h2 class="fa-audit-title">Property Verification Audit Protocol</h2>
             <p class="fa-audit-desc">Cross-reference physical premises against landlord uploaded details. Toggle match or issue found.</p>
         </div>
-        <div class="fa-audit-badge-gps">
-            <span class="fa-audit-badge-gps-dot"></span>
-            <span>GPS Verified</span>
+        <div class="fa-audit-badge-gps" style="display: flex; align-items: center; gap: 10px;">
+            <div>
+                <span class="fa-audit-badge-gps-dot"></span>
+                <span id="gps_status_text">GPS Pending Verification</span>
+            </div>
+            <button type="button" onclick="document.getElementById('gps_match_input').value=1; document.getElementById('gps_status_text').innerText='GPS Verified (Demo Bypass)'; this.style.display='none';" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; color: #555;">
+                Bypass (Demo)
+            </button>
         </div>
     </div>
 
@@ -137,7 +142,7 @@ $is_read_only = (isset($task['status']) && $task['status'] === 'completed') || !
     <div class="fa-audit-progress-box">
         <div class="fa-progress-header">
             <span class="section-label" class="fa-m-0">Audit Verification Progress</span>
-            <span id="auditProgressText" class="fa-audit-progress-text">8 of 8 items verified (100%)</span>
+            <span id="auditProgressText" class="fa-audit-progress-text">0 of 8 items verified (0%)</span>
         </div>
         <div class="fa-audit-progress-track">
             <div id="auditProgressFill" class="fa-audit-progress-fill"></div>
@@ -158,7 +163,7 @@ $is_read_only = (isset($task['status']) && $task['status'] === 'completed') || !
             'Unobstructed escape pathways, clear safety routes', 'fire_exit');
         ?>
 
-        <input type="hidden" name="gps_match" value="1">
+        <input type="hidden" name="gps_match" id="gps_match_input" value="">
 
         <!-- Star Rating -->
         <div class="fa-audit-rating-box">

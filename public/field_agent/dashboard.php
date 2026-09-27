@@ -8,7 +8,12 @@ requireRole('field_agent');
 require_once '../../config/db.php';
 
 // Fetch agent
-$stmt = $pdo->prepare("SELECT agent_id, assigned_city FROM field_agents WHERE user_id = ?");
+$stmt = $pdo->prepare("
+    SELECT f.agent_id, f.assigned_city 
+    FROM field_agents f
+    INNER JOIN users u ON f.user_id = u.user_id 
+    WHERE f.user_id = ? AND f.is_active = 1 AND u.status = 'active'
+");
 $stmt->execute(array($_SESSION['user_id']));
 $agent = $stmt->fetch();
 if (!$agent) die("Field agent account not found.");
@@ -55,12 +60,13 @@ $completed_tasks = $stmtCompleted->fetchAll();
 $stmtComplaints = $pdo->prepare("
     SELECT c.*, p.address, p.structural_type, u.full_name AS student_name
     FROM complaints c
-    INNER JOIN properties p ON c.property_id = p.property_id
-    INNER JOIN students   s ON c.student_id   = s.student_id
-    INNER JOIN users      u ON s.user_id       = u.user_id
-    WHERE c.assigned_agent_id = ? AND c.status IN ('assigned','investigating')
+    INNER JOIN listings l ON c.listing_id = l.listing_id
+    INNER JOIN properties p ON l.property_id = p.property_id
+    INNER JOIN complaint_investigations ci ON c.id = ci.complaint_id
+    INNER JOIN users      u ON c.complainant_user_id = u.user_id
+    WHERE ci.field_agent_user_id = ? AND c.status IN ('assigned','under_investigation')
 ");
-$stmtComplaints->execute(array($agent_id));
+$stmtComplaints->execute(array($_SESSION['user_id']));
 $complaints_tasks = $stmtComplaints->fetchAll();
 
 $count_pending   = count($pending_tasks);
@@ -79,7 +85,7 @@ define('PARTIALS', __DIR__ . '/partials/');
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
     <link rel="stylesheet" href="../assets/css/field_agent.css">
-    <link rel="stylesheet" href="style.css">
+
 </head>
 <body class="fa-dashboard-body">
 
@@ -103,7 +109,7 @@ define('PARTIALS', __DIR__ . '/partials/');
         <?php require PARTIALS . 'dashboard_main.php'; ?>
     </div>
 
-    <?php require '../../includes/agent_guide_modal.php'; ?>
+    <?php require_once dirname(__DIR__, 2) . '/includes/agent_guide_modal.php'; ?>
 
     <script src="../assets/js/field_agent.js"></script>
 </body>
