@@ -505,7 +505,7 @@ $reviewedRegistrations = $stmt->fetchAll();
 
             <form
                 method="POST"
-                action="actions/review_registration.php">
+                action="../controller/review_registration.php">
 
                 <input
                     type="hidden"
