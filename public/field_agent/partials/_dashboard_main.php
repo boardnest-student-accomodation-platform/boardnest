@@ -191,14 +191,13 @@
         <?php else: ?>
             <div class="table-wrapper-custom">
                 <table class="table-custom">
-                    <thead><tr><th>Complaint ID</th><th>Address</th><th>Status</th><th>Completed Date</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Complaint ID</th><th>Address</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody>
                         <?php foreach ($completed_complaints as $comp): ?>
                         <tr>
                             <td><strong>#CP-<?php echo $comp['complaint_id']; ?></strong></td>
                             <td><?php echo htmlspecialchars($comp['address']); ?></td>
                             <td><span class="tag-custom"><?php echo htmlspecialchars(ucfirst($comp['status'])); ?></span></td>
-                            <td><?php echo htmlspecialchars($comp['investigated_at']); ?></td>
                             <td><a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="btn btn--outline btn--sm fa-btn-table">View Report</a></td>
                         </tr>
                         <?php endforeach; ?>
