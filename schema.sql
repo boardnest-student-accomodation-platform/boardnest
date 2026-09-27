@@ -67,6 +67,37 @@ VALUES ('Admin', 'admin@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9l
 INSERT INTO admin (user_id) VALUES (LAST_INSERT_ID());
 
 
+-- Landlord's Table (added by Admin). Change if there're any missing parts
+CREATE TABLE IF NOT EXISTS listings (
+    listing_id INT NOT NULL AUTO_INCREMENT,
+    landlord_id INT NOT NULL,
+
+    title VARCHAR(100) NOT NULL,
+    description TEXT NULL,
+    address VARCHAR(100) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    monthly_rent DECIMAL(10,2) NOT NULL,
+
+    status ENUM(
+        'pending',
+        'approved',
+        'rejected',
+        'reverification_requested'
+    ) NOT NULL DEFAULT 'pending',
+
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (listing_id),
+
+    CONSTRAINT fk_listings_landlord
+        FOREIGN KEY (landlord_id)
+        REFERENCES landlords(landlord_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 -- Admin owned tables
 
 -- Announcements
