@@ -8,9 +8,8 @@ require_once '../../../config/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 
-    header('Location: ../registration_approvals.php');
+    header('Location: ../views/registration_approvals.php');
     exit();
-
 }
 
 
@@ -33,9 +32,8 @@ if (!$userId) {
 
     $_SESSION['error'] = 'Invalid registration request.';
 
-    header('Location: ../registration_approvals.php');
+    header('Location: ../views/registration_approvals.php');
     exit();
-
 }
 
 
@@ -45,9 +43,8 @@ if (!in_array($decision, ['approved', 'rejected'], true)) {
 
     $_SESSION['error'] = 'Invalid approval decision.';
 
-    header('Location: ../registration_approvals.php');
+    header('Location: ../views/registration_approvals.php');
     exit();
-
 }
 
 
@@ -58,9 +55,8 @@ if ($decision === 'rejected' && $rejectionReason === '') {
     $_SESSION['error'] =
         'Please provide a reason when rejecting a registration.';
 
-    header('Location: ../registration_approvals.php');
+    header('Location: ../views/registration_approvals.php');
     exit();
-
 }
 
 
@@ -82,7 +78,7 @@ try {
         SELECT user_id, full_name, role, status
         FROM users
         WHERE user_id = ?
-          AND role IN ('student', 'landlord')
+          AND role IN ('student', 'landlord','field_agent')
         FOR UPDATE
     ");
 
@@ -96,7 +92,6 @@ try {
         throw new Exception(
             'Registration request could not be found.'
         );
-
     }
 
 
@@ -105,7 +100,6 @@ try {
         throw new Exception(
             'This registration has already been reviewed.'
         );
-
     }
 
 
@@ -164,33 +158,24 @@ try {
         $_SESSION['success'] =
             $user['full_name'] .
             ' has been approved successfully.';
-
     } else {
 
         $_SESSION['success'] =
             $user['full_name'] .
             ' has been rejected.';
-
     }
-
-
-}
-catch (Exception $e) {
+} catch (Exception $e) {
 
     if ($pdo->inTransaction()) {
 
         $pdo->rollBack();
-
     }
 
     $_SESSION['error'] =
         'Unable to process the registration: ' .
         $e->getMessage();
-
 }
 
 
-header('Location: ../registration_approvals.php');
+header('Location: ../views/registration_approvals.php');
 exit();
-
-?>
