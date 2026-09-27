@@ -30,7 +30,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             if (
                 $user &&
-                password_verify($password, $user['password_hash'])
+                password_verify(
+                    $password,
+                    $user['password_hash']
+                )
             ) {
                 // Check account status
                 if (
@@ -79,7 +82,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Invalid email or password.';
             }
         } catch (PDOException $e) {
-            error_log('Login database error: ' . $e->getMessage());
+            error_log(
+                'Login database error: ' . $e->getMessage()
+            );
             $error = 'A system error occurred. Please try again later.';
         }
     }
@@ -92,62 +97,86 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta name="viewport"
           content="width=device-width, initial-scale=1.0">
 
-    <title>BoardNest — Login</title>
+    <title>BoardNest | Login</title>
 
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet"
+          href="public/assets/css/landlord.css?v=3">
 </head>
 <body>
 
-    <div class="login-container">
-        <h1>BoardNest</h1>
-        <h2>Login</h2>
+    <main class="login-page">
+        <div class="login-container">
 
-        <?php if ($error !== ''): ?>
-            <p class="error" role="alert">
-                <?= htmlspecialchars(
-                    $error,
-                    ENT_QUOTES,
-                    'UTF-8'
-                ) ?>
+            <h1>BoardNest</h1>
+
+            <p class="login-tagline">
+                Find your place. Feel at home.
             </p>
-        <?php endif; ?>
 
-        <form method="POST" action="login.php">
-            <label for="email">Email</label>
+            <h2>Welcome Back!</h2>
 
-            <input
-                type="email"
-                id="email"
-                name="email"
-                required
-                autocomplete="email"
-                value="<?= htmlspecialchars(
-                    $_POST['email'] ?? '',
-                    ENT_QUOTES,
-                    'UTF-8'
-                ) ?>"
-            >
+            <p class="login-subtitle">
+                Login to your BoardNest account
+            </p>
 
-            <label for="password">Password</label>
+            <?php if ($error !== ''): ?>
+                <div class="error" role="alert">
+                    <?= htmlspecialchars(
+                        $error,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>
+                </div>
+            <?php endif; ?>
 
-            <input
-                type="password"
-                id="password"
-                name="password"
-                required
-                autocomplete="current-password"
-            >
+            <form method="POST" action="login.php">
 
-            <button type="submit">Login</button>
-        </form>
+                <label for="email">Email Address</label>
 
-        <p>
-            Don't have an account?
-            <a href="modules/landlord/register.php">
-                Register as Landlord
-            </a>
-        </p>
-    </div>
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                    autocomplete="email"
+                    value="<?= htmlspecialchars(
+                        $_POST['email'] ?? '',
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>"
+                >
+
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
+
+                <button type="submit">
+                    Login
+                </button>
+
+            </form>
+
+            <p class="login-register">
+                Don't have an account?
+                <a href="modules/landlord/register.php">
+                    Register as Landlord
+                </a>
+            </p>
+
+            <div class="login-footer">
+                BoardNest &copy; <?= date('Y') ?>
+            </div>
+
+        </div>
+    </main>
 
 </body>
 </html>
