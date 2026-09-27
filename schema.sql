@@ -11,7 +11,7 @@ CREATE TABLE users (
     email VARCHAR(100) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('student','landlord','field_agent','admin') NOT NULL,
-    status ENUM('pending','active','suspended','banned') DEFAULT 'pending',
+    status ENUM('pending','active','rejected','suspended','banned') DEFAULT 'pending', /*added rejected status*/
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -110,3 +110,87 @@ CREATE TABLE area_reports (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (agent_id) REFERENCES field_agents(agent_id) ON DELETE CASCADE
 );
+
+-- Admin owned tables
+
+-- Announcements
+CREATE TABLE IF NOT EXISTS announcements (
+    announcements_id INT NOT NULL AUTO_INCREMENT,
+    sent_by INT NOT NULL,
+    audience ENUM(
+        'all',
+        'student',
+        'landlord',
+        'field_agent'
+    ) NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    message TEXT NOT NULL,
+    priority ENUM('normal', 'urgent') NOT NULL DEFAULT 'normal',
+    sent_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (announcements_id),
+
+    CONSTRAINT fk_ann_sender
+        FOREIGN KEY (sent_by)
+        REFERENCES users(user_id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Registration Approvals
+CREATE TABLE IF NOT EXISTS registration_approvals (
+    registration_approvals_id INT NOT NULL AUTO_INCREMENT,
+    user_id INT NOT NULL,
+    reviewed_by INT NOT NULL,
+    decision ENUM('approved', 'rejected') NOT NULL,
+    rejection_reason TEXT NULL,
+    reviewed_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (registration_approvals_id),
+
+    CONSTRAINT fk_ra_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(user_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_ra_reviewer
+        FOREIGN KEY (reviewed_by)
+        REFERENCES users(user_id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Listing Approvals
+CREATE TABLE IF NOT EXISTS listing_decisions (
+    listing_decisions_id INT NOT NULL AUTO_INCREMENT,
+
+    listing_id INT NOT NULL,
+
+    admin_user_id INT NOT NULL,
+
+    decision ENUM(
+        'approved',
+        'rejected',
+        'reverification_requested'
+    ) NOT NULL,
+
+    rejection_reason TEXT NULL,
+
+    decided_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (listing_decisions_id),
+
+    CONSTRAINT fk_ld_listing
+        FOREIGN KEY (listing_id)
+        REFERENCES listings(listing_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE,
+
+    CONSTRAINT fk_ld_admin
+        FOREIGN KEY (admin_user_id)
+        REFERENCES users(user_id)
+        ON DELETE RESTRICT
+        ON UPDATE CASCADE
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
