@@ -38,10 +38,10 @@
 
     <?php
     $landlord_listing_photos = array(
-        array('id' => 1, 'title' => 'Exterior / Entrance',  'src' => '../uploads/test_room1.jpg'),
-        array('id' => 2, 'title' => 'Room Interior',         'src' => '../uploads/test_room2.jpg'),
-        array('id' => 3, 'title' => 'Bathroom Access',       'src' => '../uploads/test_room1.jpg'),
-        array('id' => 4, 'title' => 'Kitchen & Amenities',   'src' => '../uploads/test_room2.jpg'),
+        array('id' => 1, 'title' => 'Exterior / Entrance',  'src' => '../upload/fieldagent/test_room1.jpg'),
+        array('id' => 2, 'title' => 'Room Interior',         'src' => '../upload/fieldagent/test_room2.jpg'),
+        array('id' => 3, 'title' => 'Bathroom Access',       'src' => '../upload/fieldagent/test_room1.jpg'),
+        array('id' => 4, 'title' => 'Kitchen & Amenities',   'src' => '../upload/fieldagent/test_room2.jpg'),
     );
     ?>
     <div class="fa-sidebar-photo-header">

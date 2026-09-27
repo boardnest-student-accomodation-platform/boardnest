@@ -133,14 +133,13 @@
         <?php else: ?>
             <div class="table-wrapper-custom">
                 <table class="table-custom">
-                    <thead><tr><th>Complaint ID</th><th>Property Address</th><th>Complainant</th><th>Category</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Complaint ID</th><th>Property Address</th><th>Complainant</th><th>Action</th></tr></thead>
                     <tbody>
                         <?php foreach ($complaints_tasks as $comp): ?>
                         <tr>
                             <td><strong>#CP-<?php echo $comp['complaint_id']; ?></strong></td>
                             <td><?php echo htmlspecialchars($comp['address']); ?></td>
                             <td><?php echo htmlspecialchars($comp['student_name']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($comp['category']); ?></span></td>
                             <td><a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="btn btn--primary btn--sm fa-btn-table">Investigate</a></td>
                         </tr>
                         <?php endforeach; ?>

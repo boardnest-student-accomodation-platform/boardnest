@@ -20,7 +20,7 @@ $task_id  = isset($_GET['task_id'])  ? intval($_GET['task_id'])  : 0;
 define('PARTIALS_AR', __DIR__ . '/partials/');
 
 // Fetch previous reports
-$stmtHistory = $pdo->prepare("SELECT * FROM area_reports WHERE agent_id = ? ORDER BY submitted_at DESC");
+$stmtHistory = $pdo->prepare("SELECT * FROM area_reports WHERE agent_id = ? ORDER BY created_at DESC");
 $stmtHistory->execute(array($agent_id));
 $reports = $stmtHistory->fetchAll();
 

@@ -44,10 +44,6 @@
             <span class="nav-badge"><?php echo (int)$count_completed; ?></span>
         </a>
 
-        <!-- Area Report Link (Added per PR feedback) -->
-        <a href="area_report.php" class="sidebar-nav-item">
-            <span class="fa-nav-item-content">📍 Submit Area Report</span>
-        </a>
     </nav>
 
 </aside>

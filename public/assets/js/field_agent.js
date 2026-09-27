@@ -349,10 +349,12 @@ function _sendGeofencePass() {
     xhr.onreadystatechange = function() {
         if (xhr.readyState === 4 && xhr.status === 200) window.location.reload();
     };
+    const form = document.getElementById('geofenceSuccessForm');
+    const csrf = form ? form.querySelector('input[name="csrf_token"]').value : '';
     if (typeof complaintId !== 'undefined' && complaintId > 0) {
-        xhr.send('complaint_id=' + complaintId + '&action_type=claim&geofence_override=1');
+        xhr.send('complaint_id=' + complaintId + '&action_type=claim&geofence_override=1&csrf_token=' + encodeURIComponent(csrf));
     } else {
-        xhr.send('task_id=' + taskId + '&action_type=claim&geofence_override=1');
+        xhr.send('task_id=' + taskId + '&action_type=claim&geofence_override=1&csrf_token=' + encodeURIComponent(csrf));
     }
 }
 

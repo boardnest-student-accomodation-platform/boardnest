@@ -17,7 +17,7 @@
         <div class="feed-item-card">
             <div class="fa-checklist-card-ro-header">
                 <span class="fa-history-date">
-                    📅 <?php echo date('M d, Y', strtotime($rep['submitted_at'])); ?>
+                    📅 <?php echo date('M d, Y', strtotime($rep['created_at'])); ?>
                 </span>
                 <?php
                 $statusBg  = $rep['status'] === 'approved' ? 'rgba(39,174,96,0.15)' : ($rep['status'] === 'rejected' ? 'rgba(192,57,43,0.15)' : 'rgba(200,121,65,0.15)');

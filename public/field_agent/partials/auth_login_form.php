@@ -42,5 +42,9 @@
 
             <button type="submit" class="btn-auth-submit">Sign In</button>
         </form>
+
+        <div class="fa-auth-footer" style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--fa-text-secondary);">
+            <a href="../../index.html" class="fa-auth-link" style="text-decoration: none;">← Back to Home</a>
+        </div>
     </div>
 </div>

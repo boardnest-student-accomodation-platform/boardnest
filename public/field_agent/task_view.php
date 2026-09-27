@@ -73,6 +73,12 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
 
                 <!-- RIGHT: GPS gate + Audit form -->
                 <div>
+                    <!-- Area Report Quick Link -->
+                    <div style="margin-bottom: 24px; text-align: right;">
+                        <a href="area_report.php?task_id=<?php echo $task['task_id']; ?>" class="btn btn--primary">
+                            📍 Submit Regional Area Report
+                        </a>
+                    </div>
                     <?php if (isset($task['status']) && $task['status'] === 'completed'): ?>
                         <?php if ($report): ?>
                             <?php require PARTIALS . 'task_audit_form.php'; ?>

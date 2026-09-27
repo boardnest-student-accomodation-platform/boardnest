@@ -88,6 +88,7 @@ CREATE TABLE rooms (
     property_id INT NOT NULL,
     room_type VARCHAR(50),
     capacity INT,
+    status ENUM('pending', 'under_verification', 'agent_on_site', 'suspended', 'verified') DEFAULT 'pending',
     FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
 );
 
@@ -102,6 +103,8 @@ CREATE TABLE complaints (
     complaint_id INT AUTO_INCREMENT PRIMARY KEY,
     listing_id INT NOT NULL,
     complainant_user_id INT NOT NULL,
+    category ENUM('fee_discrepancy','amenity_discrepancy','maintenance_issue','security_issue','other') DEFAULT 'other',
+    description TEXT,
     status ENUM('assigned', 'under_investigation', 'resolved', 'upheld', 'dismissed', 'escalated') DEFAULT 'assigned',
     FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE,
     FOREIGN KEY (complainant_user_id) REFERENCES users(user_id) ON DELETE CASCADE
@@ -167,7 +170,10 @@ CREATE TABLE area_reports (
     report_id INT AUTO_INCREMENT PRIMARY KEY,
     agent_id INT NOT NULL,
     city VARCHAR(100) NOT NULL,
-    report_content TEXT NOT NULL,
+    transport_details TEXT,
+    amenities_details TEXT,
+    safety_details TEXT,
+    status ENUM('pending', 'approved', 'rejected') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (agent_id) REFERENCES field_agents(agent_id) ON DELETE CASCADE
 );
