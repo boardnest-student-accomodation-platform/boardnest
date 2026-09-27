@@ -294,8 +294,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
 
-<?php include __DIR__ . '/nav.php'; ?>
-
 <main class="register-card">
     <h1>Landlord Registration</h1>
 
