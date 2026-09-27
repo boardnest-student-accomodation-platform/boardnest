@@ -213,7 +213,7 @@ function renderStars($rating)
                     <span>Listings</span>
                 </a>
 
-                <a href="../../complaints/views/Complaints.php" class="admin-nav-item">
+                <a href="../../complaints/views/complaints.php" class="admin-nav-item">
                     <span class="admin-nav-icon">⚖</span>
                     <span>Complaint Moderation</span>
                 </a>
