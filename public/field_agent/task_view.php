@@ -12,7 +12,12 @@ $task_id      = isset($_GET['task_id'])      ? intval($_GET['task_id'])      : 0
 $complaint_id = isset($_GET['complaint_id']) ? intval($_GET['complaint_id']) : 0;
 
 // Fetch agent
-$stmt = $pdo->prepare("SELECT agent_id, assigned_city FROM field_agents WHERE user_id = ?");
+$stmt = $pdo->prepare("
+    SELECT f.agent_id, f.assigned_city 
+    FROM field_agents f
+    INNER JOIN users u ON f.user_id = u.user_id 
+    WHERE f.user_id = ? AND f.is_active = 1 AND u.status = 'active'
+");
 $stmt->execute(array($_SESSION['user_id']));
 $agent = $stmt->fetch();
 if (!$agent) die("Field agent account not found.");
@@ -30,12 +35,14 @@ if ($complaint_id > 0) {
         SELECT c.*, p.address, p.structural_type, p.latitude, p.longitude,
                u.full_name AS student_name, s.mobile AS student_mobile
         FROM complaints c
-        INNER JOIN properties p ON c.listing_id = p.property_id
+        INNER JOIN listings l ON c.listing_id = l.listing_id
+        INNER JOIN properties p ON l.property_id = p.property_id
+        INNER JOIN complaint_investigations ci ON c.id = ci.complaint_id
         INNER JOIN users      u ON c.complainant_user_id = u.user_id
         INNER JOIN students   s ON u.user_id = s.user_id
-        WHERE c.complaint_id = ? AND c.complaint_investigations = ?
+        WHERE c.id = ? AND ci.field_agent_user_id = ?
     ");
-    $stmtComp->execute(array($complaint_id, $agent_id));
+    $stmtComp->execute(array($complaint_id, $_SESSION['user_id']));
     $complaint = $stmtComp->fetch();
     if (!$complaint) die("Complaint not found or not assigned to you.");
 
@@ -45,7 +52,7 @@ if ($complaint_id > 0) {
                p.maps_link, p.facilities, p.property_id
         FROM agent_tasks t
         INNER JOIN properties p ON t.property_id = p.property_id
-        WHERE t.task_id = ? AND (t.agent_id = ? OR t.agent_id IS NULL)
+        WHERE t.task_id = ? AND t.agent_id = ?
     ");
     $stmtTask->execute(array($task_id, $agent_id));
     $task = $stmtTask->fetch();
@@ -103,7 +110,7 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
             require PARTIALS . 'complaint_view.php'; 
             ?>
 
-            <?php if (isset($complaint['status']) && $complaint['status'] === 'resolved'): ?>
+            <?php if (isset($complaint['status']) && in_array($complaint['status'], ['upheld', 'dismissed', 'escalated'])): ?>
                 <?php 
                 $show_complaint_part = 'form';
                 require PARTIALS . 'complaint_view.php'; 
@@ -131,7 +138,11 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
                 <!-- RIGHT: GPS gate + Audit form -->
                 <div>
                     <?php if (isset($task['status']) && $task['status'] === 'completed'): ?>
-                        <?php require PARTIALS . 'task_audit_form.php'; ?>
+                        <?php if ($report): ?>
+                            <?php require PARTIALS . 'task_audit_form.php'; ?>
+                        <?php else: ?>
+                            <div class="fa-alert fa-alert-danger">Error: Completed task is missing its verification report.</div>
+                        <?php endif; ?>
                     <?php else: ?>
                         <?php require PARTIALS . 'task_gps_geofence.php'; ?>
 
