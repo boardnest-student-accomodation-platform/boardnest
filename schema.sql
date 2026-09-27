@@ -48,7 +48,7 @@ CREATE TABLE field_agents (
     nic_number VARCHAR(20),
     mobile VARCHAR(15),
     assigned_city VARCHAR(100),
-    is_active TINYINT(1) DEFAULT 1,
+    is_active TINYINT(1) DEFAULT 0,
     recruit_mode ENUM('self_registered','admin_created') DEFAULT 'self_registered',
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
@@ -74,6 +74,7 @@ INSERT INTO admin (user_id) VALUES (LAST_INSERT_ID());
 CREATE TABLE agent_tasks (
     task_id INT AUTO_INCREMENT PRIMARY KEY,
     property_id INT NOT NULL,
+    task_type ENUM('verification', 'complaint') DEFAULT 'verification',
     agent_id INT DEFAULT NULL,
     status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -83,21 +84,27 @@ CREATE TABLE agent_tasks (
 
 -- 2. The Verification Reports submitted by Field Agents after inspection
 CREATE TABLE verification_reports (
-    report_id INT AUTO_INCREMENT PRIMARY KEY,
-    task_id INT NOT NULL,
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    task_id INT UNIQUE NOT NULL,
     structural_safety TINYINT(1) DEFAULT 0,
     electrical_safety TINYINT(1) DEFAULT 0,
     fire_exit TINYINT(1) DEFAULT 0,
     gps_match TINYINT(1) DEFAULT 0,
-    neighborhood_safety TINYINT(1) DEFAULT 0,
+    neighborhood_safety TINYINT UNSIGNED,
     furnishing_match TINYINT(1) DEFAULT 0,
     bathroom_match TINYINT(1) DEFAULT 0,
+    kitchen_food_match TINYINT(1) DEFAULT 0,
     wifi_match TINYINT(1) DEFAULT 0,
     finance_match TINYINT(1) DEFAULT 0,
+    transport_details TEXT,
+    amenities_details TEXT,
+    safety_details TEXT,
+    discrepancy_notes TEXT,
     photo_path_1 VARCHAR(255),
     photo_path_2 VARCHAR(255),
+    photo_path_3 VARCHAR(255),
     agent_comments TEXT,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (task_id) REFERENCES agent_tasks(task_id) ON DELETE CASCADE
 );
 
@@ -181,11 +188,13 @@ CREATE TABLE IF NOT EXISTS listing_decisions (
 
     PRIMARY KEY (listing_decisions_id),
 
+    /*
     CONSTRAINT fk_ld_listing
         FOREIGN KEY (listing_id)
         REFERENCES listings(listing_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
+    */
 
     CONSTRAINT fk_ld_admin
         FOREIGN KEY (admin_user_id)
