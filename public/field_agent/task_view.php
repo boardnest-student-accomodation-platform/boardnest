@@ -148,7 +148,7 @@ define('MODALS',   __DIR__ . '/../../src/field_agent/components/');
     </div>
 
     <!-- Modals -->
-    <?php require MODALS . 'live_camera_modal.php'; ?>
+    <?php require dirname(__DIR__, 2) . '/modules/verification/views/components/live_camera_modal.php'; ?>
     <?php require MODALS . 'agent_guide_modal.php'; ?>
 
     <script src="../assets/js/field_agent.js"></script>
