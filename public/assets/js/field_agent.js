@@ -477,6 +477,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const hiddenEl = document.getElementById('agent_comments_hidden');
         if (hiddenEl) hiddenEl.value = combined;
+        
+        compileReportData();
     });
 });
 

@@ -98,6 +98,6 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
     <?php require dirname(__FILE__) . '/../../modules/verification/views/components/live_camera_modal.php'; ?>
     <?php require MODALS . 'agent_guide_modal.php'; ?>
 
-    <script src="../assets/js/field_agent.js?v=4"></script>
+    <script src="../assets/js/field_agent.js?v=5"></script>
 </body>
 </html>
