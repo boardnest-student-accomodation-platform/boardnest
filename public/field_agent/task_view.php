@@ -73,12 +73,6 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
 
                 <!-- RIGHT: GPS gate + Audit form -->
                 <div>
-                    <!-- Area Report Quick Link -->
-                    <div style="margin-bottom: 24px; text-align: right;">
-                        <a href="area_report.php?task_id=<?php echo $task['task_id']; ?>" class="btn btn--primary">
-                            📍 Submit Regional Area Report
-                        </a>
-                    </div>
                     <?php if (isset($task['status']) && $task['status'] === 'completed'): ?>
                         <?php if ($report): ?>
                             <?php require PARTIALS . 'task_audit_form.php'; ?>
@@ -104,6 +98,6 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
     <?php require dirname(__FILE__) . '/../../modules/verification/views/components/live_camera_modal.php'; ?>
     <?php require MODALS . 'agent_guide_modal.php'; ?>
 
-    <script src="../assets/js/field_agent.js"></script>
+    <script src="../assets/js/field_agent.js?v=4"></script>
 </body>
 </html>

@@ -145,7 +145,7 @@ $is_read_only = (isset($task['status']) && $task['status'] === 'completed') || !
             <span id="auditProgressText" class="fa-audit-progress-text">0 of 8 items verified (0%)</span>
         </div>
         <div class="fa-audit-progress-track">
-            <div id="auditProgressFill" class="fa-audit-progress-fill"></div>
+            <div id="auditProgressFill" class="fa-audit-progress-fill" style="width: 0%;"></div>
         </div>
     </div>
 

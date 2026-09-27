@@ -39,23 +39,33 @@ function updateAuditProgress() {
     if (textEl && fillEl) {
         textEl.innerText       = matchCount + ' of ' + total + ' items verified (' + percent + '%)';
         fillEl.style.width     = percent + '%';
-        fillEl.style.background = percent === 100 ? '#27AE60' : '#A4856D';
+        fillEl.style.background = '#27AE60'; // Always pleasant green
     }
 }
 
 /* ---------- Landlord Photo Verification ---------- */
-const landlordPhotoVerifiedState = { 1: true, 2: true, 3: true, 4: true };
+const landlordPhotoVerifiedState = { 1: null, 2: null, 3: null, 4: null };
 
 function toggleLandlordPhotoVerify(photoId) {
-    landlordPhotoVerifiedState[photoId] = !landlordPhotoVerifiedState[photoId];
+    if (landlordPhotoVerifiedState[photoId] === null) {
+        landlordPhotoVerifiedState[photoId] = true;
+    } else if (landlordPhotoVerifiedState[photoId] === true) {
+        landlordPhotoVerifiedState[photoId] = false;
+    } else {
+        landlordPhotoVerifiedState[photoId] = null;
+    }
+
     const btn = document.getElementById('photo_verify_btn_' + photoId);
     if (btn) {
-        if (landlordPhotoVerifiedState[photoId]) {
-            btn.className = 'segmented-btn active-match';
+        if (landlordPhotoVerifiedState[photoId] === true) {
+            btn.className = 'segmented-btn active-match fa-sidebar-photo-btn';
             btn.innerText = '✓ Photo Verified';
+        } else if (landlordPhotoVerifiedState[photoId] === false) {
+            btn.className = 'segmented-btn active-issue fa-sidebar-photo-btn';
+            btn.innerText = '✕ Discrepancy';
         } else {
-            btn.className = 'segmented-btn active-issue';
-            btn.innerText = '✕ Photo Discrepancy';
+            btn.className = 'segmented-btn fa-sidebar-photo-btn';
+            btn.innerText = 'Verify Photo';
         }
     }
     updateLandlordPhotosStatus();
@@ -65,7 +75,7 @@ function updateLandlordPhotosStatus() {
     let verified = 0;
     const total  = Object.keys(landlordPhotoVerifiedState).length;
     for (let id in landlordPhotoVerifiedState) {
-        if (landlordPhotoVerifiedState[id]) verified++;
+        if (landlordPhotoVerifiedState[id] === true) verified++;
     }
     const percent   = Math.round((verified / total) * 100);
     const statusEl  = document.getElementById('landlordPhotosStatus');
@@ -339,22 +349,12 @@ function simulateGPSMatch() {
     const descDiv   = document.getElementById('geofenceDesc');
     statusDiv.innerText = '🔓 Geofence Match (Simulated)';
     descDiv.innerText   = 'Coordinates matched. Unlocking checklist...';
-    _sendGeofencePass();
-}
-
-function _sendGeofencePass() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'actions/update_task.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) window.location.reload();
-    };
+    
     const form = document.getElementById('geofenceSuccessForm');
-    const csrf = form ? form.querySelector('input[name="csrf_token"]').value : '';
-    if (typeof complaintId !== 'undefined' && complaintId > 0) {
-        xhr.send('complaint_id=' + complaintId + '&action_type=claim&geofence_override=1&csrf_token=' + encodeURIComponent(csrf));
+    if (form) {
+        form.submit();
     } else {
-        xhr.send('task_id=' + taskId + '&action_type=claim&geofence_override=1&csrf_token=' + encodeURIComponent(csrf));
+        alert("Geofence form not found.");
     }
 }
 

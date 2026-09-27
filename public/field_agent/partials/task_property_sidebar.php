@@ -46,8 +46,8 @@
     ?>
     <div class="fa-sidebar-photo-header">
         <div class="section-label fa-m-0">Landlord Listing Photos (<?php echo count($landlord_listing_photos); ?>)</div>
-        <span id="landlordPhotosStatus" class="fa-sidebar-photo-status">
-            <?php echo count($landlord_listing_photos); ?> of <?php echo count($landlord_listing_photos); ?> Photos Verified (100%)
+        <span id="landlordPhotosStatus" class="fa-sidebar-photo-status" style="background: #F0F0F0; color: #666;">
+            0 of <?php echo count($landlord_listing_photos); ?> Photos Verified (0%)
         </span>
     </div>
 
@@ -65,10 +65,10 @@
                         ✓ Photo Verified
                     </span>
                 <?php else: ?>
-                    <button type="button" class="segmented-btn active-match fa-sidebar-photo-btn"
+                    <button type="button" class="segmented-btn fa-sidebar-photo-btn"
                             id="photo_verify_btn_<?php echo $lp['id']; ?>"
                             onclick="toggleLandlordPhotoVerify(<?php echo $lp['id']; ?>)">
-                        ✓ Photo Verified
+                        Verify Photo
                     </button>
                 <?php endif; ?>
             </div>
