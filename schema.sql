@@ -65,3 +65,48 @@ INSERT INTO users (full_name, email, password_hash, role, status)
 VALUES ('Admin', 'admin@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'active');
 
 INSERT INTO admin (user_id) VALUES (LAST_INSERT_ID());
+
+-- ========================================================
+-- FIELD AGENT MODULE TABLES
+-- ========================================================
+
+-- 1. Tasks assigned to Field Agents (Verification Queue)
+CREATE TABLE agent_tasks (
+    task_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id INT NOT NULL,
+    agent_id INT DEFAULT NULL,
+    status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    completed_at TIMESTAMP NULL,
+    FOREIGN KEY (agent_id) REFERENCES field_agents(agent_id) ON DELETE SET NULL
+);
+
+-- 2. The Verification Reports submitted by Field Agents after inspection
+CREATE TABLE verification_reports (
+    report_id INT AUTO_INCREMENT PRIMARY KEY,
+    task_id INT NOT NULL,
+    structural_safety TINYINT(1) DEFAULT 0,
+    electrical_safety TINYINT(1) DEFAULT 0,
+    fire_exit TINYINT(1) DEFAULT 0,
+    gps_match TINYINT(1) DEFAULT 0,
+    neighborhood_safety TINYINT(1) DEFAULT 0,
+    furnishing_match TINYINT(1) DEFAULT 0,
+    bathroom_match TINYINT(1) DEFAULT 0,
+    wifi_match TINYINT(1) DEFAULT 0,
+    finance_match TINYINT(1) DEFAULT 0,
+    photo_path_1 VARCHAR(255),
+    photo_path_2 VARCHAR(255),
+    agent_comments TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (task_id) REFERENCES agent_tasks(task_id) ON DELETE CASCADE
+);
+
+-- 3. Area Reports submitted by Field Agents
+CREATE TABLE area_reports (
+    report_id INT AUTO_INCREMENT PRIMARY KEY,
+    agent_id INT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    report_content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (agent_id) REFERENCES field_agents(agent_id) ON DELETE CASCADE
+);
