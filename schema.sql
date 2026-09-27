@@ -67,6 +67,57 @@ VALUES ('Admin', 'admin@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9l
 INSERT INTO admin (user_id) VALUES (LAST_INSERT_ID());
 
 -- ========================================================
+-- PROPERTY AND LISTING TABLES
+-- ========================================================
+
+CREATE TABLE properties (
+    property_id INT AUTO_INCREMENT PRIMARY KEY,
+    landlord_id INT NOT NULL,
+    address TEXT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    structural_type VARCHAR(100),
+    latitude DECIMAL(10, 8),
+    longitude DECIMAL(11, 8),
+    maps_link VARCHAR(255),
+    facilities TEXT,
+    FOREIGN KEY (landlord_id) REFERENCES landlords(landlord_id) ON DELETE CASCADE
+);
+
+CREATE TABLE rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id INT NOT NULL,
+    room_type VARCHAR(50),
+    capacity INT,
+    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
+);
+
+CREATE TABLE listings (
+    listing_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id INT NOT NULL,
+    status ENUM('pending', 'active', 'inactive') DEFAULT 'pending',
+    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
+);
+
+CREATE TABLE complaints (
+    complaint_id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    complainant_user_id INT NOT NULL,
+    status ENUM('assigned', 'under_investigation', 'resolved', 'upheld', 'dismissed', 'escalated') DEFAULT 'assigned',
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE,
+    FOREIGN KEY (complainant_user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE complaint_investigations (
+    investigation_id INT AUTO_INCREMENT PRIMARY KEY,
+    complaint_id INT NOT NULL,
+    field_agent_user_id INT NOT NULL,
+    findings TEXT,
+    visit_fee_charged DECIMAL(10,2) DEFAULT 0.00,
+    FOREIGN KEY (complaint_id) REFERENCES complaints(complaint_id) ON DELETE CASCADE,
+    FOREIGN KEY (field_agent_user_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+-- ========================================================
 -- FIELD AGENT MODULE TABLES
 -- ========================================================
 
@@ -79,6 +130,7 @@ CREATE TABLE agent_tasks (
     status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     completed_at TIMESTAMP NULL,
+    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE,
     FOREIGN KEY (agent_id) REFERENCES field_agents(agent_id) ON DELETE SET NULL
 );
 
@@ -86,11 +138,12 @@ CREATE TABLE agent_tasks (
 CREATE TABLE verification_reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
     task_id INT UNIQUE NOT NULL,
+    field_agent_user_id INT NOT NULL,
     structural_safety TINYINT(1) DEFAULT 0,
     electrical_safety TINYINT(1) DEFAULT 0,
     fire_exit TINYINT(1) DEFAULT 0,
     gps_match TINYINT(1) DEFAULT 0,
-    neighborhood_safety TINYINT UNSIGNED,
+    neighborhood_safety TINYINT UNSIGNED CHECK (neighborhood_safety BETWEEN 1 AND 5),
     furnishing_match TINYINT(1) DEFAULT 0,
     bathroom_match TINYINT(1) DEFAULT 0,
     kitchen_food_match TINYINT(1) DEFAULT 0,
@@ -105,7 +158,8 @@ CREATE TABLE verification_reports (
     photo_path_3 VARCHAR(255),
     agent_comments TEXT,
     submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (task_id) REFERENCES agent_tasks(task_id) ON DELETE CASCADE
+    FOREIGN KEY (task_id) REFERENCES agent_tasks(task_id) ON DELETE CASCADE,
+    FOREIGN KEY (field_agent_user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- 3. Area Reports submitted by Field Agents
@@ -171,30 +225,22 @@ CREATE TABLE IF NOT EXISTS registration_approvals (
 -- Listing Approvals
 CREATE TABLE IF NOT EXISTS listing_decisions (
     listing_decisions_id INT NOT NULL AUTO_INCREMENT,
-
     listing_id INT NOT NULL,
-
     admin_user_id INT NOT NULL,
-
     decision ENUM(
         'approved',
         'rejected',
         'reverification_requested'
     ) NOT NULL,
-
     rejection_reason TEXT NULL,
-
     decided_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
     PRIMARY KEY (listing_decisions_id),
 
-    /*
     CONSTRAINT fk_ld_listing
         FOREIGN KEY (listing_id)
         REFERENCES listings(listing_id)
         ON DELETE CASCADE
         ON UPDATE CASCADE,
-    */
 
     CONSTRAINT fk_ld_admin
         FOREIGN KEY (admin_user_id)
@@ -203,3 +249,4 @@ CREATE TABLE IF NOT EXISTS listing_decisions (
         ON UPDATE CASCADE
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+

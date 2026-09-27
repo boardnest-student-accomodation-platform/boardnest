@@ -10,6 +10,15 @@ $complaint_id = isset($_POST['complaint_id']) ? intval($_POST['complaint_id']) :
 $action_type = isset($_POST['action_type']) ? $_POST['action_type'] : '';
 $geofence_override = isset($_POST['geofence_override']) ? intval($_POST['geofence_override']) : 0;
 
+// Verify CSRF Token for state-changing actions (claim/withdraw)
+if ($action_type === 'claim' || $action_type === 'withdraw') {
+    if (!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        $_SESSION['error'] = 'Invalid CSRF token. Action aborted for security reasons.';
+        header('Location: ../dashboard.php');
+        exit();
+    }
+}
+
 // Load backend logic core
 require_once __DIR__ . '/../../../src/field_agent/actions/update_task.php';
 ?>

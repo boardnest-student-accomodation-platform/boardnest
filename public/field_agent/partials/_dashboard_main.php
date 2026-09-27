@@ -69,6 +69,7 @@
                                 <form action="actions/update_task.php" method="POST" class="fa-inline-form">
                                     <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
                                     <input type="hidden" name="action_type" value="claim">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                     <button type="submit" class="btn btn--primary btn--sm fa-btn-table">Claim Task</button>
                                 </form>
                             </td>
@@ -106,6 +107,7 @@
                                     <form action="actions/update_task.php" method="POST" class="fa-inline-form">
                                         <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
                                         <input type="hidden" name="action_type" value="withdraw">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                         <button type="submit" class="btn btn--ghost btn--sm btn--danger fa-btn-table" onclick="return confirm('Withdraw from this task?');">Withdraw</button>
                                     </form>
                                 </div>

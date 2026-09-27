@@ -17,6 +17,8 @@ $city     = $agent['assigned_city'];
 
 $task_id  = isset($_GET['task_id'])  ? intval($_GET['task_id'])  : 0;
 
+define('PARTIALS_AR', __DIR__ . '/partials/');
+
 // Fetch previous reports
 $stmtHistory = $pdo->prepare("SELECT * FROM area_reports WHERE agent_id = ? ORDER BY submitted_at DESC");
 $stmtHistory->execute(array($agent_id));
@@ -25,8 +27,6 @@ $reports = $stmtHistory->fetchAll();
 $success_msg = isset($_SESSION['success']) ? $_SESSION['success'] : '';
 $error_msg   = isset($_SESSION['error'])   ? $_SESSION['error']   : '';
 unset($_SESSION['success'], $_SESSION['error']);
-
-define('PARTIALS_AR', __DIR__ . '/partials/');
 ?>
 <!DOCTYPE html>
 <html lang="en">

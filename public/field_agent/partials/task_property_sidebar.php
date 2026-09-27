@@ -10,7 +10,7 @@
         <span class="badge-pill-status <?php echo $task['status'] === 'completed' ? 'badge-verified-match' : 'badge-discrepancy-found'; ?>">
             <?php echo htmlspecialchars(str_replace('_', ' ', ucfirst($task['status']))); ?>
         </span>
-        <span class="fa-sidebar-date">Assigned: <?php echo date('M d, Y', strtotime($task['assigned_at'])); ?></span>
+        <span class="fa-sidebar-date">Assigned: <?php echo date('M d, Y', strtotime($task['created_at'])); ?></span>
     </div>
     <h1 class="details-title">Verification #VT-<?php echo $task['task_id']; ?></h1>
     <p class="details-subtitle">📍 <?php echo htmlspecialchars($task['address']); ?></p>

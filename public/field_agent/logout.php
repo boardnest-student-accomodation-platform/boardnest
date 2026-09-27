@@ -1,6 +1,6 @@
 <?php
 // Dedicated Logout Handler for Field Agent Module
-if (session_status() == PHP_SESSION_NONE) {
+if (session_id() === '') {
     session_start();
 }
 session_destroy();

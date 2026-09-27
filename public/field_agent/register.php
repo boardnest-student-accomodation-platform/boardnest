@@ -3,7 +3,7 @@
 // BoardNest — Field Agent Register (Orchestrator)
 // public/field_agent/register.php
 // ============================================================
-if (session_status() == PHP_SESSION_NONE) session_start();
+if (session_id() === '') session_start();
 require_once '../../config/db.php';
 
 if (isset($_SESSION['user_id']) && isset($_SESSION['role']) && $_SESSION['role'] === 'field_agent') {

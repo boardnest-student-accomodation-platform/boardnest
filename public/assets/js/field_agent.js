@@ -422,10 +422,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const auditForm = document.getElementById('auditForm');
     if (!auditForm) return;
 
-    auditForm.addEventListener('submit', function() {
+    auditForm.addEventListener('submit', function(e) {
         const rawEl    = document.getElementById('agent_comments_raw');
         const raw      = rawEl ? rawEl.value : '';
         let combined   = '';
+        let isValid    = true;
 
         const items = [
             { id: 'structural',   label: 'Structural Safety' },
@@ -437,13 +438,31 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'finance',      label: 'Price & Deposit match' },
             { id: 'kitchen_food', label: 'Kitchen & Food Access match' }
         ];
-        items.forEach(function(item) {
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             const hidden = document.getElementById('input_' + item.id);
             const area   = document.getElementById(item.id + '_reason');
-            if (hidden && hidden.value === '0' && area && area.value.trim()) {
+            
+            if (!hidden || (hidden.value !== '1' && hidden.value !== '0')) {
+                alert('Please complete the check for: ' + item.label);
+                isValid = false;
+                break;
+            }
+            if (hidden.value === '0') {
+                if (!area || !area.value.trim()) {
+                    alert('Please provide a discrepancy note for: ' + item.label);
+                    isValid = false;
+                    break;
+                }
                 combined += '❌ [' + item.label + ' Discrepancy]: ' + area.value.trim() + '\n';
             }
-        });
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            return false;
+        }
 
         if (typeof landlordPhotoVerifiedState !== 'undefined') {
             for (let pId in landlordPhotoVerifiedState) {

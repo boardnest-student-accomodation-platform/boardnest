@@ -1,6 +1,6 @@
 <?php
 function requireRole($role) {
-    if (session_status() === PHP_SESSION_NONE) {
+    if (session_id() === '') {
         session_start();
     }
     if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== $role) {
@@ -11,7 +11,7 @@ function requireRole($role) {
 }
 
 function startSession() {
-    if (session_status() === PHP_SESSION_NONE) {
+    if (session_id() === '') {
         session_start();
     }
 }
