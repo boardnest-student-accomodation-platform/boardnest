@@ -1,63 +1,92 @@
+
 <?php
-require_once 'includes/session.php';
+require_once __DIR__ . '/includes/session.php';
 startSession();
 
 $error = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    require_once 'config/db.php';
+    require_once __DIR__ . '/config/db.php';
 
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
+    $email = trim($_POST['email'] ?? '');
+    $password = $_POST['password'] ?? '';
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
-    $stmt->execute([$email]);
-    $user = $stmt->fetch();
-
-    if ($user) {
-        $isPasswordCorrect = false;
-
-        // 1. Password එක Hash එකක්දැයි පරීක්ෂා කිරීම (New Encrypted Passwords)
-        if (password_verify($password, $user['password_hash'])) {
-            $isPasswordCorrect = true;
-        } 
-        // 2. Hash නොවන Plain Text Password එකක්දැයි පරීක්ෂා කිරීම (Old Passwords)
-        elseif ($password === $user['password_hash']) {
-            $isPasswordCorrect = true;
-
-            // Optional: Plain text එකෙන් Log වූ පසු එය ස්වයංක්‍රීයව Hash කර Update කිරීම
-            $newHashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $updateStmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
-            $updateStmt->execute([$newHashedPassword, $user['user_id']]);
-        }
-
-        // Password නිවැරදි නම් Session සාදා Direct කිරීම
-        if ($isPasswordCorrect) {
-            $_SESSION['user_id']   = $user['user_id'];
-            $_SESSION['role']      = $user['role'];
-            $_SESSION['full_name'] = $user['full_name'];
-
-            // Redirect based on role
-            switch ($user['role']) {
-                case 'student':
-                    header('Location: student/dashboard.php');
-                    break;
-                case 'landlord':
-                    header('Location: modules/landlord/dashboard.php');
-                    break;
-                case 'field_agent':
-                    header('Location: field_agent/dashboard.php');
-                    break;
-                case 'admin':
-                    header('Location: modules/admin/dashboard.php');
-                    break;
-            }
-            exit();
-        } else {
-            $error = "Invalid email or password.";
-        }
+    if ($email === '' || $password === '') {
+        $error = 'Please enter your email and password.';
+    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+        $error = 'Invalid email or password.';
     } else {
-        $error = "Invalid email or password.";
+        try {
+            $stmt = $pdo->prepare(
+                "SELECT user_id, full_name, email,
+                        password_hash, role, status
+                 FROM users
+                 WHERE email = ?
+                 LIMIT 1"
+            );
+
+            $stmt->execute([$email]);
+            $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (
+                $user &&
+                password_verify(
+                    $password,
+                    $user['password_hash']
+                )
+            ) {
+                // Check account status
+                if (
+                    $user['role'] === 'landlord' &&
+                    $user['status'] === 'pending'
+                ) {
+                    $error = 'Your landlord account is waiting for admin approval. Please try again after approval.';
+                } elseif ($user['status'] !== 'active') {
+                    $error = 'Your account is not active. Please contact the administrator.';
+                } else {
+                    // Regenerate session ID after login
+                    session_regenerate_id(true);
+
+                    $_SESSION['user_id'] = $user['user_id'];
+                    $_SESSION['role'] = $user['role'];
+                    $_SESSION['full_name'] = $user['full_name'];
+
+                    // Redirect according to user role
+                    switch ($user['role']) {
+                        case 'student':
+                            header('Location: student/dashboard.php');
+                            break;
+
+                        case 'landlord':
+                            header('Location: modules/landlord/dashboard.php');
+                            break;
+
+                        case 'field_agent':
+                            header('Location: field_agent/dashboard.php');
+                            break;
+
+                        case 'admin':
+                            header('Location: modules/admin/dashboard.php');
+                            break;
+
+                        default:
+                            $_SESSION = [];
+                            session_destroy();
+                            header('Location: login.php');
+                            exit();
+                    }
+
+                    exit();
+                }
+            } else {
+                $error = 'Invalid email or password.';
+            }
+        } catch (PDOException $e) {
+            error_log(
+                'Login database error: ' . $e->getMessage()
+            );
+            $error = 'A system error occurred. Please try again later.';
+        }
     }
 }
 ?>
@@ -65,24 +94,89 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BoardNest — Login</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>BoardNest | Login</title>
+
+    <link rel="stylesheet"
+          href="public/assets/css/landlord.css?v=3">
 </head>
 <body>
-    <div class="login-container">
-        <h1>BoardNest</h1>
-        <h2>Login</h2>
-        <?php if ($error): ?>
-            <p class="error"><?= htmlspecialchars($error) ?></p>
-        <?php endif; ?>
-        <form method="POST" action="login.php">
-            <label>Email</label>
-            <input type="email" name="email" required>
-            <label>Password</label>
-            <input type="password" name="password" required>
-            <button type="submit">Login</button>
-        </form>
-        <p>Don't have an account? <a href="register.php">Register</a></p>
-    </div>
+
+    <main class="login-page">
+        <div class="login-container">
+
+            <h1>BoardNest</h1>
+
+            <p class="login-tagline">
+                Find your place. Feel at home.
+            </p>
+
+            <h2>Welcome Back!</h2>
+
+            <p class="login-subtitle">
+                Login to your BoardNest account
+            </p>
+
+            <?php if ($error !== ''): ?>
+                <div class="error" role="alert">
+                    <?= htmlspecialchars(
+                        $error,
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>
+                </div>
+            <?php endif; ?>
+
+            <form method="POST" action="login.php">
+
+                <label for="email">Email Address</label>
+
+                <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    placeholder="Enter your email"
+                    required
+                    autocomplete="email"
+                    value="<?= htmlspecialchars(
+                        $_POST['email'] ?? '',
+                        ENT_QUOTES,
+                        'UTF-8'
+                    ) ?>"
+                >
+
+                <label for="password">Password</label>
+
+                <input
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter your password"
+                    required
+                    autocomplete="current-password"
+                >
+
+                <button type="submit">
+                    Login
+                </button>
+
+            </form>
+
+            <p class="login-register">
+                Don't have an account?
+                <a href="modules/landlord/register.php">
+                    Register as Landlord
+                </a>
+            </p>
+
+            <div class="login-footer">
+                BoardNest &copy; <?= date('Y') ?>
+            </div>
+
+        </div>
+    </main>
+
 </body>
 </html>

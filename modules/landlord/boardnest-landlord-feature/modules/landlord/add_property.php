@@ -48,6 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $address = trim($_POST['address'] ?? '');
     $latitude = trim($_POST['latitude'] ?? '');
     $longitude = trim($_POST['longitude'] ?? '');
+    $rent_amount = trim($_POST['rent_amount'] ?? '');
     $description = trim($_POST['description'] ?? '');
     $maps_url = trim($_POST['maps_url'] ?? '');
 
@@ -57,6 +58,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Latitude must be a valid number between -90 and 90.';
     } elseif (!$error && $longitude !== '' && (!is_numeric($longitude) || (float)$longitude < -180 || (float)$longitude > 180)) {
         $error = 'Longitude must be a valid number between -180 and 180.';
+    } elseif (!$error && $rent_amount !== '' && (!is_numeric($rent_amount) || (float)$rent_amount < 0)) {
+        $error = 'Rent amount must be a valid non-negative number.';
     } elseif (!$error && $maps_url !== '' && !filter_var($maps_url, FILTER_VALIDATE_URL)) {
         $error = 'Please enter a valid Maps URL.';
     }
@@ -119,12 +122,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $error = 'Your Standard plan allows only one property. Upgrade to Pro to add more properties.';
             } else {
                 $images_json = $uploaded_photos ? json_encode($uploaded_photos, JSON_THROW_ON_ERROR) : null;
-                $stmt = $pdo->prepare("INSERT INTO properties (landlord_id, title, city_id, address, maps_url, latitude, longitude, description, status, images) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'available', ?)");
+                $stmt = $pdo->prepare("INSERT INTO properties (landlord_id, title, city_id, address, maps_url, latitude, longitude, description, status, rent_amount, images) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'available', ?, ?)");
                 $stmt->execute([
                     $landlord_id, $title, $city_id, $address, $maps_url,
                     $latitude !== '' ? (float)$latitude : null,
                     $longitude !== '' ? (float)$longitude : null,
-                    $description, $images_json
+                    $description, $rent_amount !== '' ? (float)$rent_amount : null, $images_json
                 ]);
                 $pdo->commit();
                 $success = 'Property submitted successfully!';
@@ -154,13 +157,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Property — BoardNest</title>
-    <link rel="stylesheet" href="../../public/assets/css/landlord.css?v=2">
+    <link rel="stylesheet" href="../../public/assets/css/landlord.css">
 </head>
 <body>
-    <?php include __DIR__ . '/nav.php'; ?>
 <div class="form-card">
     <div class="page-header">
         <h2>Add New Property</h2>
+        <a href="dashboard.php" class="btn-back">← Dashboard</a>
     </div>
 
     <p>Plan: <strong><?= $is_pro ? 'Pro' : 'Standard' ?></strong> | Properties: <strong><?= (int)$property_count ?></strong><?= $is_pro ? '' : ' / 1' ?></p>
@@ -187,9 +190,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label for="address">Address *</label>
             <textarea id="address" name="address" rows="2" required placeholder="Full physical address"></textarea>
         </div>
-        <div class="form-group">
-            <label for="maps_url">Maps URL</label>
-            <input id="maps_url" type="url" name="maps_url" placeholder="Google Maps link">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="rent_amount">Rent Amount (LKR)</label>
+                <input id="rent_amount" type="number" min="0" step="0.01" name="rent_amount" placeholder="e.g. 25000.00">
+            </div>
+            <div class="form-group">
+                <label for="maps_url">Maps URL</label>
+                <input id="maps_url" type="url" name="maps_url" placeholder="Google Maps link">
+            </div>
         </div>
         <div class="form-row">
             <div class="form-group">
