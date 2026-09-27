@@ -269,7 +269,7 @@ function statusLabel(string $status): string
                     <span>Listings</span>
                 </a>
 
-                <a href="Complaints.php" class="admin-nav-item admin-nav-item-active">
+                <a href="complaints.php" class="admin-nav-item admin-nav-item-active">
                     <span class="admin-nav-icon">⚖</span>
                     <span>Complaint Moderation</span>
                 </a>
@@ -293,7 +293,7 @@ function statusLabel(string $status): string
 
             <div class="admin-sidebar-bottom">
 
-                <a href="../../logout.php" class="admin-nav-item admin-signout">
+                <a href="../../../logout.php" class="admin-nav-item admin-signout">
                     <span class="admin-nav-icon">↪</span>
                     <span>Sign Out</span>
                 </a>
