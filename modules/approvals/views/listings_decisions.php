@@ -704,7 +704,7 @@ $reviewedListings = $stmt->fetchAll();
 
             <form
                 method="POST"
-                action="actions/review_listing.php">
+                action="../controller/review_listing.php">
 
 
                 <input
