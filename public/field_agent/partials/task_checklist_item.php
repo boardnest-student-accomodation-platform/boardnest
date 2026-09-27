@@ -11,10 +11,10 @@ function renderChecklistItem($id, $title, $subtitle, $fieldName) {
     echo '      <div class="fa-checklist-subtitle">' . htmlspecialchars($subtitle) . '</div>';
     echo '    </div>';
     echo '    <div class="segmented-control">';
-    echo '      <button type="button" class="segmented-btn active-match" id="btn_match_' . $id . '" onclick="setAuditSegment(\'' . $id . '\', true)">&#10003; Verified Match</button>';
+    echo '      <button type="button" class="segmented-btn" id="btn_match_' . $id . '" onclick="setAuditSegment(\'' . $id . '\', true)">&#10003; Verified Match</button>';
     echo '      <button type="button" class="segmented-btn" id="btn_issue_' . $id . '" onclick="setAuditSegment(\'' . $id . '\', false)">&#10005; Issue Found</button>';
     echo '    </div>';
-    echo '    <input type="hidden" id="input_' . $id . '" name="' . htmlspecialchars($fieldName) . '" value="1">';
+    echo '    <input type="hidden" id="input_' . $id . '" name="' . htmlspecialchars($fieldName) . '" value="" required>';
     echo '  </div>';
     echo '  <div id="' . $id . '_reason_container" class="checklist-reason-box">';
     echo '    <label class="form-label form-label--required text-error fa-checklist-label-error">Log ' . htmlspecialchars($title) . ' Discrepancy Note</label>';

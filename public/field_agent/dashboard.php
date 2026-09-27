@@ -103,7 +103,7 @@ define('PARTIALS', __DIR__ . '/partials/');
         <?php require PARTIALS . 'dashboard_main.php'; ?>
     </div>
 
-    <?php require '../../includes/agent_guide_modal.php'; ?>
+    <?php require_once dirname(__DIR__, 2) . '/includes/agent_guide_modal.php'; ?>
 
     <script src="../assets/js/field_agent.js"></script>
 </body>
