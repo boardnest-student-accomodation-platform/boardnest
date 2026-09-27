@@ -66,7 +66,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>BoardNest — Login</title>
-    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="public/assets/css/style.css">
+    <style>
+    .login-container {
+        max-width: 400px;
+        margin: 80px auto;
+        padding: 30px;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        font-family: Arial, sans-serif;
+    }
+
+    .login-container h1,
+    .login-container h2 {
+        text-align: center;
+    }
+
+    .login-container label {
+        display: block;
+        margin: 15px 0 5px;
+        font-weight: 600;
+    }
+
+    .login-container input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
+
+    .login-container button {
+        width: 100%;
+        margin-top: 20px;
+        padding: 10px;
+        border: none;
+        border-radius: 4px;
+        background: #A4856D;
+        color: white;
+        cursor: pointer;
+    }
+
+    .login-container button:hover {
+        background: #8A6D58;
+    }
+
+    .login-container .error {
+        color: #C0392B;
+        text-align: center;
+    }
+
+    .login-container p:last-child {
+        text-align: center;
+        margin-top: 20px;
+    }
+
+    .login-container a {
+        color: #8A6D58;
+        font-weight: 600;
+    }
+    </style>
 </head>
 <body>
     <div class="login-container">
