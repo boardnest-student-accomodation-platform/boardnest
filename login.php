@@ -33,6 +33,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Password නිවැරදි නම් Session සාදා Direct කිරීම
         if ($isPasswordCorrect) {
+            if ($user['role'] === 'field_agent') {
+                $agentStmt = $pdo->prepare(
+                    "SELECT agent_id FROM field_agents WHERE user_id = ? AND is_active = 1"
+                );
+                $agentStmt->execute([$user['user_id']]);
+
+                if (!$agentStmt->fetch()) {
+                    $error = 'Your Field Agent profile is currently suspended.';
+                    $isPasswordCorrect = false;
+                }
+            }
+        }
+
+        if ($isPasswordCorrect) {
+            session_regenerate_id(true);
             $_SESSION['user_id']   = $user['user_id'];
             $_SESSION['role']      = $user['role'];
             $_SESSION['full_name'] = $user['full_name'];
@@ -46,7 +61,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     header('Location: modules/landlord/dashboard.php');
                     break;
                 case 'field_agent':
-                    header('Location: field_agent/dashboard.php');
+                    header('Location: public/field_agent/dashboard.php');
                     break;
                 case 'admin':
                     header('Location: modules/admin/views/dashboard.php');

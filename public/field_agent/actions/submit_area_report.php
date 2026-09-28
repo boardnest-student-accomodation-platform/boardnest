@@ -4,6 +4,18 @@
 require_once '../../../includes/session.php';
 requireRole('field_agent');
 
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ../area_report.php');
+    exit();
+}
+
+$csrf_token = isset($_POST['csrf_token']) ? (string)$_POST['csrf_token'] : '';
+if ($csrf_token === '' || !hash_equals($_SESSION['csrf_token'], $csrf_token)) {
+    $_SESSION['error'] = 'The area report form expired. Please try again.';
+    header('Location: ../area_report.php');
+    exit();
+}
+
 // Parse request parameters
 $transport = isset($_POST['transport_details']) ? trim($_POST['transport_details']) : '';
 $amenities = isset($_POST['amenities_details']) ? trim($_POST['amenities_details']) : '';

@@ -153,6 +153,7 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
 
     <form action="actions/submit_complaint_report.php" method="POST">
         <input type="hidden" name="complaint_id" value="<?php echo $complaint['complaint_id']; ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
         <!-- Field Findings -->
         <div class="form-group" class="fa-mb-20">

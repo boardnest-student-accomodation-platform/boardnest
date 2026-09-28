@@ -9,6 +9,13 @@ $geo_lat = $is_complaint_mode ? (float)$complaint['latitude'] : (float)(isset($t
 $geo_lng = $is_complaint_mode ? (float)$complaint['longitude'] : (float)(isset($task['longitude']) ? $task['longitude'] : 0);
 $unlock_title = $is_complaint_mode ? "Investigation Form Unlocked" : "Verification Form Unlocked";
 $lock_title = $is_complaint_mode ? "🔒 Investigation Form Locked" : "🔒 Checklist Locked";
+$geo_authorization = isset($_SESSION[$geo_sess_key]) ? $_SESSION[$geo_sess_key] : null;
+$geo_is_valid = is_array($geo_authorization)
+    && isset($geo_authorization['expires'])
+    && time() <= (int)$geo_authorization['expires'];
+if (!$geo_is_valid) {
+    unset($_SESSION[$geo_sess_key]);
+}
 ?>
 <div class="details-card">
     <div class="section-label">GPS Geofence Presence Match</div>
@@ -16,7 +23,7 @@ $lock_title = $is_complaint_mode ? "🔒 Investigation Form Locked" : "🔒 Chec
         You must be physically present at the property (within 100m) to unlock the <?php echo $is_complaint_mode ? 'dispute investigation form' : 'verification checklist'; ?>.
     </p>
 
-    <?php if (isset($_SESSION[$geo_sess_key])): ?>
+    <?php if ($geo_is_valid): ?>
         <div class="geofence-box-custom unlocked">
             <div class="fa-geofence-status-ok">🟢 GPS Geofence Verified</div>
             <div class="fa-geofence-status-text-ok">Device location matches property coordinates (within 100m). <?php echo $unlock_title; ?>.</div>
@@ -26,8 +33,7 @@ $lock_title = $is_complaint_mode ? "🔒 Investigation Form Locked" : "🔒 Chec
             <div class="fa-geofence-status-fail" id="geofenceStatus"><?php echo $lock_title; ?></div>
             <div class="fa-geofence-status-text-fail" id="geofenceDesc">Click button below to capture device GPS location.</div>
             <div class="fa-geofence-actions">
-                <button class="btn-camera-capture" id="btnVerifyGPS" onclick="verifyGPSLocation()">Verify My GPS Location</button>
-                <button type="button" class="btn-camera-capture fa-btn-bypass" onclick="simulateGPSMatch()">[Test] Bypass GPS</button>
+                <button type="button" class="btn-camera-capture" id="btnVerifyGPS" onclick="verifyGPSLocation()">Verify My GPS Location</button>
             </div>
         </div>
 
@@ -38,8 +44,9 @@ $lock_title = $is_complaint_mode ? "🔒 Investigation Form Locked" : "🔒 Chec
             <?php else: ?>
                 <input type="hidden" name="task_id" value="<?php echo $task_id; ?>">
             <?php endif; ?>
-            <input type="hidden" name="action_type" value="claim">
-            <input type="hidden" name="geofence_override" value="1">
+            <input type="hidden" name="action_type" value="verify_geofence">
+            <input type="hidden" name="verified_lat" id="verifiedLat" value="">
+            <input type="hidden" name="verified_lng" id="verifiedLng" value="">
         </form>
     <?php endif; ?>
 </div>

@@ -4,6 +4,7 @@
 // Expects: $city (string)
 ?>
 <form id="areaReportForm" action="actions/submit_area_report.php" method="POST" onsubmit="return compileReportData();">
+    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
     <input type="hidden" id="transport_details" name="transport_details">
     <input type="hidden" id="amenities_details" name="amenities_details">
     <input type="hidden" id="safety_details"    name="safety_details">

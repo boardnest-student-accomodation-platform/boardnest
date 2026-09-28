@@ -30,10 +30,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 } elseif ($user['status'] !== 'active') {
                     $error = 'Your account is currently ' . htmlspecialchars($user['status']) . '.';
                 } else {
-                    $_SESSION['user_id']   = $user['user_id'];
-                    $_SESSION['role']      = $user['role'];
-                    $_SESSION['full_name'] = $user['full_name'];
-                    header('Location: dashboard.php'); exit();
+                    $agentStmt = $pdo->prepare(
+                        "SELECT agent_id FROM field_agents WHERE user_id = ? AND is_active = 1"
+                    );
+                    $agentStmt->execute(array($user['user_id']));
+
+                    if (!$agentStmt->fetch()) {
+                        $error = 'Your Field Agent profile is currently suspended.';
+                    } else {
+                        session_regenerate_id(true);
+                        $_SESSION['user_id']   = $user['user_id'];
+                        $_SESSION['role']      = $user['role'];
+                        $_SESSION['full_name'] = $user['full_name'];
+                        header('Location: dashboard.php'); exit();
+                    }
                 }
             } else {
                 $error = 'Invalid email or password.';

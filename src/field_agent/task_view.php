@@ -49,7 +49,7 @@ if ($complaint_id > 0) {
 } elseif ($task_id > 0) {
     $stmtTask = $pdo->prepare("
         SELECT t.*, p.address, p.structural_type, p.city, p.latitude, p.longitude,
-               p.maps_link, p.facilities, p.property_id
+               p.maps_url AS maps_link, p.facilities, p.property_id
         FROM agent_tasks t
         INNER JOIN properties p ON t.property_id = p.property_id
         WHERE t.task_id = ? AND t.agent_id = ?

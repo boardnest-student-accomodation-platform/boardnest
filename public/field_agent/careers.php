@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Careers – BoardNest | Become a Field Agent</title>
   <meta name="description" content="Join BoardNest as a Field Agent. Audit student accommodations, earn competitive payouts, and help make student housing safer across Sri Lanka.">
-  <link rel="icon" type="image/png" href="../assets/uploads/logo.png">
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@700;800;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/style.css">
   <link rel="stylesheet" href="../assets/css/field_agent.css">

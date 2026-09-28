@@ -16,6 +16,7 @@
         <form action="actions/update_task.php" method="POST">
             <input type="hidden" name="task_id" value="<?php echo $task_id; ?>">
             <input type="hidden" name="action_type" value="suspend">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <div class="fa-mb-12">
                 <label class="fa-emergency-label">Immediate Safety Hazard Reason</label>
                 <textarea class="textarea-styled fa-emergency-textarea" name="reason" placeholder="Explain the severe safety hazard in detail..." required></textarea>

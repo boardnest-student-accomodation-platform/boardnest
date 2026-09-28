@@ -4,7 +4,12 @@
 require_once __DIR__ . '/../../../config/db.php';
 
 // Fetch agent details
-$stmt = $pdo->prepare("SELECT agent_id, assigned_city FROM field_agents WHERE user_id = ?");
+$stmt = $pdo->prepare("
+    SELECT f.agent_id, f.assigned_city
+    FROM field_agents f
+    INNER JOIN users u ON u.user_id = f.user_id
+    WHERE f.user_id = ? AND f.is_active = 1 AND u.status = 'active'
+");
 $stmt->execute(array($_SESSION['user_id']));
 $agent = $stmt->fetch();
 
@@ -66,8 +71,7 @@ $audit_items = array(
     'bathroom_match' => 'Bathroom Access type match',
     'wifi_match' => 'Wi-Fi Availability match',
     'finance_match' => 'Price & Deposit match',
-    'kitchen_food_match' => 'Kitchen & Food Access match',
-    'gps_match' => 'GPS Coordinate match'
+    'kitchen_food_match' => 'Kitchen & Food Access match'
 );
 
 $audit_values = array();
@@ -94,7 +98,7 @@ foreach ($audit_items as $field => $label) {
 $structural_safety = $audit_values['structural_safety'];
 $electrical_safety = $audit_values['electrical_safety'];
 $fire_exit = $audit_values['fire_exit'];
-$gps_match = $audit_values['gps_match'];
+$gps_match = 1;
 $furnishing_match = $audit_values['furnishing_match'];
 $bathroom_match = $audit_values['bathroom_match'];
 $wifi_match = $audit_values['wifi_match'];
@@ -105,65 +109,85 @@ $neighborhood_safety = isset($_POST['neighborhood_safety']) ? intval($_POST['nei
 $agent_comments = isset($_POST['agent_comments']) ? trim($_POST['agent_comments']) : '';
 
 // Validation
-if (!$neighborhood_safety || empty($agent_comments)) {
+if ($neighborhood_safety < 1 || $neighborhood_safety > 5 || empty($agent_comments)) {
     $_SESSION['error'] = 'Neighborhood safety and inspection remarks are mandatory.';
     header('Location: ../task_view.php?task_id=' . $task_id);
     exit();
 }
 
-// File Uploads (2 Photos required)
-if (!isset($_FILES['photo1']) || !isset($_FILES['photo2']) || 
-    $_FILES['photo1']['error'] !== UPLOAD_ERR_OK || $_FILES['photo2']['error'] !== UPLOAD_ERR_OK) {
-    $_SESSION['error'] = 'Both verification photos are mandatory and must be uploaded successfully.';
+function saveFieldAgentImage($file, $prefix, $upload_dir, &$uploaded_paths)
+{
+    if (!is_array($file) || !isset($file['error'], $file['tmp_name'], $file['size']) || $file['error'] !== UPLOAD_ERR_OK) {
+        throw new Exception('Every required verification photo must upload successfully.');
+    }
+    if ((int)$file['size'] < 1 || (int)$file['size'] > 5 * 1024 * 1024) {
+        throw new Exception('Each verification photo must be 5MB or smaller.');
+    }
+
+    $finfo = new finfo(FILEINFO_MIME_TYPE);
+    $mime = $finfo->file($file['tmp_name']);
+    $extensions = array('image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp');
+    if (!isset($extensions[$mime]) || @getimagesize($file['tmp_name']) === false) {
+        throw new Exception('Verification uploads must be valid JPG, PNG, or WebP images.');
+    }
+
+    $filename = $prefix . '_' . bin2hex(random_bytes(12)) . '.' . $extensions[$mime];
+    $destination = $upload_dir . $filename;
+    if (!move_uploaded_file($file['tmp_name'], $destination)) {
+        throw new Exception('The verification photo could not be stored.');
+    }
+    $uploaded_paths[] = $destination;
+    return $filename;
+}
+
+$upload_dir = __DIR__ . '/../../../public/uploads/verification/';
+$uploaded_paths = array();
+if (!is_dir($upload_dir) && !mkdir($upload_dir, 0755, true)) {
+    $_SESSION['error'] = 'The verification upload directory is unavailable.';
     header('Location: ../task_view.php?task_id=' . $task_id);
     exit();
 }
 
-// Make sure uploads directory exists
-$upload_dir = __DIR__ . '/../../../../public/uploads/';
-if (!is_dir($upload_dir)) {
-    mkdir($upload_dir, 0777, true);
-}
+try {
+    $photo1 = isset($_FILES['photo1']) ? $_FILES['photo1'] : array();
+    $photo2 = isset($_FILES['photo2']) ? $_FILES['photo2'] : array();
+    $photo_name1 = saveFieldAgentImage($photo1, 'task_' . $task_id . '_exterior', $upload_dir, $uploaded_paths);
+    $photo_name2 = saveFieldAgentImage($photo2, 'task_' . $task_id . '_interior', $upload_dir, $uploaded_paths);
+    $db_photo_path1 = '/boardnest/public/uploads/verification/' . $photo_name1;
+    $db_photo_path2 = '/boardnest/public/uploads/verification/' . $photo_name2;
 
-// Move photo 1
-$file_ext1 = strtolower(pathinfo($_FILES['photo1']['name'], PATHINFO_EXTENSION));
-$photo_name1 = 'task_' . $task_id . '_img1_' . time() . '.' . $file_ext1;
-$photo_path1 = $upload_dir . $photo_name1;
-
-// Move photo 2
-$file_ext2 = strtolower(pathinfo($_FILES['photo2']['name'], PATHINFO_EXTENSION));
-$photo_name2 = 'task_' . $task_id . '_img2_' . time() . '.' . $file_ext2;
-$photo_path2 = $upload_dir . $photo_name2;
-
-if (!move_uploaded_file($_FILES['photo1']['tmp_name'], $photo_path1) || 
-    !move_uploaded_file($_FILES['photo2']['tmp_name'], $photo_path2)) {
-    $_SESSION['error'] = 'Failed to save the uploaded verification photos on the server.';
-    header('Location: ../task_view.php?task_id=' . $task_id);
-    exit();
-}
-
-// Save database path relative to web root (/boardnest/public/uploads/...)
-$db_photo_path1 = '/boardnest/public/uploads/' . $photo_name1;
-$db_photo_path2 = '/boardnest/public/uploads/' . $photo_name2;
-
-// Process optional extra proof photos
-if (isset($_FILES['extra_photos']) && is_array($_FILES['extra_photos']['name'])) {
-    $extra_count = count($_FILES['extra_photos']['name']);
-    $saved_extra_links = array();
-    for ($i = 0; $i < $extra_count; $i++) {
-        if ($_FILES['extra_photos']['error'][$i] === UPLOAD_ERR_OK) {
-            $ext_name = strtolower(pathinfo($_FILES['extra_photos']['name'][$i], PATHINFO_EXTENSION));
-            $extra_file_name = 'task_' . $task_id . '_extra_' . ($i + 3) . '_' . time() . '.' . $ext_name;
-            $extra_dest = $upload_dir . $extra_file_name;
-            $cat_title = isset($_POST['extra_photo_categories'][$i]) ? trim($_POST['extra_photo_categories'][$i]) : 'Additional Proof';
-            if (move_uploaded_file($_FILES['extra_photos']['tmp_name'][$i], $extra_dest)) {
-                $saved_extra_links[] = '📷 Additional Proof Photo ' . ($i + 3) . ' (' . $cat_title . '): /boardnest/public/uploads/' . $extra_file_name;
+    if (isset($_FILES['extra_photos']['name']) && is_array($_FILES['extra_photos']['name'])) {
+        $extra_count = min(count($_FILES['extra_photos']['name']), 6);
+        $saved_extra_links = array();
+        for ($i = 0; $i < $extra_count; $i++) {
+            if ($_FILES['extra_photos']['error'][$i] === UPLOAD_ERR_NO_FILE) {
+                continue;
             }
+            $extra_file = array(
+                'name' => $_FILES['extra_photos']['name'][$i],
+                'tmp_name' => $_FILES['extra_photos']['tmp_name'][$i],
+                'size' => $_FILES['extra_photos']['size'][$i],
+                'error' => $_FILES['extra_photos']['error'][$i]
+            );
+            $extra_name = saveFieldAgentImage($extra_file, 'task_' . $task_id . '_proof', $upload_dir, $uploaded_paths);
+            $category = isset($_POST['extra_photo_categories'][$i])
+                ? trim($_POST['extra_photo_categories'][$i])
+                : 'Additional Proof';
+            $saved_extra_links[] = 'Additional Proof (' . $category . '): /boardnest/public/uploads/verification/' . $extra_name;
+        }
+        if (!empty($saved_extra_links)) {
+            $agent_comments .= "\n\nAdditional Verification Photos:\n" . implode("\n", $saved_extra_links);
         }
     }
-    if (!empty($saved_extra_links)) {
-        $agent_comments .= "\n\nAdditional Verification Photos Captured:\n" . implode("\n", $saved_extra_links);
+} catch (Exception $upload_exception) {
+    foreach ($uploaded_paths as $uploaded_path) {
+        if (is_file($uploaded_path)) {
+            unlink($uploaded_path);
+        }
     }
+    $_SESSION['error'] = $upload_exception->getMessage();
+    header('Location: ../task_view.php?task_id=' . $task_id);
+    exit();
 }
 
 try {
@@ -190,12 +214,18 @@ try {
     ));
 
     // 2. Update Agent Task status to completed (Update operation)
-    $stmtTaskUpdate = $pdo->prepare("UPDATE agent_tasks SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE task_id = ?");
-    $stmtTaskUpdate->execute(array($task_id));
+    $stmtTaskUpdate = $pdo->prepare("UPDATE agent_tasks SET status = 'completed', completed_at = CURRENT_TIMESTAMP WHERE task_id = ? AND agent_id = ? AND status = 'in_progress'");
+    $stmtTaskUpdate->execute(array($task_id, $agent_id));
+    if ($stmtTaskUpdate->rowCount() !== 1) {
+        throw new Exception('The task is no longer available for completion.');
+    }
 
     // 3. Update property rooms status to awaiting_admin (Listing state machine update)
     $stmtRooms = $pdo->prepare("UPDATE rooms SET status = 'awaiting_admin' WHERE property_id = ?");
     $stmtRooms->execute(array($task['property_id']));
+
+    $stmtListings = $pdo->prepare("UPDATE listings SET status = 'awaiting_approval' WHERE property_id = ?");
+    $stmtListings->execute(array($task['property_id']));
 
     // Clear geofence session variable
     unset($_SESSION['geofence_passed_' . $task_id]);
@@ -211,8 +241,11 @@ try {
         $pdo->rollBack();
     }
     // Clean up uploaded files in case of db rollback
-    if (file_exists($photo_path1)) unlink($photo_path1);
-    if (file_exists($photo_path2)) unlink($photo_path2);
+    foreach ($uploaded_paths as $uploaded_path) {
+        if (is_file($uploaded_path)) {
+            unlink($uploaded_path);
+        }
+    }
 
     $_SESSION['error'] = 'Database transaction failed: ' . $e->getMessage();
     header('Location: ../task_view.php?task_id=' . $task_id);

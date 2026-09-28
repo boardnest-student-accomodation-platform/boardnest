@@ -1,151 +1,125 @@
 USE boardnest;
--- MySQL dump 10.13  Distrib 9.4.0, for Win64 (x86_64)
---
--- Host: localhost    Database: boardnest
--- ------------------------------------------------------
--- Server version	5.5.5-10.4.32-MariaDB
 
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!50503 SET NAMES utf8mb4 */;
-/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
-/*!40103 SET TIME_ZONE='+00:00' */;
-/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+-- Field-agent demo data. Import schema.sql first.
+-- Demo credentials: agent@boardnest.lk / password
+SET FOREIGN_KEY_CHECKS = 0;
 
---
--- Dumping data for table `admin`
---
+INSERT INTO users (user_id, full_name, email, password_hash, role, status)
+VALUES
+    (2, 'Sobashi Hirushani', 'agent@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'field_agent', 'active'),
+    (3, 'Demo Landlord', 'landlord@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'landlord', 'active'),
+    (4, 'Demo Student', 'student@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'active')
+ON DUPLICATE KEY UPDATE
+    full_name = VALUES(full_name),
+    email = VALUES(email),
+    password_hash = VALUES(password_hash),
+    role = VALUES(role),
+    status = VALUES(status);
 
-/*!40000 ALTER TABLE `admin` DISABLE KEYS */;
-REPLACE INTO `admin` VALUES (1,1);
-/*!40000 ALTER TABLE `admin` ENABLE KEYS */;
+INSERT INTO field_agents (agent_id, user_id, nic_number, mobile, assigned_city, is_active, recruit_mode)
+VALUES (1, 2, '199814502890', '0775471754', 'Colombo', 1, 'self_registered')
+ON DUPLICATE KEY UPDATE
+    user_id = VALUES(user_id),
+    assigned_city = VALUES(assigned_city),
+    is_active = VALUES(is_active);
 
---
--- Dumping data for table `agent_tasks`
---
+INSERT INTO landlords (landlord_id, user_id, nic_number, mobile, address, subsc_tier, consent_agreed)
+VALUES (1, 3, '123456789V', '0770000000', '123 Landlord Street', 'standard', 1)
+ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), mobile = VALUES(mobile);
 
-/*!40000 ALTER TABLE `agent_tasks` DISABLE KEYS */;
-REPLACE INTO `agent_tasks` VALUES (1,1,'verification',1,'completed','2026-09-27 13:20:27','2026-09-27 15:02:25'),(2,2,'verification',1,'in_progress','2026-09-27 13:20:27',NULL),(3,3,'verification',1,'completed','2026-09-27 13:20:27','2026-09-27 13:20:27'),(4,4,'verification',NULL,'pending','2026-09-27 13:20:27',NULL),(5,3,'verification',NULL,'pending','2026-09-27 14:00:00',NULL);
-/*!40000 ALTER TABLE `agent_tasks` ENABLE KEYS */;
+INSERT INTO students (student_id, user_id, nic_number, mobile, university, academic_year, verf_tier)
+VALUES (1, 4, '987654321V', '0711111111', 'University of Colombo', '2nd Year', 'tier2')
+ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), mobile = VALUES(mobile);
 
---
--- Dumping data for table `announcements`
---
+INSERT INTO properties (
+    property_id, landlord_id, title, address, city, structural_type,
+    latitude, longitude, maps_url, facilities, status, rent_amount
+)
+VALUES
+    (1, 1, 'Galle Road Apartment', '10 Galle Road', 'Colombo', 'Apartment', 6.92710000, 79.86120000, 'https://maps.google.com/?q=6.9271,79.8612', 'Wi-Fi, attached bathroom, kitchen', 'verified', 28000.00),
+    (2, 1, 'Duplication Road House', '25 Duplication Road', 'Colombo', 'House', 6.90000000, 79.85000000, 'https://maps.google.com/?q=6.9,79.85', 'Wi-Fi, shared kitchen', 'under_verification', 22000.00),
+    (3, 1, 'Havelock Hostel', '88 Havelock Road', 'Colombo', 'Hostel', 6.89000000, 79.86000000, 'https://maps.google.com/?q=6.89,79.86', 'Wi-Fi, shared bathroom', 'verified', 18000.00),
+    (4, 1, 'Marine Drive Apartment', '42 Marine Drive', 'Colombo', 'Apartment', 6.88000000, 79.85500000, 'https://maps.google.com/?q=6.88,79.855', 'Wi-Fi, attached bathroom', 'pending', 32000.00)
+ON DUPLICATE KEY UPDATE
+    title = VALUES(title), address = VALUES(address), city = VALUES(city),
+    latitude = VALUES(latitude), longitude = VALUES(longitude), status = VALUES(status);
 
-/*!40000 ALTER TABLE `announcements` DISABLE KEYS */;
-/*!40000 ALTER TABLE `announcements` ENABLE KEYS */;
+INSERT INTO rooms (
+    room_id, property_id, room_type, price, slot_capacity,
+    security_deposit, bathroom_access, wifi_available, status
+)
+VALUES
+    (1, 1, 'single', 28000.00, 1, 28000.00, 'attached', 1, 'verified'),
+    (2, 2, 'single', 22000.00, 1, 22000.00, 'shared', 1, 'under_verification'),
+    (3, 3, 'shared', 18000.00, 2, 18000.00, 'shared', 1, 'verified'),
+    (4, 4, 'single', 32000.00, 1, 32000.00, 'attached', 1, 'pending')
+ON DUPLICATE KEY UPDATE
+    property_id = VALUES(property_id), price = VALUES(price), status = VALUES(status);
 
---
--- Dumping data for table `area_reports`
---
+INSERT INTO listings (
+    listing_id, landlord_id, property_id, title, description,
+    address, city, monthly_rent, status
+)
+VALUES
+    (1, 1, 1, 'Galle Road Apartment', 'Verified apartment close to public transport.', '10 Galle Road', 'Colombo', 28000.00, 'live'),
+    (2, 1, 2, 'Duplication Road House', 'House currently undergoing field verification.', '25 Duplication Road', 'Colombo', 22000.00, 'verification_pending'),
+    (3, 1, 3, 'Havelock Hostel', 'Shared student hostel in Colombo.', '88 Havelock Road', 'Colombo', 18000.00, 'live'),
+    (4, 1, 4, 'Marine Drive Apartment', 'New listing awaiting field verification.', '42 Marine Drive', 'Colombo', 32000.00, 'pending')
+ON DUPLICATE KEY UPDATE
+    property_id = VALUES(property_id), title = VALUES(title), status = VALUES(status);
 
-/*!40000 ALTER TABLE `area_reports` DISABLE KEYS */;
-/*!40000 ALTER TABLE `area_reports` ENABLE KEYS */;
+INSERT INTO agent_tasks (task_id, property_id, task_type, agent_id, status, completed_at)
+VALUES
+    (1, 1, 'verification', 1, 'completed', CURRENT_TIMESTAMP),
+    (2, 2, 'verification', 1, 'in_progress', NULL),
+    (3, 3, 'verification', 1, 'completed', CURRENT_TIMESTAMP),
+    (4, 4, 'verification', NULL, 'pending', NULL),
+    (5, 3, 'verification', NULL, 'pending', NULL)
+ON DUPLICATE KEY UPDATE
+    property_id = VALUES(property_id), agent_id = VALUES(agent_id),
+    status = VALUES(status), completed_at = VALUES(completed_at);
 
---
--- Dumping data for table `complaint_investigations`
---
+INSERT INTO complaints (
+    complaint_id, listing_id, complainant_user_id, category, description, status
+)
+VALUES
+    (1, 3, 4, 'fee_discrepancy', 'The requested deposit differs from the listing.', 'upheld'),
+    (2, 2, 4, 'security_issue', 'The gate lock is broken and needs inspection.', 'under_investigation'),
+    (3, 1, 4, 'maintenance_issue', 'The roof leaks during heavy rain.', 'assigned')
+ON DUPLICATE KEY UPDATE
+    description = VALUES(description), status = VALUES(status);
 
-/*!40000 ALTER TABLE `complaint_investigations` DISABLE KEYS */;
-REPLACE INTO `complaint_investigations` VALUES (1,1,2,'gjfghn',450.00),(2,2,2,NULL,0.00),(3,3,2,NULL,0.00);
-/*!40000 ALTER TABLE `complaint_investigations` ENABLE KEYS */;
+INSERT INTO complaint_investigations (
+    investigation_id, complaint_id, field_agent_user_id, findings, visit_fee_charged
+)
+VALUES
+    (1, 1, 2, 'The complaint was confirmed during the visit.', 450.00),
+    (2, 2, 2, NULL, 0.00),
+    (3, 3, 2, NULL, 0.00)
+ON DUPLICATE KEY UPDATE
+    field_agent_user_id = VALUES(field_agent_user_id),
+    findings = VALUES(findings), visit_fee_charged = VALUES(visit_fee_charged);
 
---
--- Dumping data for table `complaints`
---
+INSERT INTO verification_reports (
+    id, task_id, field_agent_user_id, structural_safety, electrical_safety,
+    fire_exit, gps_match, neighborhood_safety, furnishing_match,
+    bathroom_match, kitchen_food_match, wifi_match, finance_match,
+    transport_details, amenities_details, safety_details,
+    photo_path_1, photo_path_2, agent_comments
+)
+VALUES
+    (1, 1, 2, 1, 1, 1, 1, 5, 1, 1, 1, 1, 1,
+     'Frequent bus service', 'Supermarket and pharmacy nearby', 'Well-lit main road',
+     '/boardnest/public/upload/fieldagent/test_room1.jpg',
+     '/boardnest/public/upload/fieldagent/test_room2.jpg',
+     'Property passed the field verification checks.'),
+    (2, 3, 2, 1, 1, 1, 1, 4, 1, 1, 1, 1, 1,
+     'Bus and train access', 'Food outlets and laundry nearby', 'Safe residential area',
+     '/boardnest/public/upload/fieldagent/test_room1.jpg',
+     '/boardnest/public/upload/fieldagent/test_room2.jpg',
+     'Hostel verification completed successfully.')
+ON DUPLICATE KEY UPDATE
+    field_agent_user_id = VALUES(field_agent_user_id),
+    agent_comments = VALUES(agent_comments), submitted_at = CURRENT_TIMESTAMP;
 
-/*!40000 ALTER TABLE `complaints` DISABLE KEYS */;
-REPLACE INTO `complaints` VALUES (1,3,4,'fee_discrepancy','The landlord asked for a 6 month deposit when the listing only said 2 months.','upheld'),(2,2,4,'security_issue','The gate lock is broken and anyone can walk in at night.','under_investigation'),(3,1,4,'maintenance_issue','The roof is leaking constantly when it rains.','assigned');
-/*!40000 ALTER TABLE `complaints` ENABLE KEYS */;
-
---
--- Dumping data for table `field_agents`
---
-
-/*!40000 ALTER TABLE `field_agents` DISABLE KEYS */;
-REPLACE INTO `field_agents` VALUES (1,2,'199814502890','0775471754','Colombo',1,'self_registered');
-/*!40000 ALTER TABLE `field_agents` ENABLE KEYS */;
-
---
--- Dumping data for table `landlords`
---
-
-/*!40000 ALTER TABLE `landlords` DISABLE KEYS */;
-REPLACE INTO `landlords` VALUES (1,3,'123456789V','0770000000','123 Landlord St','standard',NULL,0);
-/*!40000 ALTER TABLE `landlords` ENABLE KEYS */;
-
---
--- Dumping data for table `listing_decisions`
---
-
-/*!40000 ALTER TABLE `listing_decisions` DISABLE KEYS */;
-/*!40000 ALTER TABLE `listing_decisions` ENABLE KEYS */;
-
---
--- Dumping data for table `listings`
---
-
-/*!40000 ALTER TABLE `listings` DISABLE KEYS */;
-REPLACE INTO `listings` VALUES (1,1,'pending'),(2,2,'pending'),(3,3,'active');
-/*!40000 ALTER TABLE `listings` ENABLE KEYS */;
-
---
--- Dumping data for table `properties`
---
-
-/*!40000 ALTER TABLE `properties` DISABLE KEYS */;
-REPLACE INTO `properties` VALUES (1,1,'10 Galle Road','Colombo','Apartment',6.92710000,79.86120000,NULL,NULL),(2,1,'25 Duplication Rd','Colombo','House',6.90000000,79.85000000,NULL,NULL),(3,1,'88 Havelock Rd','Colombo','Hostel',6.89000000,79.86000000,NULL,NULL),(4,1,'42 Marine Drive','Colombo','Apartment',6.88000000,79.85500000,NULL,NULL);
-/*!40000 ALTER TABLE `properties` ENABLE KEYS */;
-
---
--- Dumping data for table `registration_approvals`
---
-
-/*!40000 ALTER TABLE `registration_approvals` DISABLE KEYS */;
-/*!40000 ALTER TABLE `registration_approvals` ENABLE KEYS */;
-
---
--- Dumping data for table `rooms`
---
-
-/*!40000 ALTER TABLE `rooms` DISABLE KEYS */;
-/*!40000 ALTER TABLE `rooms` ENABLE KEYS */;
-
---
--- Dumping data for table `students`
---
-
-/*!40000 ALTER TABLE `students` DISABLE KEYS */;
-REPLACE INTO `students` VALUES (1,4,'987654321V','0711111111',NULL,NULL,'tier1',NULL);
-/*!40000 ALTER TABLE `students` ENABLE KEYS */;
-
---
--- Dumping data for table `users`
---
-
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-REPLACE INTO `users` VALUES (1,'Admin','admin@boardnest.lk','$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi','admin','active','2026-09-27 13:01:43'),(2,'Sobashi Hirushani','agent@boardnest.lk','$2y$10$91WKmKEz9D50Aobtaf2azOj7AL0crg6cpsDFFvsnTB3ftEr5V4s2W','field_agent','active','2026-09-27 13:02:23'),(3,'Dummy Landlord','landlord@test.com','hash','landlord','active','2026-09-27 13:20:27'),(4,'Dummy Student','student@test.com','hash','student','active','2026-09-27 13:20:27');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-
---
--- Dumping data for table `verification_reports`
---
-
-/*!40000 ALTER TABLE `verification_reports` DISABLE KEYS */;
-REPLACE INTO `verification_reports` VALUES (1,3,2,1,0,0,0,4,0,0,0,0,0,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'Looks good.','2026-09-27 13:20:27'),(2,1,2,1,1,1,1,5,1,0,1,1,0,'Bus Transport active in area. Tuk-Tuk stand & rideshare active','Supermarket (500m). Laundromat','Well-lit Main Roads',NULL,'/boardnest/public/uploads/task_1_img1_1790521345.jpg','/boardnest/public/uploads/task_1_img2_1790521345.jpg',NULL,'❌ [Bathroom Access type match Discrepancy]: fdgsgdhsfgs\r\n❌ [Price & Deposit match Discrepancy]: gfdghfhgs\r\n⚠️ [Landlord Listing Photo 3 Discrepancy]: Physical photo does not match listing photo 3.\r\n⚠️ [Landlord Listing Photo 4 Discrepancy]: Physical photo does not match listing photo 4.\r\n\r\nGeneral Remarks:\r\nfgyufdhehdgeyg','2026-09-27 15:02:25');
-/*!40000 ALTER TABLE `verification_reports` ENABLE KEYS */;
-/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
-
-/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
-/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
-/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
-
--- Dump completed on 2026-09-27 20:57:25
+SET FOREIGN_KEY_CHECKS = 1;

@@ -8,7 +8,14 @@ requireRole('field_agent');
 require_once '../../config/db.php';
 
 // Fetch agent
-$stmt = $pdo->prepare("SELECT agent_id, assigned_city FROM field_agents WHERE user_id = ?");
+$stmt = $pdo->prepare("
+    SELECT fa.agent_id, fa.assigned_city
+    FROM field_agents fa
+    INNER JOIN users u ON u.user_id = fa.user_id
+    WHERE fa.user_id = ?
+      AND fa.is_active = 1
+      AND u.status = 'active'
+");
 $stmt->execute(array($_SESSION['user_id']));
 $agent = $stmt->fetch();
 if (!$agent) die("Field agent account not found.");

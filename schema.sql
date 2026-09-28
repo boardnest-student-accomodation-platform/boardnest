@@ -67,38 +67,6 @@ VALUES ('Admin', 'admin@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9l
 INSERT INTO admin (user_id) VALUES (LAST_INSERT_ID());
 
 
--- Landlord's Listing table ( Added by Admin )
-CREATE TABLE IF NOT EXISTS listings (
-    listing_id INT NOT NULL AUTO_INCREMENT,
-    landlord_id INT NOT NULL,
-
-    title VARCHAR(100) NOT NULL,
-    description TEXT NULL,
-    address VARCHAR(100) NOT NULL,
-    city VARCHAR(50) NOT NULL,
-    monthly_rent DECIMAL(10,2) NOT NULL,
-
-status ENUM(
-    'pending',
-    'verification_pending',
-    'live',
-    'rejected',
-    'suspended'
-) NOT NULL DEFAULT 'pending',
-
-    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-
-    PRIMARY KEY (listing_id),
-
-    CONSTRAINT fk_listings_landlord
-        FOREIGN KEY (landlord_id)
-        REFERENCES landlords(landlord_id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
 -- ========================================================
 -- PROPERTY AND LISTING TABLES
 -- ========================================================
@@ -106,31 +74,50 @@ status ENUM(
 CREATE TABLE properties (
     property_id INT AUTO_INCREMENT PRIMARY KEY,
     landlord_id INT NOT NULL,
+    title VARCHAR(100) NULL,
+    city_id INT NULL,
     address TEXT NOT NULL,
-    city VARCHAR(100) NOT NULL,
+    city VARCHAR(100) NOT NULL DEFAULT 'Colombo',
     structural_type VARCHAR(100),
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
-    maps_link VARCHAR(255),
+    maps_url VARCHAR(500),
     facilities TEXT,
+    description TEXT,
+    status ENUM('available', 'pending', 'under_verification', 'agent_on_site', 'awaiting_admin', 'verified', 'suspended') DEFAULT 'pending',
+    rent_amount DECIMAL(10,2) NULL,
+    images TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (landlord_id) REFERENCES landlords(landlord_id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE rooms (
     room_id INT AUTO_INCREMENT PRIMARY KEY,
     property_id INT NOT NULL,
     room_type VARCHAR(50),
-    capacity INT,
-    status ENUM('pending', 'under_verification', 'agent_on_site', 'suspended', 'verified') DEFAULT 'pending',
+    price DECIMAL(10,2) NULL,
+    slot_capacity INT NOT NULL DEFAULT 1,
+    security_deposit DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    bathroom_access ENUM('attached', 'shared') NOT NULL DEFAULT 'shared',
+    wifi_available TINYINT(1) NOT NULL DEFAULT 0,
+    status ENUM('pending', 'under_verification', 'agent_on_site', 'awaiting_admin', 'suspended', 'verified') DEFAULT 'pending',
     FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE listings (
     listing_id INT AUTO_INCREMENT PRIMARY KEY,
+    landlord_id INT NOT NULL,
     property_id INT NOT NULL,
-    status ENUM('pending', 'active', 'inactive') DEFAULT 'pending',
-    FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
-);
+    title VARCHAR(100) NOT NULL,
+    description TEXT NULL,
+    address VARCHAR(100) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    monthly_rent DECIMAL(10,2) NOT NULL,
+    status ENUM('pending', 'verification_pending', 'awaiting_approval', 'live', 'active', 'inactive', 'rejected', 'suspended') NOT NULL DEFAULT 'pending',
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_listings_landlord FOREIGN KEY (landlord_id) REFERENCES landlords(landlord_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_listings_property FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE complaints (
     complaint_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -141,7 +128,7 @@ CREATE TABLE complaints (
     status ENUM('assigned', 'under_investigation', 'resolved', 'upheld', 'dismissed', 'escalated') DEFAULT 'assigned',
     FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE,
     FOREIGN KEY (complainant_user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE complaint_investigations (
     investigation_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -151,7 +138,7 @@ CREATE TABLE complaint_investigations (
     visit_fee_charged DECIMAL(10,2) DEFAULT 0.00,
     FOREIGN KEY (complaint_id) REFERENCES complaints(complaint_id) ON DELETE CASCADE,
     FOREIGN KEY (field_agent_user_id) REFERENCES users(user_id) ON DELETE CASCADE
-);
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- ========================================================
 -- FIELD AGENT MODULE TABLES

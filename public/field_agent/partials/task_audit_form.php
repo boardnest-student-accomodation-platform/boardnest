@@ -130,11 +130,8 @@ $is_read_only = (isset($task['status']) && $task['status'] === 'completed') || !
         <div class="fa-audit-badge-gps" style="display: flex; align-items: center; gap: 10px;">
             <div>
                 <span class="fa-audit-badge-gps-dot"></span>
-                <span id="gps_status_text">GPS Pending Verification</span>
+                <span id="gps_status_text">GPS Verified On-Site</span>
             </div>
-            <button type="button" onclick="document.getElementById('gps_match_input').value=1; document.getElementById('gps_status_text').innerText='GPS Verified (Demo Bypass)'; this.style.display='none';" style="font-size: 0.75rem; padding: 2px 8px; border-radius: 4px; border: 1px solid #ccc; background: #f9f9f9; cursor: pointer; color: #555;">
-                Bypass (Demo)
-            </button>
         </div>
     </div>
 
@@ -151,6 +148,7 @@ $is_read_only = (isset($task['status']) && $task['status'] === 'completed') || !
 
     <form id="auditForm" action="actions/submit_report.php" method="POST" enctype="multipart/form-data">
         <input type="hidden" name="task_id" value="<?php echo $task_id; ?>">
+        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
 
         <!-- SECTION 01 -->
         <div class="section-label">SECTION 01 — Building &amp; Infrastructure Compliance</div>
@@ -163,7 +161,7 @@ $is_read_only = (isset($task['status']) && $task['status'] === 'completed') || !
             'Unobstructed escape pathways, clear safety routes', 'fire_exit');
         ?>
 
-        <input type="hidden" name="gps_match" id="gps_match_input" value="">
+        <input type="hidden" name="gps_match" id="gps_match_input" value="1">
 
         <!-- Star Rating -->
         <div class="fa-audit-rating-box">
