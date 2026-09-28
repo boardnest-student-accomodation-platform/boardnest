@@ -10,7 +10,7 @@
         <span class="badge-pill-status <?php echo $task['status'] === 'completed' ? 'badge-verified-match' : 'badge-discrepancy-found'; ?>">
             <?php echo htmlspecialchars(str_replace('_', ' ', ucfirst($task['status']))); ?>
         </span>
-        <span class="fa-sidebar-date">Assigned: <?php echo date('M d, Y', strtotime($task['assigned_at'])); ?></span>
+        <span class="fa-sidebar-date">Assigned: <?php echo date('M d, Y', strtotime($task['created_at'])); ?></span>
     </div>
     <h1 class="details-title">Verification #VT-<?php echo $task['task_id']; ?></h1>
     <p class="details-subtitle">📍 <?php echo htmlspecialchars($task['address']); ?></p>
@@ -38,16 +38,16 @@
 
     <?php
     $landlord_listing_photos = array(
-        array('id' => 1, 'title' => 'Exterior / Entrance',  'src' => '../uploads/test_room1.jpg'),
-        array('id' => 2, 'title' => 'Room Interior',         'src' => '../uploads/test_room2.jpg'),
-        array('id' => 3, 'title' => 'Bathroom Access',       'src' => '../uploads/test_room1.jpg'),
-        array('id' => 4, 'title' => 'Kitchen & Amenities',   'src' => '../uploads/test_room2.jpg'),
+        array('id' => 1, 'title' => 'Exterior / Entrance',  'src' => '../upload/fieldagent/test_room1.jpg'),
+        array('id' => 2, 'title' => 'Room Interior',         'src' => '../upload/fieldagent/test_room2.jpg'),
+        array('id' => 3, 'title' => 'Bathroom Access',       'src' => '../upload/fieldagent/test_room1.jpg'),
+        array('id' => 4, 'title' => 'Kitchen & Amenities',   'src' => '../upload/fieldagent/test_room2.jpg'),
     );
     ?>
     <div class="fa-sidebar-photo-header">
         <div class="section-label fa-m-0">Landlord Listing Photos (<?php echo count($landlord_listing_photos); ?>)</div>
-        <span id="landlordPhotosStatus" class="fa-sidebar-photo-status">
-            <?php echo count($landlord_listing_photos); ?> of <?php echo count($landlord_listing_photos); ?> Photos Verified (100%)
+        <span id="landlordPhotosStatus" class="fa-sidebar-photo-status" style="background: #F0F0F0; color: #666;">
+            0 of <?php echo count($landlord_listing_photos); ?> Photos Verified (0%)
         </span>
     </div>
 
@@ -65,10 +65,10 @@
                         ✓ Photo Verified
                     </span>
                 <?php else: ?>
-                    <button type="button" class="segmented-btn active-match fa-sidebar-photo-btn"
+                    <button type="button" class="segmented-btn fa-sidebar-photo-btn"
                             id="photo_verify_btn_<?php echo $lp['id']; ?>"
                             onclick="toggleLandlordPhotoVerify(<?php echo $lp['id']; ?>)">
-                        ✓ Photo Verified
+                        Verify Photo
                     </button>
                 <?php endif; ?>
             </div>

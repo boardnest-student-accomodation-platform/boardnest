@@ -18,7 +18,13 @@ $city = $agent['assigned_city'];
 
 // Handle complaint geofence unlock
 if ($complaint_id > 0 && $geofence_override) {
-    $_SESSION['geofence_passed_comp_' . $complaint_id] = true;
+    $verified_lat = isset($_POST['verified_lat']) ? (float)$_POST['verified_lat'] : null;
+    $verified_lng = isset($_POST['verified_lng']) ? (float)$_POST['verified_lng'] : null;
+    $_SESSION['geofence_passed_comp_' . $complaint_id] = array(
+        'coords' => array('lat' => $verified_lat, 'lng' => $verified_lng),
+        'time' => time(),
+        'expires' => time() + 3600 // 1 hour expiration
+    );
     $_SESSION['success'] = 'GPS Geofence validated. Investigation form unlocked.';
     header('Location: ../task_view.php?complaint_id=' . $complaint_id);
     exit();
@@ -69,7 +75,13 @@ try {
             $stmtRooms = $pdo->prepare("UPDATE rooms SET status = 'agent_on_site' WHERE property_id = ?");
             $stmtRooms->execute(array($task['property_id']));
 
-            $_SESSION['geofence_passed_' . $task_id] = true;
+            $verified_lat = isset($_POST['verified_lat']) ? (float)$_POST['verified_lat'] : null;
+            $verified_lng = isset($_POST['verified_lng']) ? (float)$_POST['verified_lng'] : null;
+            $_SESSION['geofence_passed_' . $task_id] = array(
+                'coords' => array('lat' => $verified_lat, 'lng' => $verified_lng),
+                'time' => time(),
+                'expires' => time() + 3600 // 1 hour expiration
+            );
             $_SESSION['success'] = 'Geofence validated. You are now verified on-site.';
             $redirect = '../task_view.php?task_id=' . $task_id;
 

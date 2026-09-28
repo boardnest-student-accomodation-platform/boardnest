@@ -32,6 +32,7 @@ $lock_title = $is_complaint_mode ? "🔒 Investigation Form Locked" : "🔒 Chec
         </div>
 
         <form id="geofenceSuccessForm" action="actions/update_task.php" method="POST" class="hidden">
+            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
             <?php if ($is_complaint_mode): ?>
                 <input type="hidden" name="complaint_id" value="<?php echo $complaint_id; ?>">
             <?php else: ?>

@@ -39,23 +39,33 @@ function updateAuditProgress() {
     if (textEl && fillEl) {
         textEl.innerText       = matchCount + ' of ' + total + ' items verified (' + percent + '%)';
         fillEl.style.width     = percent + '%';
-        fillEl.style.background = percent === 100 ? '#27AE60' : '#A4856D';
+        fillEl.style.background = '#27AE60'; // Always pleasant green
     }
 }
 
 /* ---------- Landlord Photo Verification ---------- */
-const landlordPhotoVerifiedState = { 1: true, 2: true, 3: true, 4: true };
+const landlordPhotoVerifiedState = { 1: null, 2: null, 3: null, 4: null };
 
 function toggleLandlordPhotoVerify(photoId) {
-    landlordPhotoVerifiedState[photoId] = !landlordPhotoVerifiedState[photoId];
+    if (landlordPhotoVerifiedState[photoId] === null) {
+        landlordPhotoVerifiedState[photoId] = true;
+    } else if (landlordPhotoVerifiedState[photoId] === true) {
+        landlordPhotoVerifiedState[photoId] = false;
+    } else {
+        landlordPhotoVerifiedState[photoId] = null;
+    }
+
     const btn = document.getElementById('photo_verify_btn_' + photoId);
     if (btn) {
-        if (landlordPhotoVerifiedState[photoId]) {
-            btn.className = 'segmented-btn active-match';
+        if (landlordPhotoVerifiedState[photoId] === true) {
+            btn.className = 'segmented-btn active-match fa-sidebar-photo-btn';
             btn.innerText = '✓ Photo Verified';
+        } else if (landlordPhotoVerifiedState[photoId] === false) {
+            btn.className = 'segmented-btn active-issue fa-sidebar-photo-btn';
+            btn.innerText = '✕ Discrepancy';
         } else {
-            btn.className = 'segmented-btn active-issue';
-            btn.innerText = '✕ Photo Discrepancy';
+            btn.className = 'segmented-btn fa-sidebar-photo-btn';
+            btn.innerText = 'Verify Photo';
         }
     }
     updateLandlordPhotosStatus();
@@ -65,7 +75,7 @@ function updateLandlordPhotosStatus() {
     let verified = 0;
     const total  = Object.keys(landlordPhotoVerifiedState).length;
     for (let id in landlordPhotoVerifiedState) {
-        if (landlordPhotoVerifiedState[id]) verified++;
+        if (landlordPhotoVerifiedState[id] === true) verified++;
     }
     const percent   = Math.round((verified / total) * 100);
     const statusEl  = document.getElementById('landlordPhotosStatus');
@@ -339,20 +349,12 @@ function simulateGPSMatch() {
     const descDiv   = document.getElementById('geofenceDesc');
     statusDiv.innerText = '🔓 Geofence Match (Simulated)';
     descDiv.innerText   = 'Coordinates matched. Unlocking checklist...';
-    _sendGeofencePass();
-}
-
-function _sendGeofencePass() {
-    const xhr = new XMLHttpRequest();
-    xhr.open('POST', 'actions/update_task.php', true);
-    xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-    xhr.onreadystatechange = function() {
-        if (xhr.readyState === 4 && xhr.status === 200) window.location.reload();
-    };
-    if (typeof complaintId !== 'undefined' && complaintId > 0) {
-        xhr.send('complaint_id=' + complaintId + '&action_type=claim&geofence_override=1');
+    
+    const form = document.getElementById('geofenceSuccessForm');
+    if (form) {
+        form.submit();
     } else {
-        xhr.send('task_id=' + taskId + '&action_type=claim&geofence_override=1');
+        alert("Geofence form not found.");
     }
 }
 
@@ -422,10 +424,11 @@ document.addEventListener('DOMContentLoaded', function() {
     const auditForm = document.getElementById('auditForm');
     if (!auditForm) return;
 
-    auditForm.addEventListener('submit', function() {
+    auditForm.addEventListener('submit', function(e) {
         const rawEl    = document.getElementById('agent_comments_raw');
         const raw      = rawEl ? rawEl.value : '';
         let combined   = '';
+        let isValid    = true;
 
         const items = [
             { id: 'structural',   label: 'Structural Safety' },
@@ -437,13 +440,31 @@ document.addEventListener('DOMContentLoaded', function() {
             { id: 'finance',      label: 'Price & Deposit match' },
             { id: 'kitchen_food', label: 'Kitchen & Food Access match' }
         ];
-        items.forEach(function(item) {
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
             const hidden = document.getElementById('input_' + item.id);
             const area   = document.getElementById(item.id + '_reason');
-            if (hidden && hidden.value === '0' && area && area.value.trim()) {
+            
+            if (!hidden || (hidden.value !== '1' && hidden.value !== '0')) {
+                alert('Please complete the check for: ' + item.label);
+                isValid = false;
+                break;
+            }
+            if (hidden.value === '0') {
+                if (!area || !area.value.trim()) {
+                    alert('Please provide a discrepancy note for: ' + item.label);
+                    isValid = false;
+                    break;
+                }
                 combined += '❌ [' + item.label + ' Discrepancy]: ' + area.value.trim() + '\n';
             }
-        });
+        }
+
+        if (!isValid) {
+            e.preventDefault();
+            return false;
+        }
 
         if (typeof landlordPhotoVerifiedState !== 'undefined') {
             for (let pId in landlordPhotoVerifiedState) {
@@ -456,6 +477,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const hiddenEl = document.getElementById('agent_comments_hidden');
         if (hiddenEl) hiddenEl.value = combined;
+        
+        compileReportData();
     });
 });
 

@@ -4,21 +4,26 @@
 // Include this file once, then call renderChecklistItem() as needed
 
 function renderChecklistItem($id, $title, $subtitle, $fieldName) {
+    $id_esc = htmlspecialchars($id, ENT_QUOTES, 'UTF-8');
+    $fn_esc = htmlspecialchars($fieldName, ENT_QUOTES, 'UTF-8');
+    $title_esc = htmlspecialchars($title, ENT_QUOTES, 'UTF-8');
+    $sub_esc = htmlspecialchars($subtitle, ENT_QUOTES, 'UTF-8');
+    
     echo '<div class="checklist-card">';
     echo '  <div class="checklist-card-row">';
     echo '    <div>';
-    echo '      <div class="fa-checklist-title">' . htmlspecialchars($title) . '</div>';
-    echo '      <div class="fa-checklist-subtitle">' . htmlspecialchars($subtitle) . '</div>';
+    echo '      <div class="fa-checklist-title">' . $title_esc . '</div>';
+    echo '      <div class="fa-checklist-subtitle">' . $sub_esc . '</div>';
     echo '    </div>';
     echo '    <div class="segmented-control">';
-    echo '      <button type="button" class="segmented-btn" id="btn_match_' . $id . '" onclick="setAuditSegment(\'' . $id . '\', true)">&#10003; Verified Match</button>';
-    echo '      <button type="button" class="segmented-btn" id="btn_issue_' . $id . '" onclick="setAuditSegment(\'' . $id . '\', false)">&#10005; Issue Found</button>';
+    echo '      <button type="button" class="segmented-btn" id="btn_match_' . $id_esc . '" onclick="setAuditSegment(\'' . $id_esc . '\', true)">&#10003; Verified Match</button>';
+    echo '      <button type="button" class="segmented-btn" id="btn_issue_' . $id_esc . '" onclick="setAuditSegment(\'' . $id_esc . '\', false)">&#10005; Issue Found</button>';
     echo '    </div>';
-    echo '    <input type="hidden" id="input_' . $id . '" name="' . htmlspecialchars($fieldName) . '" value="" required>';
+    echo '    <input type="hidden" id="input_' . $id_esc . '" name="' . $fn_esc . '" value="">';
     echo '  </div>';
-    echo '  <div id="' . $id . '_reason_container" class="checklist-reason-box">';
-    echo '    <label class="form-label form-label--required text-error fa-checklist-label-error">Log ' . htmlspecialchars($title) . ' Discrepancy Note</label>';
-    echo '    <textarea class="textarea-styled fa-checklist-textarea" id="' . $id . '_reason" placeholder="Document any discrepancies found for: ' . htmlspecialchars($title) . '..."></textarea>';
+    echo '  <div id="' . $id_esc . '_reason_container" class="checklist-reason-box">';
+    echo '    <label class="form-label form-label--required text-error fa-checklist-label-error">Log ' . $title_esc . ' Discrepancy Note</label>';
+    echo '    <textarea class="textarea-styled fa-checklist-textarea" id="' . $id_esc . '_reason" name="' . $fn_esc . '_reason" placeholder="Document any discrepancies found for: ' . $title_esc . '..."></textarea>';
     echo '  </div>';
     echo '</div>';
 }

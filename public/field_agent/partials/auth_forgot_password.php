@@ -57,8 +57,10 @@
             <button type="submit" class="btn-auth-submit">Reset My Password</button>
         </form>
 
-        <div class="fa-auth-footer">
-            <a href="login.php" class="fa-auth-back-link">← Back to Sign In</a>
+        <div class="fa-auth-footer" style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--fa-text-secondary);">
+            <a href="../../index.html" class="fa-auth-link" style="text-decoration: none;">← Back to Home</a>
+            <span style="margin: 0 10px; opacity: 0.5;">|</span>
+            <a href="login.php" class="fa-auth-link" style="text-decoration: none;">Back to Sign In</a>
         </div>
     </div>
 </div>

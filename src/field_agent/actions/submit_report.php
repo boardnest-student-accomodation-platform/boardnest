@@ -44,19 +44,64 @@ if ($task['status'] === 'completed') {
     exit();
 }
 
-// Read Checklist Inputs (Check exact value '1' rather than just isset because hidden inputs always submit)
-$structural_safety = (isset($_POST['structural_safety']) && $_POST['structural_safety'] == '1') ? 1 : 0;
-$electrical_safety = (isset($_POST['electrical_safety']) && $_POST['electrical_safety'] == '1') ? 1 : 0;
-$fire_exit = (isset($_POST['fire_exit']) && $_POST['fire_exit'] == '1') ? 1 : 0;
-$gps_match = (isset($_POST['gps_match']) && $_POST['gps_match'] == '1') ? 1 : 0;
+// Server enforcement of Geofence Authorization
+if (!isset($_SESSION['geofence_passed_' . $task_id])) {
+    $_SESSION['error'] = 'GPS Geofence authorization is missing. Please verify your location first.';
+    header('Location: ../task_view.php?task_id=' . $task_id);
+    exit();
+}
+$geo_data = $_SESSION['geofence_passed_' . $task_id];
+if (!is_array($geo_data) || !isset($geo_data['expires']) || time() > $geo_data['expires']) {
+    unset($_SESSION['geofence_passed_' . $task_id]);
+    $_SESSION['error'] = 'GPS Geofence authorization has expired (1 hour limit). Please verify your location again.';
+    header('Location: ../task_view.php?task_id=' . $task_id);
+    exit();
+}
+
+$audit_items = array(
+    'structural_safety' => 'Structural Safety',
+    'electrical_safety' => 'Electrical Wiring',
+    'fire_exit' => 'Fire Exit pathways',
+    'furnishing_match' => 'Furnishing details match',
+    'bathroom_match' => 'Bathroom Access type match',
+    'wifi_match' => 'Wi-Fi Availability match',
+    'finance_match' => 'Price & Deposit match',
+    'kitchen_food_match' => 'Kitchen & Food Access match',
+    'gps_match' => 'GPS Coordinate match'
+);
+
+$audit_values = array();
+
+foreach ($audit_items as $field => $label) {
+    if (!isset($_POST[$field]) || ($_POST[$field] !== '1' && $_POST[$field] !== '0')) {
+        $_SESSION['error'] = 'You must complete the verification check for: ' . $label;
+        header('Location: ../task_view.php?task_id=' . $task_id);
+        exit();
+    }
+    
+    $val = $_POST[$field];
+    if ($val === '0') {
+        $reason_field = $field . '_reason';
+        if (!isset($_POST[$reason_field]) || trim($_POST[$reason_field]) === '') {
+            $_SESSION['error'] = 'You must provide a discrepancy note for: ' . $label;
+            header('Location: ../task_view.php?task_id=' . $task_id);
+            exit();
+        }
+    }
+    $audit_values[$field] = (int)$val;
+}
+
+$structural_safety = $audit_values['structural_safety'];
+$electrical_safety = $audit_values['electrical_safety'];
+$fire_exit = $audit_values['fire_exit'];
+$gps_match = $audit_values['gps_match'];
+$furnishing_match = $audit_values['furnishing_match'];
+$bathroom_match = $audit_values['bathroom_match'];
+$wifi_match = $audit_values['wifi_match'];
+$finance_match = $audit_values['finance_match'];
+$kitchen_food_match = $audit_values['kitchen_food_match'];
+
 $neighborhood_safety = isset($_POST['neighborhood_safety']) ? intval($_POST['neighborhood_safety']) : 0;
-
-$furnishing_match = (isset($_POST['furnishing_match']) && $_POST['furnishing_match'] == '1') ? 1 : 0;
-$bathroom_match = (isset($_POST['bathroom_match']) && $_POST['bathroom_match'] == '1') ? 1 : 0;
-$wifi_match = (isset($_POST['wifi_match']) && $_POST['wifi_match'] == '1') ? 1 : 0;
-$finance_match = (isset($_POST['finance_match']) && $_POST['finance_match'] == '1') ? 1 : 0;
-$kitchen_food_match = (isset($_POST['kitchen_food_match']) && $_POST['kitchen_food_match'] == '1') ? 1 : 0;
-
 $agent_comments = isset($_POST['agent_comments']) ? trim($_POST['agent_comments']) : '';
 
 // Validation
@@ -124,17 +169,23 @@ if (isset($_FILES['extra_photos']) && is_array($_FILES['extra_photos']['name']))
 try {
     $pdo->beginTransaction();
 
+    $transport = isset($_POST['transport_details']) ? trim($_POST['transport_details']) : '';
+    $amenities = isset($_POST['amenities_details']) ? trim($_POST['amenities_details']) : '';
+    $safety    = isset($_POST['safety_details'])    ? trim($_POST['safety_details'])    : '';
+
     // 1. Insert Verification Report (Create operation)
     $stmtRep = $pdo->prepare("
         INSERT INTO verification_reports (
-            task_id, structural_safety, electrical_safety, fire_exit, gps_match, 
+            task_id, field_agent_user_id, structural_safety, electrical_safety, fire_exit, gps_match, 
             neighborhood_safety, furnishing_match, bathroom_match, wifi_match, finance_match, kitchen_food_match,
+            transport_details, amenities_details, safety_details,
             photo_path_1, photo_path_2, agent_comments
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     $stmtRep->execute(array(
-        $task_id, $structural_safety, $electrical_safety, $fire_exit, $gps_match,
+        $task_id, $_SESSION['user_id'], $structural_safety, $electrical_safety, $fire_exit, $gps_match,
         $neighborhood_safety, $furnishing_match, $bathroom_match, $wifi_match, $finance_match, $kitchen_food_match,
+        $transport, $amenities, $safety,
         $db_photo_path1, $db_photo_path2, $agent_comments
     ));
 
@@ -145,19 +196,6 @@ try {
     // 3. Update property rooms status to awaiting_admin (Listing state machine update)
     $stmtRooms = $pdo->prepare("UPDATE rooms SET status = 'awaiting_admin' WHERE property_id = ?");
     $stmtRooms->execute(array($task['property_id']));
-
-    // 4. Save Section 04 Area Profile & Observations if filled
-    $transport = isset($_POST['transport_details']) ? trim($_POST['transport_details']) : '';
-    $amenities = isset($_POST['amenities_details']) ? trim($_POST['amenities_details']) : '';
-    $safety    = isset($_POST['safety_details'])    ? trim($_POST['safety_details'])    : '';
-
-    if (!empty($transport) || !empty($amenities) || !empty($safety)) {
-        $stmtArea = $pdo->prepare("
-            INSERT INTO area_reports (agent_id, city, transport_details, amenities_details, safety_details, status, submitted_at)
-            VALUES (?, ?, ?, ?, ?, 'pending', NOW())
-        ");
-        $stmtArea->execute(array($agent_id, $city, $transport, $amenities, $safety));
-    }
 
     // Clear geofence session variable
     unset($_SESSION['geofence_passed_' . $task_id]);

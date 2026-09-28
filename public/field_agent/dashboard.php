@@ -9,21 +9,34 @@ require_once '../../config/db.php';
 
 // Fetch agent
 $stmt = $pdo->prepare("
-    SELECT f.agent_id, f.assigned_city 
+    SELECT f.agent_id, f.assigned_city, f.is_active, u.status 
     FROM field_agents f
     INNER JOIN users u ON f.user_id = u.user_id 
-    WHERE f.user_id = ? AND f.is_active = 1 AND u.status = 'active'
+    WHERE f.user_id = ?
 ");
 $stmt->execute(array($_SESSION['user_id']));
 $agent = $stmt->fetch();
-if (!$agent) die("Field agent account not found.");
+if (!$agent) {
+    die("Field agent account not found.");
+}
+
 $agent_id = $agent['agent_id'];
 $city     = $agent['assigned_city'];
+$agent_status = ($agent['is_active'] == 1 && $agent['status'] === 'active') ? 'active' : 'suspended';
 
-$active_tab  = isset($_GET['tab']) ? $_GET['tab'] : 'pending';
+$allowed_tabs = array('pending', 'claimed', 'complaints', 'history');
+$active_tab   = isset($_GET['tab']) ? $_GET['tab'] : 'pending';
+if (!in_array($active_tab, $allowed_tabs, true)) {
+    $active_tab = 'pending';
+}
 $success_msg = isset($_SESSION['success']) ? $_SESSION['success'] : '';
 $error_msg   = isset($_SESSION['error'])   ? $_SESSION['error']   : '';
 unset($_SESSION['success'], $_SESSION['error']);
+
+if (empty($_SESSION['csrf_token'])) {
+    $_SESSION['csrf_token'] = md5(uniqid(mt_rand(), true));
+}
+$csrf_token = $_SESSION['csrf_token'];
 
 // Pending tasks (unclaimed in city)
 $stmtPending = $pdo->prepare("
@@ -62,12 +75,26 @@ $stmtComplaints = $pdo->prepare("
     FROM complaints c
     INNER JOIN listings l ON c.listing_id = l.listing_id
     INNER JOIN properties p ON l.property_id = p.property_id
-    INNER JOIN complaint_investigations ci ON c.id = ci.complaint_id
+    INNER JOIN complaint_investigations ci ON c.complaint_id = ci.complaint_id
     INNER JOIN users      u ON c.complainant_user_id = u.user_id
     WHERE ci.field_agent_user_id = ? AND c.status IN ('assigned','under_investigation')
 ");
 $stmtComplaints->execute(array($_SESSION['user_id']));
 $complaints_tasks = $stmtComplaints->fetchAll();
+
+// Completed complaints (History)
+$stmtCompletedComplaints = $pdo->prepare("
+    SELECT c.*, p.address, p.structural_type, u.full_name AS student_name, ci.findings
+    FROM complaints c
+    INNER JOIN listings l ON c.listing_id = l.listing_id
+    INNER JOIN properties p ON l.property_id = p.property_id
+    INNER JOIN complaint_investigations ci ON c.complaint_id = ci.complaint_id
+    INNER JOIN users      u ON c.complainant_user_id = u.user_id
+    WHERE ci.field_agent_user_id = ? AND c.status NOT IN ('assigned','under_investigation', 'pending')
+    ORDER BY c.complaint_id DESC
+");
+$stmtCompletedComplaints->execute(array($_SESSION['user_id']));
+$completed_complaints = $stmtCompletedComplaints->fetchAll();
 
 $count_pending   = count($pending_tasks);
 $count_claimed   = count($claimed_tasks);
@@ -99,17 +126,17 @@ define('PARTIALS', __DIR__ . '/partials/');
             <div class="user-avatar-circle"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
             <div class="fa-nav-username"><?php echo htmlspecialchars($_SESSION['full_name']); ?></div>
             <span class="fa-nav-role"><?php echo htmlspecialchars($city); ?> Agent</span>
-            <a href="logout.php" class="fa-nav-logout">Logout</a>
+            <a href="../../logout.php" class="fa-nav-logout">Logout</a>
         </div>
     </header>
 
     <!-- Dashboard Grid -->
     <div class="dashboard-grid-layout">
-        <?php require PARTIALS . 'dashboard_sidebar.php'; ?>
-        <?php require PARTIALS . 'dashboard_main.php'; ?>
+        <?php require PARTIALS . '_dashboard_sidebar.php'; ?>
+        <?php require PARTIALS . '_dashboard_main.php'; ?>
     </div>
 
-    <?php require_once dirname(__DIR__, 2) . '/includes/agent_guide_modal.php'; ?>
+    <?php require __DIR__ . '/../../src/field_agent/components/agent_guide_modal.php'; ?>
 
     <script src="../assets/js/field_agent.js"></script>
 </body>

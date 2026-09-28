@@ -3,7 +3,7 @@
 // Complaint investigation details + report form (Supports Active & Read-Only Resolved modes)
 // Expects: $complaint (array), optional $show_complaint_part ('header'|'form'|'all')
 
-$is_resolved = isset($complaint['status']) && $complaint['status'] === 'resolved';
+$is_resolved = isset($complaint['status']) && in_array($complaint['status'], array('resolved', 'upheld', 'dismissed', 'escalated'));
 $category_labels = array(
     'fee_discrepancy'     => '💰 Fee Discrepancy',
     'amenity_discrepancy' => '⚡ Amenity Discrepancy',
@@ -101,14 +101,14 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
         <div>
             <span class="fa-complaint-rec-label">Final Recommendation Outcome</span>
             <?php
-            $rec = isset($complaint['recommendation']) ? $complaint['recommendation'] : '';
+            $rec = isset($complaint['status']) ? $complaint['status'] : '';
             if ($rec === 'resolved') {
                 echo '<span class="fa-complaint-rec-resolved">🤝 Resolved on Site (Settled)</span>';
-            } elseif ($rec === 'uphold') {
+            } elseif ($rec === 'upheld') {
                 echo '<span class="fa-complaint-rec-uphold">⚠️ Uphold Complaint (Landlord Violation)</span>';
-            } elseif ($rec === 'dismiss') {
+            } elseif ($rec === 'dismissed') {
                 echo '<span class="fa-complaint-rec-dismiss">✅ Dismiss Complaint (No Violation)</span>';
-            } else {
+            } elseif ($rec === 'escalated') {
                 echo '<span class="fa-complaint-rec-escalate">🚨 Escalated to Administration</span>';
             }
             ?>
@@ -173,9 +173,9 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
                 <select class="select-styled fa-complaint-form-select" name="recommendation" required>
                     <option value="">-- Select Formal Resolution --</option>
                     <option value="resolved">Resolved on Site (Dispute settled between parties)</option>
-                    <option value="dismiss">Dismiss Complaint (No landlord violation found)</option>
-                    <option value="uphold">Uphold Complaint (Landlord violated terms)</option>
-                    <option value="escalate">Escalate Complaint (Unresolved / Uncooperative)</option>
+                    <option value="dismissed">Dismiss Complaint (No landlord violation found)</option>
+                    <option value="upheld">Uphold Complaint (Landlord violated terms)</option>
+                    <option value="escalated">Escalate Complaint (Unresolved / Uncooperative)</option>
                 </select>
             </div>
 
@@ -186,7 +186,7 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
                 </label>
                 <div class="fa-complaint-fee-wrapper">
                     <span class="fa-complaint-fee-symbol">LKR</span>
-                    <input type="number" class="form-input fa-complaint-fee-input" name="visit_fee" min="0" step="50" value="0" placeholder="0.00">
+                    <input type="number" class="form-input fa-complaint-fee-input" name="visit_fee" min="0" step="0.01" value="0" placeholder="0.00">
                 </div>
                 <div class="fa-complaint-fee-hint">
                     💡 Set to <strong>0</strong> if no fee is charged (e.g. waived or free visit).

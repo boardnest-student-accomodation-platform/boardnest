@@ -69,6 +69,7 @@
                                 <form action="actions/update_task.php" method="POST" class="fa-inline-form">
                                     <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
                                     <input type="hidden" name="action_type" value="claim">
+                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                     <button type="submit" class="btn btn--primary btn--sm fa-btn-table">Claim Task</button>
                                 </form>
                             </td>
@@ -106,6 +107,7 @@
                                     <form action="actions/update_task.php" method="POST" class="fa-inline-form">
                                         <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
                                         <input type="hidden" name="action_type" value="withdraw">
+                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
                                         <button type="submit" class="btn btn--ghost btn--sm btn--danger fa-btn-table" onclick="return confirm('Withdraw from this task?');">Withdraw</button>
                                     </form>
                                 </div>
@@ -131,14 +133,13 @@
         <?php else: ?>
             <div class="table-wrapper-custom">
                 <table class="table-custom">
-                    <thead><tr><th>Complaint ID</th><th>Property Address</th><th>Complainant</th><th>Category</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Complaint ID</th><th>Property Address</th><th>Complainant</th><th>Action</th></tr></thead>
                     <tbody>
                         <?php foreach ($complaints_tasks as $comp): ?>
                         <tr>
                             <td><strong>#CP-<?php echo $comp['complaint_id']; ?></strong></td>
                             <td><?php echo htmlspecialchars($comp['address']); ?></td>
                             <td><?php echo htmlspecialchars($comp['student_name']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($comp['category']); ?></span></td>
                             <td><a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="btn btn--primary btn--sm fa-btn-table">Investigate</a></td>
                         </tr>
                         <?php endforeach; ?>
@@ -170,6 +171,34 @@
                             <td><span class="tag-custom"><?php echo htmlspecialchars($task['structural_type']); ?></span></td>
                             <td><?php echo htmlspecialchars($task['submitted_at']); ?></td>
                             <td><a href="task_view.php?task_id=<?php echo $task['task_id']; ?>" class="btn btn--outline btn--sm fa-btn-table">View Report</a></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        <?php endif; ?>
+
+        <!-- Completed Complaints -->
+        <h2 class="fa-h2 fa-mt-20">Completed Complaints (Read Only)</h2>
+        <?php if (empty($completed_complaints)): ?>
+            <div class="empty-state-card">
+                <div class="fa-empty-icon success">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+                </div>
+                <h3 class="fa-h3">No Completed Complaints</h3>
+                <p class="fa-empty-text">Completed complaint investigations will appear here.</p>
+            </div>
+        <?php else: ?>
+            <div class="table-wrapper-custom">
+                <table class="table-custom">
+                    <thead><tr><th>Complaint ID</th><th>Address</th><th>Status</th><th>Action</th></tr></thead>
+                    <tbody>
+                        <?php foreach ($completed_complaints as $comp): ?>
+                        <tr>
+                            <td><strong>#CP-<?php echo $comp['complaint_id']; ?></strong></td>
+                            <td><?php echo htmlspecialchars($comp['address']); ?></td>
+                            <td><span class="tag-custom"><?php echo htmlspecialchars(ucfirst($comp['status'])); ?></span></td>
+                            <td><a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="btn btn--outline btn--sm fa-btn-table">View Report</a></td>
                         </tr>
                         <?php endforeach; ?>
                     </tbody>
