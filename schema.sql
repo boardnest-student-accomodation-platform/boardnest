@@ -83,6 +83,7 @@ CREATE TABLE properties (
     longitude DECIMAL(11, 8),
     maps_url VARCHAR(500),
     facilities TEXT,
+    shared_facilities TEXT NULL,
     description TEXT,
     status ENUM('available', 'pending', 'under_verification', 'agent_on_site', 'awaiting_admin', 'verified', 'suspended') DEFAULT 'pending',
     rent_amount DECIMAL(10,2) NULL,
@@ -95,6 +96,18 @@ CREATE TABLE rooms (
     room_id INT AUTO_INCREMENT PRIMARY KEY,
     property_id INT NOT NULL,
     room_type VARCHAR(50),
+    listing_id INT NULL,
+    slot_cap TINYINT NOT NULL DEFAULT 1,
+    partial_occupancy TINYINT(1) NOT NULL DEFAULT 0,
+    deposit DECIMAL(10,2) NULL,
+    sq_footage INT NULL,
+    furnishing ENUM('furnished','semi_furnished','unfurnished') NULL,
+    bathroom_type ENUM('attached','shared') NULL,
+    wifi TINYINT(1) NOT NULL DEFAULT 0,
+    house_rules TEXT NULL,
+    gender_pref ENUM('male','female','any') NOT NULL DEFAULT 'any',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_listing_room (listing_id),
     price DECIMAL(10,2) NULL,
     slot_capacity INT NOT NULL DEFAULT 1,
     security_deposit DECIMAL(10,2) NOT NULL DEFAULT 0.00,
@@ -123,9 +136,12 @@ CREATE TABLE complaints (
     complaint_id INT AUTO_INCREMENT PRIMARY KEY,
     listing_id INT NOT NULL,
     complainant_user_id INT NOT NULL,
-    category ENUM('fee_discrepancy','amenity_discrepancy','maintenance_issue','security_issue','other') DEFAULT 'other',
+    landlord_user_id INT NULL,
+    unverified_stay TINYINT(1) NOT NULL DEFAULT 0,
+    submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    category ENUM('fee_discrepancy','amenity_discrepancy','maintenance_issue','security_issue','safety','false_advertising','landlord_misconduct','other') DEFAULT 'other',
     description TEXT,
-    status ENUM('assigned', 'under_investigation', 'resolved', 'upheld', 'dismissed', 'escalated') DEFAULT 'assigned',
+    status ENUM('new', 'under_moderation', 'assigned', 'under_investigation', 'resolved', 'upheld', 'dismissed', 'escalated') DEFAULT 'assigned',
     FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE,
     FOREIGN KEY (complainant_user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -134,6 +150,9 @@ CREATE TABLE complaint_investigations (
     investigation_id INT AUTO_INCREMENT PRIMARY KEY,
     complaint_id INT NOT NULL,
     field_agent_user_id INT NOT NULL,
+    admin_notes TEXT NULL,
+    assigned_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME NULL,
     findings TEXT,
     visit_fee_charged DECIMAL(10,2) DEFAULT 0.00,
     FOREIGN KEY (complaint_id) REFERENCES complaints(complaint_id) ON DELETE CASCADE,
@@ -276,3 +295,77 @@ CREATE TABLE IF NOT EXISTS listing_decisions (
 
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Student module additions; retain existing field-agent data contracts.
+ALTER TABLE rooms ADD CONSTRAINT fk_room_listing
+    FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    type ENUM('booking_accepted','booking_rejected','complaint_update','announcement','account_update') NOT NULL,
+    message VARCHAR(500) NOT NULL,
+    link_url VARCHAR(500) NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notifications_user_read (user_id, is_read),
+    CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS room_slots (
+    slot_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    slot_no TINYINT NOT NULL,
+    status ENUM('available','partially_occupied','occupied','pending')
+        NOT NULL DEFAULT 'available',
+    student_id INT NULL,
+    price_type ENUM('full','partial') NOT NULL DEFAULT 'full',
+    move_in DATE NULL,
+    UNIQUE KEY unique_room_slot (room_id, slot_no),
+    CONSTRAINT fk_slot_room
+        FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_slot_student
+        FOREIGN KEY (student_id) REFERENCES students(student_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS listing_photos (
+    photo_id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    photo_url VARCHAR(500) NOT NULL,
+    is_primary TINYINT(1) NOT NULL DEFAULT 0,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_photo_listing
+        FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS saved_listings (
+    saved_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    listing_id INT NOT NULL,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_save (student_id, listing_id),
+    CONSTRAINT fk_saved_student
+        FOREIGN KEY (student_id) REFERENCES students(student_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_saved_listing
+        FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    student_id INT NOT NULL,
+    rating TINYINT NOT NULL,
+    review_text TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (rating BETWEEN 1 AND 5),
+    CONSTRAINT fk_review_listing
+        FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_review_student
+        FOREIGN KEY (student_id) REFERENCES students(student_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
