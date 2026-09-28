@@ -4,13 +4,25 @@ startSession();
 
 $error = '';
 
+$accountMessages = [
+    'suspended' => 'Your account has been suspended. Please contact BoardNest support.',
+    'rejected' => 'Your verification documents were rejected. Please register again with valid documents.',
+    'pending' => 'Your account is still awaiting approval.',
+    'banned' => 'This account is no longer permitted to access BoardNest.',
+    'profile_missing' => 'Your student profile could not be found. Please contact support.',
+];
+
+if (isset($_GET['account_status'], $accountMessages[$_GET['account_status']])) {
+    $error = $accountMessages[$_GET['account_status']];
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'config/db.php';
 
     $email = trim($_POST['email']);
     $password = $_POST['password'];
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
@@ -33,26 +45,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         // Password නිවැරදි නම් Session සාදා Direct කිරීම
         if ($isPasswordCorrect) {
-            $_SESSION['user_id']   = $user['user_id'];
-            $_SESSION['role']      = $user['role'];
-            $_SESSION['full_name'] = $user['full_name'];
+            if ($user['status'] !== 'active') {
+                $error = $accountMessages[$user['status']] ?? 'This account cannot sign in at the moment.';
+            } else {
+                $_SESSION['user_id']   = $user['user_id'];
+                $_SESSION['role']      = $user['role'];
+                $_SESSION['full_name'] = $user['full_name'];
+                $_SESSION['status']    = $user['status'];
 
-            // Redirect based on role
-            switch ($user['role']) {
-                case 'student':
-                    header('Location: student/dashboard.php');
-                    break;
-                case 'landlord':
-                    header('Location: modules/landlord/dashboard.php');
-                    break;
-                case 'field_agent':
-                    header('Location: field_agent/dashboard.php');
-                    break;
-                case 'admin':
-                    header('Location: modules/admin/dashboard.php');
-                    break;
+                // Redirect based on role
+                switch ($user['role']) {
+                    case 'student':
+                        header('Location: public/student/dashboard.php');
+                        break;
+                    case 'landlord':
+                        header('Location: modules/landlord/dashboard.php');
+                        break;
+                    case 'field_agent':
+                        header('Location: field_agent/dashboard.php');
+                        break;
+                    case 'admin':
+                        header('Location: modules/admin/dashboard.php');
+                        break;
+                }
+                exit();
             }
-            exit();
         } else {
             $error = "Invalid email or password.";
         }
@@ -82,7 +99,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="password" name="password" required>
             <button type="submit">Login</button>
         </form>
-        <p>Don't have an account? <a href="register.php">Register</a></p>
+        <p>Don't have an account? <a href="public/student/register.php">Register as a student</a></p>
     </div>
 </body>
 </html>

@@ -41,6 +41,183 @@ CREATE TABLE landlords (
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
+-- ========================================================
+-- LISTING AND PROPERTY MODULE TABLES
+-- ========================================================
+
+-- Landlord's Listing table (Added by Admin)
+CREATE TABLE IF NOT EXISTS listings (
+    listing_id INT NOT NULL AUTO_INCREMENT,
+    landlord_id INT NOT NULL,
+
+    title VARCHAR(100) NOT NULL,
+    description TEXT NULL,
+    address VARCHAR(100) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    monthly_rent DECIMAL(10,2) NOT NULL,
+
+    status ENUM('pending','verification_pending','live','rejected','suspended')
+        NOT NULL DEFAULT 'pending',
+
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    PRIMARY KEY (listing_id),
+
+    CONSTRAINT fk_listings_landlord
+        FOREIGN KEY (landlord_id)
+        REFERENCES landlords(landlord_id)
+        ON DELETE CASCADE
+        ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================================================
+-- STUDENT COMPLAINTS AND NOTIFICATIONS
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS complaints (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    complainant_user_id INT NOT NULL,
+    landlord_user_id INT NOT NULL,
+    category ENUM('safety','false_advertising','fee_discrepancy','landlord_misconduct','other') NOT NULL,
+    description TEXT NOT NULL,
+    status ENUM('new','under_moderation','assigned','under_investigation','resolved','dismissed','upheld','escalated') NOT NULL DEFAULT 'new',
+    unverified_stay TINYINT(1) NOT NULL DEFAULT 0,
+    submitted_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_complaint_listing FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_complaint_student_user FOREIGN KEY (complainant_user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_complaint_landlord_user FOREIGN KEY (landlord_user_id) REFERENCES users(user_id) ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS complaint_investigations (
+    investigation_id INT AUTO_INCREMENT PRIMARY KEY,
+    complaint_id INT NOT NULL,
+    field_agent_user_id INT NULL,
+    admin_notes TEXT NULL,
+    assigned_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    resolved_at DATETIME NULL,
+    CONSTRAINT fk_ci_complaint FOREIGN KEY (complaint_id) REFERENCES complaints(id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_ci_agent FOREIGN KEY (field_agent_user_id) REFERENCES users(user_id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    type ENUM('booking_accepted','booking_rejected','complaint_update','announcement','account_update') NOT NULL,
+    message VARCHAR(500) NOT NULL,
+    link_url VARCHAR(500) NULL,
+    is_read TINYINT(1) NOT NULL DEFAULT 0,
+    created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_notifications_user_read (user_id, is_read),
+    CONSTRAINT fk_notification_user FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Physical building that contains one or more rentable rooms
+CREATE TABLE IF NOT EXISTS properties (
+    property_id INT AUTO_INCREMENT PRIMARY KEY,
+    landlord_id INT NOT NULL,
+    address TEXT NOT NULL,
+    city VARCHAR(100) NOT NULL,
+    structural_type ENUM('annex','apartment','house','hostel','convent','boarding_house')
+        NOT NULL DEFAULT 'boarding_house',
+    latitude DECIMAL(10,8) NULL,
+    longitude DECIMAL(11,8) NULL,
+    maps_url VARCHAR(500) NULL,
+    shared_facilities TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_property_landlord
+        FOREIGN KEY (landlord_id) REFERENCES landlords(landlord_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Rentable room represented by a public listing
+CREATE TABLE IF NOT EXISTS rooms (
+    room_id INT AUTO_INCREMENT PRIMARY KEY,
+    property_id INT NOT NULL,
+    listing_id INT NOT NULL,
+    room_type ENUM('single','shared') NOT NULL DEFAULT 'single',
+    slot_cap TINYINT NOT NULL DEFAULT 1,
+    partial_occupancy TINYINT(1) NOT NULL DEFAULT 0,
+    deposit DECIMAL(10,2) NULL,
+    sq_footage INT NULL,
+    furnishing ENUM('furnished','semi_furnished','unfurnished') NULL,
+    bathroom_type ENUM('attached','shared') NULL,
+    wifi TINYINT(1) NOT NULL DEFAULT 0,
+    house_rules TEXT NULL,
+    gender_pref ENUM('male','female','any') NOT NULL DEFAULT 'any',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_listing_room (listing_id),
+    CONSTRAINT fk_room_property
+        FOREIGN KEY (property_id) REFERENCES properties(property_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_room_listing
+        FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Individually bookable places within a room
+CREATE TABLE IF NOT EXISTS room_slots (
+    slot_id INT AUTO_INCREMENT PRIMARY KEY,
+    room_id INT NOT NULL,
+    slot_no TINYINT NOT NULL,
+    status ENUM('available','partially_occupied','occupied','pending')
+        NOT NULL DEFAULT 'available',
+    student_id INT NULL,
+    price_type ENUM('full','partial') NOT NULL DEFAULT 'full',
+    move_in DATE NULL,
+    UNIQUE KEY unique_room_slot (room_id, slot_no),
+    CONSTRAINT fk_slot_room
+        FOREIGN KEY (room_id) REFERENCES rooms(room_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_slot_student
+        FOREIGN KEY (student_id) REFERENCES students(student_id)
+        ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Multiple display photos for each listing
+CREATE TABLE IF NOT EXISTS listing_photos (
+    photo_id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    photo_url VARCHAR(500) NOT NULL,
+    is_primary TINYINT(1) NOT NULL DEFAULT 0,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_photo_listing
+        FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Student wishlist
+CREATE TABLE IF NOT EXISTS saved_listings (
+    saved_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    listing_id INT NOT NULL,
+    saved_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_save (student_id, listing_id),
+    CONSTRAINT fk_saved_student
+        FOREIGN KEY (student_id) REFERENCES students(student_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_saved_listing
+        FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- Reviews from students after a completed stay
+CREATE TABLE IF NOT EXISTS reviews (
+    review_id INT AUTO_INCREMENT PRIMARY KEY,
+    listing_id INT NOT NULL,
+    student_id INT NOT NULL,
+    rating TINYINT NOT NULL,
+    review_text TEXT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CHECK (rating BETWEEN 1 AND 5),
+    CONSTRAINT fk_review_listing
+        FOREIGN KEY (listing_id) REFERENCES listings(listing_id)
+        ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_review_student
+        FOREIGN KEY (student_id) REFERENCES students(student_id)
+        ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 -- Field Agent extension table
 CREATE TABLE field_agents (
     agent_id INT AUTO_INCREMENT PRIMARY KEY,
@@ -59,12 +236,6 @@ CREATE TABLE admin (
     user_id INT UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
-
--- Insert a default admin account (password: admin123)
-INSERT INTO users (full_name, email, password_hash, role, status)
-VALUES ('Admin', 'admin@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'active');
-
-INSERT INTO admin (user_id) VALUES (LAST_INSERT_ID());
 
 -- ========================================================
 -- FIELD AGENT MODULE TABLES

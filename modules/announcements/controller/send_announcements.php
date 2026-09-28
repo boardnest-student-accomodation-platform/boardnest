@@ -93,7 +93,7 @@ $adminId = $_SESSION['user_id'];
 if ($audience === 'all') {
 
     $stmt = $pdo->prepare("
-        SELECT user_id, email
+        SELECT user_id, email, role
         FROM users
         WHERE status = 'active'
     ");
@@ -102,7 +102,7 @@ if ($audience === 'all') {
 } else {
 
     $stmt = $pdo->prepare("
-        SELECT user_id, email
+        SELECT user_id, email, role
         FROM users
         WHERE role = ?
         AND status = 'active'
@@ -161,7 +161,19 @@ try {
     $sentCount = 0;
     $failedCount = 0;
 
+    $notificationStmt = $pdo->prepare("
+        INSERT INTO notifications (user_id, type, message, link_url, is_read)
+        VALUES (?, 'announcement', ?, 'notifications.php', 0)
+    ");
+
     foreach ($recipients as $recipient) {
+
+        if ($recipient['role'] === 'student') {
+            $notificationStmt->execute([
+                $recipient['user_id'],
+                $subject . ': ' . $message
+            ]);
+        }
 
         $email = $recipient['email'];
 
