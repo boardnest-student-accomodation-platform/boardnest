@@ -1,12 +1,15 @@
 <?php
-$host = 'localhost';
-$dbname = 'boardnest';
-$username = 'root';
-$password = '';
+$host = getenv('BOARDNEST_DB_HOST') ?: 'localhost';
+$dbname = getenv('BOARDNEST_DB_NAME') ?: 'boardnest';
+$username = getenv('BOARDNEST_DB_USER') ?: 'root';
+$password = getenv('BOARDNEST_DB_PASSWORD');
+if ($password === false) {
+    $password = '';
+}
 
 try {
     $pdo = new PDO(
-        "mysql:host=$host;dbname=$dbname;charset=utf8",
+        "mysql:host=$host;dbname=$dbname;charset=utf8mb4",
         $username,
         $password
     );
