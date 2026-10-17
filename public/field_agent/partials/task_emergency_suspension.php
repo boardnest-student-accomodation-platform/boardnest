@@ -3,9 +3,9 @@
 // Collapsible emergency hazard drawer
 // Expects: $task_id (int)
 ?>
-<details class="fa-emergency-details">
+<details id="emergencySuspensionDrawer" class="fa-emergency-details">
     <summary class="fa-emergency-summary">
-        <span>⚠️ Flag Critical Safety Hazard (Emergency Suspension)</span>
+        <span><?php echo fa_icon('alert', '', 14, '#b02a37'); ?> Flag Critical Safety Hazard (Emergency Suspension)</span>
         <span class="fa-emergency-badge">Expand Drawer ▾</span>
     </summary>
     <div class="fa-emergency-content">
@@ -23,8 +23,8 @@
             </div>
             <button type="submit"
                     class="fa-emergency-submit"
-                    onclick="return confirm('⚠️ EMERGENCY CONFIRMATION: Are you sure you want to trigger an immediate suspension for this property listing? This will hide the property from all student searches.');">
-                ⚠️ Confirm &amp; Trigger Instant Suspension
+                    onclick="return confirm('EMERGENCY CONFIRMATION: Are you sure you want to trigger an immediate suspension for this property listing? This will hide the property from all student searches.');">
+                <?php echo fa_icon('alert', '', 14, '#ffffff'); ?> Confirm &amp; Trigger Instant Suspension
             </button>
         </form>
     </div>

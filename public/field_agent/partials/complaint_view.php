@@ -5,14 +5,14 @@
 
 $is_resolved = isset($complaint['status']) && in_array($complaint['status'], array('resolved', 'upheld', 'dismissed', 'escalated'));
 $category_labels = array(
-    'fee_discrepancy'     => '💰 Fee Discrepancy',
-    'amenity_discrepancy' => '⚡ Amenity Discrepancy',
-    'maintenance_issue'   => '🔧 Maintenance Issue',
-    'security_issue'      => '🔒 Safety & Security Issue'
+    'fee_discrepancy'     => fa_icon('dollar', '', 14) . ' Fee Discrepancy',
+    'amenity_discrepancy' => fa_icon('zap', '', 14) . ' Amenity Discrepancy',
+    'maintenance_issue'   => fa_icon('wrench', '', 14) . ' Maintenance Issue',
+    'security_issue'      => fa_icon('lock', '', 14) . ' Safety & Security Issue'
 );
 $cat_text = isset($category_labels[$complaint['category']]) 
     ? $category_labels[$complaint['category']] 
-    : '📢 ' . htmlspecialchars(str_replace('_', ' ', ucfirst($complaint['category'])));
+    : fa_icon('alert-circle', '', 14) . ' ' . htmlspecialchars(str_replace('_', ' ', ucfirst($complaint['category'])));
 
 $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
 ?>
@@ -23,21 +23,21 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
     <div class="fa-complaint-header-wrap">
         <div>
             <div class="fa-complaint-header-title">
-                🚨 Tenant Dispute Investigation
+                <?php echo fa_icon('siren', '', 14, '#c0392b'); ?> Tenant Dispute Investigation
             </div>
             <h1 class="details-title" >Complaint #CP-<?php echo $complaint['complaint_id']; ?></h1>
             <p class="details-subtitle" class="fa-m-0">
-                📍 Investigating student grievance for property at <strong><?php echo htmlspecialchars($complaint['address']); ?></strong>
+                <?php echo fa_icon('pin', '', 14); ?> Investigating student grievance for property at <strong><?php echo htmlspecialchars($complaint['address']); ?></strong>
             </p>
         </div>
         <div>
             <?php if ($is_resolved): ?>
                 <span class="fa-complaint-resolved-badge">
-                    ✓ Resolved
+                    <?php echo fa_icon('check', '', 12); ?> Resolved
                 </span>
             <?php else: ?>
                 <span class="fa-complaint-pending-badge">
-                    ⏳ Pending Investigation
+                    <?php echo fa_icon('clock', '', 12); ?> Pending Investigation
                 </span>
             <?php endif; ?>
         </div>
@@ -51,10 +51,10 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
                 Complainant Student
             </span>
             <div class="fa-complaint-grid-value">
-                👤 <?php echo htmlspecialchars($complaint['student_name']); ?>
+                <?php echo fa_icon('user', '', 14); ?> <?php echo htmlspecialchars($complaint['student_name']); ?>
             </div>
             <div class="fa-complaint-grid-phone">
-                📞 <a href="tel:<?php echo htmlspecialchars($complaint['student_mobile']); ?>">
+                <?php echo fa_icon('phone', '', 14); ?> <a href="tel:<?php echo htmlspecialchars($complaint['student_mobile']); ?>">
                     <?php echo htmlspecialchars($complaint['student_mobile']); ?>
                 </a>
             </div>
@@ -92,7 +92,7 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
             Investigation Findings &amp; Resolution (Read Only)
         </h2>
         <span class="fa-complaint-locked-badge">
-            🔒 Locked Report
+            <?php echo fa_icon('lock', '', 12); ?> Locked Report
         </span>
     </div>
 
@@ -103,13 +103,13 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
             <?php
             $rec = isset($complaint['status']) ? $complaint['status'] : '';
             if ($rec === 'resolved') {
-                echo '<span class="fa-complaint-rec-resolved">🤝 Resolved on Site (Settled)</span>';
+                echo '<span class="fa-complaint-rec-resolved">' . fa_icon('handshake', '', 14) . ' Resolved on Site (Settled)</span>';
             } elseif ($rec === 'upheld') {
-                echo '<span class="fa-complaint-rec-uphold">⚠️ Uphold Complaint (Landlord Violation)</span>';
+                echo '<span class="fa-complaint-rec-uphold">' . fa_icon('alert', '', 14, '#856404') . ' Uphold Complaint (Landlord Violation)</span>';
             } elseif ($rec === 'dismissed') {
-                echo '<span class="fa-complaint-rec-dismiss">✅ Dismiss Complaint (No Violation)</span>';
+                echo '<span class="fa-complaint-rec-dismiss">' . fa_icon('check-circle', '', 14, '#155724') . ' Dismiss Complaint (No Violation)</span>';
             } elseif ($rec === 'escalated') {
-                echo '<span class="fa-complaint-rec-escalate">🚨 Escalated to Administration</span>';
+                echo '<span class="fa-complaint-rec-escalate">' . fa_icon('siren', '', 14, '#721c24') . ' Escalated to Administration</span>';
             }
             ?>
         </div>
@@ -190,13 +190,13 @@ $part = isset($show_complaint_part) ? $show_complaint_part : 'all';
                     <input type="number" class="form-input fa-complaint-fee-input" name="visit_fee" min="0" step="0.01" value="0" placeholder="0.00">
                 </div>
                 <div class="fa-complaint-fee-hint">
-                    💡 Set to <strong>0</strong> if no fee is charged (e.g. waived or free visit).
+                    <?php echo fa_icon('lightbulb', '', 13); ?> Set to <strong>0</strong> if no fee is charged (e.g. waived or free visit).
                 </div>
             </div>
         </div>
 
         <button type="submit" class="btn-camera-capture fa-complaint-submit-btn">
-            🚀 Submit Complaint Findings Report
+            <?php echo fa_icon('send', '', 15); ?> Submit Complaint Findings Report
         </button>
     </form>
 </div>

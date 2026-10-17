@@ -25,6 +25,7 @@ $city     = $agent['assigned_city'];
 $task_id  = isset($_GET['task_id'])  ? intval($_GET['task_id'])  : 0;
 
 define('PARTIALS_AR', __DIR__ . '/partials/');
+require_once PARTIALS_AR . 'icons.php';
 
 // Fetch previous reports
 $stmtHistory = $pdo->prepare("SELECT * FROM area_reports WHERE agent_id = ? ORDER BY created_at DESC");
@@ -53,7 +54,7 @@ unset($_SESSION['success'], $_SESSION['error']);
         <a href="../../index.html" class="fa-report-brand">BoardNest</a>
         <div class="fa-header-actions">
             <span class="fa-report-role">
-                📍 <?php echo htmlspecialchars($city); ?> Regional Agent
+                <?php echo fa_icon('pin', '', 14); ?> <?php echo htmlspecialchars($city); ?> Regional Agent
             </span>
             <?php if ($task_id > 0): ?>
                 <a href="task_view.php?task_id=<?php echo $task_id; ?>" class="fa-report-btn-primary">
@@ -73,7 +74,7 @@ unset($_SESSION['success'], $_SESSION['error']);
             <div class="hero-banner-card fa-mb-24">
                 <div>
                     <span class="fa-hero-badge">
-                        📍 Regional Profile Audit — <?php echo htmlspecialchars($city); ?>
+                        <?php echo fa_icon('pin', '', 14); ?> Regional Profile Audit — <?php echo htmlspecialchars($city); ?>
                     </span>
                     <h1 class="fa-hero-title">Area Profile Audit &amp; Observations</h1>
                     <p class="fa-hero-desc">
@@ -89,18 +90,23 @@ unset($_SESSION['success'], $_SESSION['error']);
             <!-- Flash Alerts -->
             <?php if ($success_msg): ?>
                 <div class="fa-alert fa-alert-success fa-mb-24">
-                    ✅ <?php echo htmlspecialchars($success_msg); ?>
+                    <?php echo fa_icon('check-circle', '', 16); ?> <?php echo htmlspecialchars($success_msg); ?>
                 </div>
             <?php endif; ?>
             <?php if ($error_msg): ?>
                 <div class="fa-alert fa-alert-danger fa-mb-24">
-                    ⚠️ <?php echo htmlspecialchars($error_msg); ?>
+                    <?php echo fa_icon('alert', '', 16); ?> <?php echo htmlspecialchars($error_msg); ?>
                 </div>
             <?php endif; ?>
 
             <?php require PARTIALS_AR . 'area_report_form.php'; ?>
         </div>
     </div>
+
+    <?php 
+    $active_tab = 'area_report';
+    require __DIR__ . '/partials/bottom_nav.php'; 
+    ?>
 
     <script src="../assets/js/field_agent.js"></script>
 </body>

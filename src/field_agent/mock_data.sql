@@ -1,14 +1,52 @@
 USE boardnest;
 
 -- Field-agent demo data. Import schema.sql first.
--- Demo credentials: agent@boardnest.lk / password
+-- Demo credentials:
+-- 1. Regular Field Agent: agent@boardnest.lk / password
+-- 2. Senior Student Field Agent: senior_agent@boardnest.lk / password
+-- 3. Junior Student (Tenure < 2 yrs): student@test.com / password
+-- 4. Senior Student Applicant (Tenure >= 2 yrs): senior_student@test.com / password
 SET FOREIGN_KEY_CHECKS = 0;
 
-INSERT INTO users (user_id, full_name, email, password_hash, role, status)
+-- ------------------------------------------------------------
+-- Safe Schema Migration (Ensures columns exist before insert)
+-- ------------------------------------------------------------
+SET @c_reg = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'students' AND COLUMN_NAME = 'registered_date');
+SET @s1 = IF(@c_reg = 0, 'ALTER TABLE students ADD COLUMN registered_date DATE NULL', 'SELECT 1');
+PREPARE stmt1 FROM @s1; EXECUTE stmt1; DEALLOCATE PREPARE stmt1;
+
+SET @c_sen = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'students' AND COLUMN_NAME = 'is_senior_student');
+SET @s2 = IF(@c_sen = 0, 'ALTER TABLE students ADD COLUMN is_senior_student TINYINT(1) DEFAULT 0', 'SELECT 1');
+PREPARE stmt2 FROM @s2; EXECUTE stmt2; DEALLOCATE PREPARE stmt2;
+
+SET @c_fa = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'students' AND COLUMN_NAME = 'is_field_agent');
+SET @s3 = IF(@c_fa = 0, 'ALTER TABLE students ADD COLUMN is_field_agent TINYINT(1) DEFAULT 0', 'SELECT 1');
+PREPARE stmt3 FROM @s3; EXECUTE stmt3; DEALLOCATE PREPARE stmt3;
+
+SET @c_nf = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'field_agents' AND COLUMN_NAME = 'nic_front');
+SET @s4 = IF(@c_nf = 0, 'ALTER TABLE field_agents ADD COLUMN nic_front VARCHAR(255) NULL', 'SELECT 1');
+PREPARE stmt4 FROM @s4; EXECUTE stmt4; DEALLOCATE PREPARE stmt4;
+
+SET @c_nb = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'field_agents' AND COLUMN_NAME = 'nic_back');
+SET @s5 = IF(@c_nb = 0, 'ALTER TABLE field_agents ADD COLUMN nic_back VARCHAR(255) NULL', 'SELECT 1');
+PREPARE stmt5 FROM @s5; EXECUTE stmt5; DEALLOCATE PREPARE stmt5;
+
+SET @c_dist = (SELECT COUNT(*) FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'field_agents' AND COLUMN_NAME = 'assigned_district');
+SET @s_dist = IF(@c_dist = 0, 'ALTER TABLE field_agents ADD COLUMN assigned_district VARCHAR(100) NULL AFTER mobile', 'SELECT 1');
+PREPARE stmt_dist FROM @s_dist; EXECUTE stmt_dist; DEALLOCATE PREPARE stmt_dist;
+
+ALTER TABLE field_agents MODIFY COLUMN recruit_mode ENUM('self_registered','admin_created','senior_student') DEFAULT 'self_registered';
+
+-- ------------------------------------------------------------
+-- Demo Users
+-- ------------------------------------------------------------
+INSERT INTO users (user_id, full_name, email, password_hash, role, status, created_at)
 VALUES
-    (2, 'Sobashi Hirushani', 'agent@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'field_agent', 'active'),
-    (3, 'Demo Landlord', 'landlord@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'landlord', 'active'),
-    (4, 'Demo Student', 'student@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'active')
+    (2, 'Sobashi Hirushani', 'agent@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'field_agent', 'active', '2026-01-10 10:00:00'),
+    (3, 'Demo Landlord', 'landlord@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'landlord', 'active', '2026-01-10 10:00:00'),
+    (4, 'Demo Junior Student', 'student@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'active', '2026-05-15 10:00:00'),
+    (5, 'Kavindu Senanayake (Senior Student Agent)', 'senior_agent@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'field_agent', 'active', '2024-01-15 10:00:00'),
+    (6, 'Demo Senior Applicant', 'senior_student@test.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'student', 'active', '2024-02-01 10:00:00')
 ON DUPLICATE KEY UPDATE
     full_name = VALUES(full_name),
     email = VALUES(email),
@@ -16,20 +54,43 @@ ON DUPLICATE KEY UPDATE
     role = VALUES(role),
     status = VALUES(status);
 
-INSERT INTO field_agents (agent_id, user_id, nic_number, mobile, assigned_city, is_active, recruit_mode)
-VALUES (1, 2, '199814502890', '0775471754', 'Colombo', 1, 'self_registered')
+-- ------------------------------------------------------------
+-- Field Agents (Regular + Senior Student Field Agent)
+-- ------------------------------------------------------------
+INSERT INTO field_agents (agent_id, user_id, nic_number, nic_front, nic_back, mobile, assigned_district, assigned_city, is_active, recruit_mode)
+VALUES 
+    (1, 2, '199814502890', '/boardnest/public/uploads/field_agent_nic/demo_front.jpg', '/boardnest/public/uploads/field_agent_nic/demo_back.jpg', '0775471754', 'Colombo', 'Colombo (Central)', 1, 'self_registered'),
+    (2, 5, '200112345678', '/boardnest/public/uploads/field_agent_nic/demo_front.jpg', '/boardnest/public/uploads/field_agent_nic/demo_back.jpg', '0779988776', 'Colombo', 'Moratuwa', 1, 'senior_student')
 ON DUPLICATE KEY UPDATE
     user_id = VALUES(user_id),
+    assigned_district = VALUES(assigned_district),
     assigned_city = VALUES(assigned_city),
-    is_active = VALUES(is_active);
+    is_active = VALUES(is_active),
+    recruit_mode = VALUES(recruit_mode),
+    nic_front = VALUES(nic_front),
+    nic_back = VALUES(nic_back);
 
 INSERT INTO landlords (landlord_id, user_id, nic_number, mobile, address, subsc_tier, consent_agreed)
 VALUES (1, 3, '123456789V', '0770000000', '123 Landlord Street', 'standard', 1)
 ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), mobile = VALUES(mobile);
 
-INSERT INTO students (student_id, user_id, nic_number, mobile, university, academic_year, verf_tier)
-VALUES (1, 4, '987654321V', '0711111111', 'University of Colombo', '2nd Year', 'tier2')
-ON DUPLICATE KEY UPDATE user_id = VALUES(user_id), mobile = VALUES(mobile);
+-- ------------------------------------------------------------
+-- Students (Junior Student, Senior Student Agent, Senior Applicant)
+-- ------------------------------------------------------------
+INSERT INTO students (student_id, user_id, nic_number, mobile, university, academic_year, registered_date, is_senior_student, is_field_agent, verf_tier)
+VALUES 
+    -- Junior student (< 2 years): ineligible for senior field agent
+    (1, 4, '987654321V', '0711111111', 'University of Colombo', '1st Year', '2026-05-15', 0, 0, 'tier2'),
+    -- Senior student who IS an active Field Agent (user_id = 5)
+    (2, 5, '200112345678', '0779988776', 'University of Moratuwa', '3rd Year', '2024-01-15', 1, 1, 'tier2'),
+    -- Senior student (> 2 years) candidate to test register.php flow
+    (3, 6, '200087654321', '0712222222', 'University of Kelaniya', '4th Year', '2024-02-01', 1, 0, 'tier2')
+ON DUPLICATE KEY UPDATE 
+    user_id = VALUES(user_id), 
+    mobile = VALUES(mobile),
+    registered_date = VALUES(registered_date),
+    is_senior_student = VALUES(is_senior_student),
+    is_field_agent = VALUES(is_field_agent);
 
 INSERT INTO properties (
     property_id, landlord_id, title, address, city, structural_type,
@@ -73,7 +134,7 @@ VALUES
     (1, 1, 'verification', 1, 'completed', CURRENT_TIMESTAMP),
     (2, 2, 'verification', 1, 'in_progress', NULL),
     (3, 3, 'verification', 1, 'completed', CURRENT_TIMESTAMP),
-    (4, 4, 'verification', NULL, 'pending', NULL),
+    (4, 4, 'verification', 2, 'in_progress', NULL),
     (5, 3, 'verification', NULL, 'pending', NULL)
 ON DUPLICATE KEY UPDATE
     property_id = VALUES(property_id), agent_id = VALUES(agent_id),
@@ -95,7 +156,7 @@ INSERT INTO complaint_investigations (
 VALUES
     (1, 1, 2, 'The complaint was confirmed during the visit.', 450.00),
     (2, 2, 2, NULL, 0.00),
-    (3, 3, 2, NULL, 0.00)
+    (3, 3, 5, NULL, 0.00)
 ON DUPLICATE KEY UPDATE
     field_agent_user_id = VALUES(field_agent_user_id),
     findings = VALUES(findings), visit_fee_charged = VALUES(visit_fee_charged);

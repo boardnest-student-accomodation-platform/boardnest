@@ -2,13 +2,14 @@
 // Partial: area_report_history.php
 // Right column: submitted area reports feed
 // Expects: $reports (array)
+require_once __DIR__ . '/icons.php';
 ?>
 <div class="history-card">
     <h2 class="fa-history-title">Regional Audit History</h2>
 
     <?php if (empty($reports)): ?>
         <div class="fa-history-empty-box">
-            <div class="fa-history-empty-icon">📝</div>
+            <div class="fa-history-empty-icon"><?php echo fa_icon('file-text', '', 32, '#a0aec0'); ?></div>
             <div class="fa-history-empty-title">No Audit History Yet</div>
             <div class="fa-history-empty-desc">Submit your first area observation report using the form.</div>
         </div>
@@ -17,7 +18,7 @@
         <div class="feed-item-card">
             <div class="fa-checklist-card-ro-header">
                 <span class="fa-history-date">
-                    📅 <?php echo date('M d, Y', strtotime($rep['created_at'])); ?>
+                    <?php echo fa_icon('calendar', '', 14); ?> <?php echo date('M d, Y', strtotime($rep['created_at'])); ?>
                 </span>
                 <?php
                 $statusBg  = $rep['status'] === 'approved' ? 'rgba(39,174,96,0.15)' : ($rep['status'] === 'rejected' ? 'rgba(192,57,43,0.15)' : 'rgba(200,121,65,0.15)');
@@ -30,7 +31,7 @@
 
             <!-- Transport Section -->
             <div class="fa-mb-12">
-                <div class="fa-history-section-title">🚍 Transport &amp; Access</div>
+                <div class="fa-history-section-title"><?php echo fa_icon('bus', '', 14); ?> Transport &amp; Access</div>
                 <div class="fa-history-tags-wrap">
                     <?php
                     $tItems = array_filter(array_map('trim', explode('.', $rep['transport_details'])));
@@ -44,7 +45,7 @@
 
             <!-- Amenities Section -->
             <div class="fa-mb-12">
-                <div class="fa-history-section-title">🛒 Student Amenities</div>
+                <div class="fa-history-section-title"><?php echo fa_icon('cart', '', 14); ?> Student Amenities</div>
                 <div class="fa-history-tags-wrap">
                     <?php
                     $aItems = array_filter(array_map('trim', explode('.', $rep['amenities_details'])));
@@ -58,7 +59,7 @@
 
             <!-- Safety Section -->
             <div>
-                <div class="fa-history-section-title">🛡️ Safety &amp; Lighting</div>
+                <div class="fa-history-section-title"><?php echo fa_icon('shield', '', 14); ?> Safety &amp; Lighting</div>
                 <div class="fa-history-tags-wrap">
                     <?php
                     $sItems = array_filter(array_map('trim', explode('.', $rep['safety_details'])));

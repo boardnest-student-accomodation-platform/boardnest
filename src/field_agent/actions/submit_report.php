@@ -95,10 +95,26 @@ foreach ($audit_items as $field => $label) {
     $audit_values[$field] = (int)$val;
 }
 
+$area_items = array(
+    'area_transport' => 'Transport & Transit Proximity',
+    'area_amenities' => 'Student Amenities & Conveniences',
+    'area_safety'    => 'Neighborhood Security & Environment'
+);
+foreach ($area_items as $field => $label) {
+    if (isset($_POST[$field]) && $_POST[$field] === '0') {
+        $reason_field = $field . '_reason';
+        if (!isset($_POST[$reason_field]) || trim($_POST[$reason_field]) === '') {
+            $_SESSION['error'] = 'You must provide a discrepancy note for: ' . $label;
+            header('Location: ../task_view.php?task_id=' . $task_id);
+            exit();
+        }
+    }
+}
+
 $structural_safety = $audit_values['structural_safety'];
 $electrical_safety = $audit_values['electrical_safety'];
 $fire_exit = $audit_values['fire_exit'];
-$gps_match = 1;
+$gps_match = (isset($_POST['gps_match']) && (int)$_POST['gps_match'] === 1 && !empty($geo_data) && time() <= $geo_data['expires']) ? 1 : 0;
 $furnishing_match = $audit_values['furnishing_match'];
 $bathroom_match = $audit_values['bathroom_match'];
 $wifi_match = $audit_values['wifi_match'];

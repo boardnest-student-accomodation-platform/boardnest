@@ -34,12 +34,12 @@
     <!-- Flash Alerts -->
     <?php if ($success_msg): ?>
         <div class="fa-alert fa-alert-success">
-            ✅ <?php echo htmlspecialchars($success_msg); ?>
+            <?php echo fa_icon('check-circle', '', 16, '#0f5132'); ?> <?php echo htmlspecialchars($success_msg); ?>
         </div>
     <?php endif; ?>
     <?php if ($error_msg): ?>
         <div class="fa-alert fa-alert-danger">
-            ⚠️ <?php echo htmlspecialchars($error_msg); ?>
+            <?php echo fa_icon('alert', '', 16, '#842029'); ?> <?php echo htmlspecialchars($error_msg); ?>
         </div>
     <?php endif; ?>
 
@@ -55,28 +55,38 @@
                 <p class="fa-empty-text">All property listings in <strong><?php echo htmlspecialchars($city); ?></strong> are currently claimed or verified.</p>
             </div>
         <?php else: ?>
-            <div class="table-wrapper-custom">
-                <table class="table-custom">
-                    <thead><tr><th>Task ID</th><th>Address</th><th>Property Type</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <?php foreach ($pending_tasks as $task): ?>
-                        <tr>
-                            <td><strong>#VT-<?php echo $task['task_id']; ?></strong></td>
-                            <td><?php echo htmlspecialchars($task['address']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($task['structural_type']); ?></span></td>
-                            <td><span class="badge badge-warning">Unclaimed</span></td>
-                            <td>
-                                <form action="actions/update_task.php" method="POST" class="fa-inline-form">
-                                    <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
-                                    <input type="hidden" name="action_type" value="claim">
-                                    <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                    <button type="submit" class="btn btn--primary btn--sm fa-btn-table">Claim Task</button>
-                                </form>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="fa-task-cards-list">
+                <?php foreach ($pending_tasks as $task): ?>
+                <div class="fa-task-card">
+                    <div class="fa-task-card-header">
+                        <div class="fa-task-card-id-wrap">
+                            <span class="fa-task-card-id">#VT-<?php echo $task['task_id']; ?></span>
+                            <span class="tag-custom"><?php echo htmlspecialchars($task['structural_type'] ?? 'Property'); ?></span>
+                        </div>
+                        <span class="badge badge-warning">Unclaimed</span>
+                    </div>
+
+                    <div class="fa-task-card-body">
+                        
+                        <div class="fa-task-card-address">
+                            <?php echo fa_icon('pin', '', 16, '#6F4E37'); ?>
+                            <span><?php echo htmlspecialchars($task['address']); ?><?php echo !empty($task['city']) ? ', ' . htmlspecialchars($task['city']) : ''; ?></span>
+                        </div>
+                    </div>
+
+                    <div class="fa-task-card-actions">
+                        <form action="actions/update_task.php" method="POST" style="width: 100%;">
+                            <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
+                            <input type="hidden" name="action_type" value="claim">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <button type="submit" class="fa-task-card-btn-primary">
+                                <span>Claim Task</span>
+                                <?php echo fa_icon('arrow-right', '', 14); ?>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
@@ -92,30 +102,38 @@
                 <p class="fa-empty-text">Claim tasks from the Pending Pool to start physical property audits.</p>
             </div>
         <?php else: ?>
-            <div class="table-wrapper-custom">
-                <table class="table-custom">
-                    <thead><tr><th>Task ID</th><th>Address</th><th>Property Type</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <?php foreach ($claimed_tasks as $task): ?>
-                        <tr>
-                            <td><strong>#VT-<?php echo $task['task_id']; ?></strong></td>
-                            <td><?php echo htmlspecialchars($task['address']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($task['structural_type']); ?></span></td>
-                            <td>
-                                <div class="flex gap-2">
-                                    <a href="task_view.php?task_id=<?php echo $task['task_id']; ?>" class="btn btn--primary btn--sm fa-btn-table">Open Task</a>
-                                    <form action="actions/update_task.php" method="POST" class="fa-inline-form">
-                                        <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
-                                        <input type="hidden" name="action_type" value="withdraw">
-                                        <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
-                                        <button type="submit" class="btn btn--ghost btn--sm btn--danger fa-btn-table" onclick="return confirm('Withdraw from this task?');">Withdraw</button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="fa-task-cards-list">
+                <?php foreach ($claimed_tasks as $task): ?>
+                <div class="fa-task-card">
+                    <div class="fa-task-card-header">
+                        <div class="fa-task-card-id-wrap">
+                            <span class="fa-task-card-id">#VT-<?php echo $task['task_id']; ?></span>
+                            <span class="tag-custom"><?php echo htmlspecialchars($task['structural_type'] ?? 'Property'); ?></span>
+                        </div>
+                        <span class="badge" style="background:#FFF2D7; color:#A4856D; border:1px solid #E8DDD4; font-weight:700;">In Progress</span>
+                    </div>
+
+                    <div class="fa-task-card-body">
+                        <div class="fa-task-card-address">
+                            <?php echo fa_icon('pin', '', 16, '#6F4E37'); ?>
+                            <span><?php echo htmlspecialchars($task['address']); ?><?php echo !empty($task['city']) ? ', ' . htmlspecialchars($task['city']) : ''; ?></span>
+                        </div>
+                    </div>
+
+                    <div class="fa-task-card-actions-row">
+                        <a href="task_view.php?task_id=<?php echo $task['task_id']; ?>" class="fa-task-card-btn-primary" style="flex: 2;">
+                            <span>Open Task</span>
+                            <?php echo fa_icon('arrow-right', '', 14); ?>
+                        </a>
+                        <form action="actions/update_task.php" method="POST" style="flex: 1;">
+                            <input type="hidden" name="task_id" value="<?php echo $task['task_id']; ?>">
+                            <input type="hidden" name="action_type" value="withdraw">
+                            <input type="hidden" name="csrf_token" value="<?php echo htmlspecialchars($_SESSION['csrf_token']); ?>">
+                            <button type="submit" class="fa-task-card-btn-withdraw" onclick="return confirm('Withdraw from this task?');">Withdraw</button>
+                        </form>
+                    </div>
+                </div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
@@ -131,20 +149,38 @@
                 <p class="fa-empty-text">No tenant dispute complaints assigned to you in <strong><?php echo htmlspecialchars($city); ?></strong>.</p>
             </div>
         <?php else: ?>
-            <div class="table-wrapper-custom">
-                <table class="table-custom">
-                    <thead><tr><th>Complaint ID</th><th>Property Address</th><th>Complainant</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <?php foreach ($complaints_tasks as $comp): ?>
-                        <tr>
-                            <td><strong>#CP-<?php echo $comp['complaint_id']; ?></strong></td>
-                            <td><?php echo htmlspecialchars($comp['address']); ?></td>
-                            <td><?php echo htmlspecialchars($comp['student_name']); ?></td>
-                            <td><a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="btn btn--primary btn--sm fa-btn-table">Investigate</a></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="fa-task-cards-list">
+                <?php foreach ($complaints_tasks as $comp): ?>
+                <div class="fa-task-card">
+                    <div class="fa-task-card-header">
+                        <div class="fa-task-card-id-wrap">
+                            <span class="fa-task-card-id">#CP-<?php echo $comp['complaint_id']; ?></span>
+                            <span class="tag-custom"><?php echo htmlspecialchars($comp['structural_type'] ?? 'Dispute'); ?></span>
+                        </div>
+                        <span class="badge badge-danger">Assigned Dispute</span>
+                    </div>
+
+                    <div class="fa-task-card-body">
+                        <div class="fa-task-card-address">
+                            <?php echo fa_icon('pin', '', 16, '#6F4E37'); ?>
+                            <span><?php echo htmlspecialchars($comp['address']); ?></span>
+                        </div>
+                        <div class="fa-task-card-meta">
+                            <span class="fa-task-card-meta-item">
+                                <?php echo fa_icon('user', '', 13, '#8C7B74'); ?>
+                                Complainant: <strong><?php echo htmlspecialchars($comp['student_name']); ?></strong>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="fa-task-card-actions">
+                        <a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="fa-task-card-btn-primary">
+                            <span>Investigate Dispute</span>
+                            <?php echo fa_icon('arrow-right', '', 14); ?>
+                        </a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
@@ -160,21 +196,38 @@
                 <p class="fa-empty-text">Completed verification reports will appear here.</p>
             </div>
         <?php else: ?>
-            <div class="table-wrapper-custom">
-                <table class="table-custom">
-                    <thead><tr><th>Task ID</th><th>Address</th><th>Property Type</th><th>Completed Date</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <?php foreach ($completed_tasks as $task): ?>
-                        <tr>
-                            <td><strong>#VT-<?php echo $task['task_id']; ?></strong></td>
-                            <td><?php echo htmlspecialchars($task['address']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($task['structural_type']); ?></span></td>
-                            <td><?php echo htmlspecialchars($task['submitted_at']); ?></td>
-                            <td><a href="task_view.php?task_id=<?php echo $task['task_id']; ?>" class="btn btn--outline btn--sm fa-btn-table">View Report</a></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="fa-task-cards-list">
+                <?php foreach ($completed_tasks as $task): ?>
+                <div class="fa-task-card">
+                    <div class="fa-task-card-header">
+                        <div class="fa-task-card-id-wrap">
+                            <span class="fa-task-card-id">#VT-<?php echo $task['task_id']; ?></span>
+                            <span class="tag-custom"><?php echo htmlspecialchars($task['structural_type'] ?? 'Property'); ?></span>
+                        </div>
+                        <span class="badge badge-success"><?php echo fa_icon('check', '', 11); ?> Completed</span>
+                    </div>
+
+                    <div class="fa-task-card-body">
+                        <div class="fa-task-card-address">
+                            <?php echo fa_icon('pin', '', 16, '#6F4E37'); ?>
+                            <span><?php echo htmlspecialchars($task['address']); ?></span>
+                        </div>
+                        <div class="fa-task-card-meta">
+                            <span class="fa-task-card-meta-item">
+                                <?php echo fa_icon('calendar', '', 13, '#8C7B74'); ?>
+                                Completed <?php echo !empty($task['submitted_at']) ? date('M d, Y', strtotime($task['submitted_at'])) : 'Verified'; ?>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="fa-task-card-actions">
+                        <a href="task_view.php?task_id=<?php echo $task['task_id']; ?>" class="fa-task-card-btn-secondary">
+                            <span>View Report</span>
+                            <?php echo fa_icon('arrow-right', '', 14); ?>
+                        </a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
 
@@ -189,20 +242,32 @@
                 <p class="fa-empty-text">Completed complaint investigations will appear here.</p>
             </div>
         <?php else: ?>
-            <div class="table-wrapper-custom">
-                <table class="table-custom">
-                    <thead><tr><th>Complaint ID</th><th>Address</th><th>Status</th><th>Action</th></tr></thead>
-                    <tbody>
-                        <?php foreach ($completed_complaints as $comp): ?>
-                        <tr>
-                            <td><strong>#CP-<?php echo $comp['complaint_id']; ?></strong></td>
-                            <td><?php echo htmlspecialchars($comp['address']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars(ucfirst($comp['status'])); ?></span></td>
-                            <td><a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="btn btn--outline btn--sm fa-btn-table">View Report</a></td>
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+            <div class="fa-task-cards-list">
+                <?php foreach ($completed_complaints as $comp): ?>
+                <div class="fa-task-card">
+                    <div class="fa-task-card-header">
+                        <div class="fa-task-card-id-wrap">
+                            <span class="fa-task-card-id">#CP-<?php echo $comp['complaint_id']; ?></span>
+                            <span class="tag-custom"><?php echo htmlspecialchars(ucfirst($comp['status'])); ?></span>
+                        </div>
+                        <span class="badge badge-success"><?php echo fa_icon('check', '', 11); ?> Resolved</span>
+                    </div>
+
+                    <div class="fa-task-card-body">
+                        <div class="fa-task-card-address">
+                            <?php echo fa_icon('pin', '', 16, '#6F4E37'); ?>
+                            <span><?php echo htmlspecialchars($comp['address']); ?></span>
+                        </div>
+                    </div>
+
+                    <div class="fa-task-card-actions">
+                        <a href="task_view.php?complaint_id=<?php echo $comp['complaint_id']; ?>" class="fa-task-card-btn-secondary">
+                            <span>View Report</span>
+                            <?php echo fa_icon('arrow-right', '', 14); ?>
+                        </a>
+                    </div>
+                </div>
+                <?php endforeach; ?>
             </div>
         <?php endif; ?>
     <?php endif; ?>

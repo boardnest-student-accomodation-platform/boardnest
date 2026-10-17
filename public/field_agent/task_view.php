@@ -18,7 +18,7 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
     <title>BoardNest — Task Audit Details</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/style.css">
-    <link rel="stylesheet" href="../assets/css/field_agent.css?v=2">
+    <link rel="stylesheet" href="../assets/css/field_agent.css?v=7">
 </head>
 <body>
     <?php require PARTIALS . 'global_header.php'; ?>
@@ -27,12 +27,12 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
 
         <?php if ($success_msg): ?>
             <div class="fa-alert fa-alert-success">
-                ✅ <?php echo htmlspecialchars($success_msg); ?>
+                <?php echo fa_icon('check-circle', '', 16, '#0f5132'); ?> <?php echo htmlspecialchars($success_msg); ?>
             </div>
         <?php endif; ?>
         <?php if ($error_msg): ?>
             <div class="fa-alert fa-alert-danger">
-                ⚠️ <?php echo htmlspecialchars($error_msg); ?>
+                <?php echo fa_icon('alert', '', 16, '#842029'); ?> <?php echo htmlspecialchars($error_msg); ?>
             </div>
         <?php endif; ?>
 
@@ -97,6 +97,6 @@ define('MODALS',   dirname(__FILE__) . '/../../src/field_agent/components/');
     <?php require dirname(__FILE__) . '/../../modules/verification/views/components/live_camera_modal.php'; ?>
     <?php require MODALS . 'agent_guide_modal.php'; ?>
 
-    <script src="../assets/js/field_agent.js?v=5"></script>
+    <script src="../assets/js/field_agent.js?v=7"></script>
 </body>
 </html>

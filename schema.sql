@@ -23,6 +23,9 @@ CREATE TABLE students (
     mobile VARCHAR(15),
     university VARCHAR(100),
     academic_year VARCHAR(20), /* should be auto incremented*/
+    registered_date DATE NULL,
+    is_senior_student TINYINT(1) DEFAULT 0,
+    is_field_agent TINYINT(1) DEFAULT 0,
     verf_tier ENUM('tier1','tier2') DEFAULT 'tier1',
     verf_deadline DATE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
@@ -46,10 +49,13 @@ CREATE TABLE field_agents (
     agent_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
     nic_number VARCHAR(20),
+    nic_front VARCHAR(255) NULL,
+    nic_back VARCHAR(255) NULL,
     mobile VARCHAR(15),
+    assigned_district VARCHAR(100) NULL,
     assigned_city VARCHAR(100),
     is_active TINYINT(1) DEFAULT 0,
-    recruit_mode ENUM('self_registered','admin_created') DEFAULT 'self_registered',
+    recruit_mode ENUM('self_registered','admin_created','senior_student') DEFAULT 'self_registered',
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 

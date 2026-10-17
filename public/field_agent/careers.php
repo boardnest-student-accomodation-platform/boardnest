@@ -1,3 +1,4 @@
+<?php require_once __DIR__ . '/partials/icons.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -71,7 +72,7 @@
       <!-- Card 1 -->
       <div class="step-card">
         <div class="step-header">
-          <div class="step-icon-badge">⏱️</div>
+          <div class="step-icon-badge"><?php echo fa_icon('clock', '', 20, '#6366f1'); ?></div>
           <div>
             <p class="step-title">Flexible Schedule</p>
             <p class="step-desc">Work on your own terms</p>
@@ -85,7 +86,7 @@
       <!-- Card 2 -->
       <div class="step-card step-card--warm">
         <div class="step-header">
-          <div class="step-icon-badge">💰</div>
+          <div class="step-icon-badge"><?php echo fa_icon('dollar', '', 20, '#f59e0b'); ?></div>
           <div>
             <p class="step-title">Earn per Audit</p>
             <p class="step-desc">Transparent weekly payouts</p>
@@ -99,7 +100,7 @@
       <!-- Card 3 -->
       <div class="step-card">
         <div class="step-header">
-          <div class="step-icon-badge">🛡️</div>
+          <div class="step-icon-badge"><?php echo fa_icon('shield', '', 20, '#10b981'); ?></div>
           <div>
             <p class="step-title">Community Impact</p>
             <p class="step-desc">Be the trusted local agent</p>

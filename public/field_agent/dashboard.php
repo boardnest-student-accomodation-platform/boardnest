@@ -6,6 +6,7 @@
 require_once '../../includes/session.php';
 requireRole('field_agent');
 require_once '../../config/db.php';
+require_once dirname(__FILE__) . '/partials/icons.php';
 
 // Fetch agent
 $stmt = $pdo->prepare("
@@ -123,7 +124,7 @@ define('PARTIALS', __DIR__ . '/partials/');
         <a href="../../index.html" class="navbar-brand-custom">BoardNest</a>
         <div class="navbar-user-pill">
             <button type="button" onclick="openAgentGuide()" class="fa-nav-btn">
-                📖 Inspection Guide
+                <?php echo fa_icon('book', '', 14); ?> Inspection Guide
             </button>
             <div class="user-avatar-circle"><?php echo strtoupper(substr($_SESSION['full_name'], 0, 1)); ?></div>
             <div class="fa-nav-username"><?php echo htmlspecialchars($_SESSION['full_name']); ?></div>
@@ -138,8 +139,11 @@ define('PARTIALS', __DIR__ . '/partials/');
         <?php require PARTIALS . '_dashboard_main.php'; ?>
     </div>
 
+    <!-- Mobile Bottom Navigation Bar -->
+    <?php require PARTIALS . 'bottom_nav.php'; ?>
+
     <?php require __DIR__ . '/../../src/field_agent/components/agent_guide_modal.php'; ?>
 
-    <script src="../assets/js/field_agent.js"></script>
+    <script src="../assets/js/field_agent.js?v=7"></script>
 </body>
 </html>

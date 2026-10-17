@@ -8,7 +8,7 @@ $geo_sess_key = $is_complaint_mode ? ('geofence_passed_comp_' . $complaint_id) :
 $geo_lat = $is_complaint_mode ? (float)$complaint['latitude'] : (float)(isset($task['latitude']) ? $task['latitude'] : 0);
 $geo_lng = $is_complaint_mode ? (float)$complaint['longitude'] : (float)(isset($task['longitude']) ? $task['longitude'] : 0);
 $unlock_title = $is_complaint_mode ? "Investigation Form Unlocked" : "Verification Form Unlocked";
-$lock_title = $is_complaint_mode ? "🔒 Investigation Form Locked" : "🔒 Checklist Locked";
+$lock_title = fa_icon('lock', '', 14) . ' ' . ($is_complaint_mode ? "Investigation Form Locked" : "Checklist Locked");
 $geo_authorization = isset($_SESSION[$geo_sess_key]) ? $_SESSION[$geo_sess_key] : null;
 $geo_is_valid = is_array($geo_authorization)
     && isset($geo_authorization['expires'])
@@ -25,15 +25,16 @@ if (!$geo_is_valid) {
 
     <?php if ($geo_is_valid): ?>
         <div class="geofence-box-custom unlocked">
-            <div class="fa-geofence-status-ok">🟢 GPS Geofence Verified</div>
+            <div class="fa-geofence-status-ok"><?php echo fa_icon('check-circle', '', 16, '#0f5132'); ?> GPS Geofence Verified</div>
             <div class="fa-geofence-status-text-ok">Device location matches property coordinates (within 100m). <?php echo $unlock_title; ?>.</div>
         </div>
     <?php else: ?>
         <div class="geofence-box-custom locked" id="geofenceBox">
             <div class="fa-geofence-status-fail" id="geofenceStatus"><?php echo $lock_title; ?></div>
             <div class="fa-geofence-status-text-fail" id="geofenceDesc">Click button below to capture device GPS location.</div>
-            <div class="fa-geofence-actions">
+            <div class="fa-geofence-actions" style="display: flex; gap: 8px; justify-content: center; flex-wrap: wrap;">
                 <button type="button" class="btn-camera-capture" id="btnVerifyGPS" onclick="verifyGPSLocation()">Verify My GPS Location</button>
+                <button type="button" class="btn-camera-capture" id="btnDemoGPS" onclick="simulateGPSMatch()" style="background: #6c757d; font-size: 12px;">Demo: Verify GPS (Presentation)</button>
             </div>
         </div>
 
