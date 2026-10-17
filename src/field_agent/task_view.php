@@ -47,16 +47,38 @@ if ($complaint_id > 0) {
     if (!$complaint) die("Complaint not found or not assigned to you.");
 
 } elseif ($task_id > 0) {
-    $stmtTask = $pdo->prepare("
-        SELECT t.*, p.address, p.structural_type, p.city, p.latitude, p.longitude,
-               p.maps_url AS maps_link, p.facilities, p.property_id
-        FROM agent_tasks t
-        INNER JOIN properties p ON t.property_id = p.property_id
-        WHERE t.task_id = ? AND t.agent_id = ?
-    ");
-    $stmtTask->execute(array($task_id, $agent_id));
-    $task = $stmtTask->fetch();
+    try {
+        // Primary: use maps_url as saved by the Landlord module and defined in schema.sql
+        $stmtTask = $pdo->prepare("
+            SELECT t.*, p.address, p.structural_type, p.city, p.latitude, p.longitude,
+                   p.maps_url, p.facilities, p.property_id
+            FROM agent_tasks t
+            INNER JOIN properties p ON t.property_id = p.property_id
+            WHERE t.task_id = ? AND t.agent_id = ?
+        ");
+        $stmtTask->execute(array($task_id, $agent_id));
+        $task = $stmtTask->fetch();
+    } catch (PDOException $e) {
+        // Fallback: in case a local development database still has the legacy 'maps_link' column
+        $stmtTask = $pdo->prepare("
+            SELECT t.*, p.address, p.structural_type, p.city, p.latitude, p.longitude,
+                   p.maps_link AS maps_url, p.facilities, p.property_id
+            FROM agent_tasks t
+            INNER JOIN properties p ON t.property_id = p.property_id
+            WHERE t.task_id = ? AND t.agent_id = ?
+        ");
+        $stmtTask->execute(array($task_id, $agent_id));
+        $task = $stmtTask->fetch();
+    }
     if (!$task) die("Verification task not found or not assigned to you.");
+
+    // Unify maps link and fallback to coordinates URL if empty
+    $raw_maps = !empty($task['maps_url']) ? $task['maps_url'] : (!empty($task['maps_link']) ? $task['maps_link'] : '');
+    if (empty($raw_maps) && !empty($task['latitude']) && !empty($task['longitude'])) {
+        $raw_maps = 'https://www.google.com/maps?q=' . urlencode($task['latitude'] . ',' . $task['longitude']);
+    }
+    $task['maps_url']  = $raw_maps;
+    $task['maps_link'] = $raw_maps;
 
     $stmtRooms = $pdo->prepare("SELECT * FROM rooms WHERE property_id = ?");
     $stmtRooms->execute(array($task['property_id']));
