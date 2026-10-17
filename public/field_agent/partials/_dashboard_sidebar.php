@@ -20,7 +20,7 @@
         </div>
         <div class="fa-agent-footer">
             <span class="fa-agent-region">Region: <strong><?php echo htmlspecialchars($city); ?></strong></span>
-            <?php $status_display = (isset($agent_status) && $agent_status === 'suspended') ? '🔴 Suspended' : '🟢 Active'; ?>
+            <?php $status_display = (isset($agent_status) && $agent_status === 'suspended') ? fa_icon('dot-red') . ' Suspended' : fa_icon('dot-green') . ' Active'; ?>
             <span class="fa-status-active"><?php echo $status_display; ?></span>
         </div>
     </div>
@@ -28,19 +28,19 @@
     <!-- Navigation Tabs -->
     <nav class="fa-sidebar-nav" aria-label="Sidebar Navigation">
         <a href="dashboard.php?tab=pending" class="sidebar-nav-item <?php echo $active_tab === 'pending' ? 'active' : ''; ?>" <?php echo $active_tab === 'pending' ? 'aria-current="page"' : ''; ?>>
-            <span class="fa-nav-item-content">📌 Pending Pool</span>
+            <span class="fa-nav-item-content"><?php echo fa_icon('pin', '', 14); ?> Pending Pool</span>
             <span class="nav-badge"><?php echo (int)$count_pending; ?></span>
         </a>
         <a href="dashboard.php?tab=claimed" class="sidebar-nav-item <?php echo $active_tab === 'claimed' ? 'active' : ''; ?>" <?php echo $active_tab === 'claimed' ? 'aria-current="page"' : ''; ?>>
-            <span class="fa-nav-item-content">📋 Claimed Tasks</span>
+            <span class="fa-nav-item-content"><?php echo fa_icon('clipboard', '', 14); ?> Claimed Tasks</span>
             <span class="nav-badge"><?php echo (int)$count_claimed; ?></span>
         </a>
         <a href="dashboard.php?tab=complaints" class="sidebar-nav-item <?php echo $active_tab === 'complaints' ? 'active' : ''; ?>" <?php echo $active_tab === 'complaints' ? 'aria-current="page"' : ''; ?>>
-            <span class="fa-nav-item-content">🚨 Complaints</span>
+            <span class="fa-nav-item-content"><?php echo fa_icon('siren', '', 14); ?> Complaints</span>
             <span class="nav-badge complaint <?php echo $active_tab === 'complaints' ? 'active' : ''; ?>"><?php echo (int)$count_complaints; ?></span>
         </a>
         <a href="dashboard.php?tab=history" class="sidebar-nav-item <?php echo $active_tab === 'history' ? 'active' : ''; ?>" <?php echo $active_tab === 'history' ? 'aria-current="page"' : ''; ?>>
-            <span class="fa-nav-item-content">✅ Completed History</span>
+            <span class="fa-nav-item-content"><?php echo fa_icon('check-circle', '', 14); ?> Completed History</span>
             <span class="nav-badge"><?php echo (int)$count_completed; ?></span>
         </a>
 

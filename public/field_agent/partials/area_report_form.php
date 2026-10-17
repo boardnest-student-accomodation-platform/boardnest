@@ -12,7 +12,7 @@
     <!-- Step 1: Transport -->
     <div class="step-card">
         <div class="step-header">
-            <div class="step-icon-badge">🚍</div>
+            <div class="step-icon-badge"><?php echo fa_icon('bus', '', 18); ?></div>
             <div>
                 <h3 class="step-title">01. Transport &amp; Mobility Access</h3>
                 <p class="step-desc">Select transport modes available in this area.</p>
@@ -21,22 +21,22 @@
 
         <div class="fa-checkbox-grid-flex">
             <label class="fa-checkbox-label fa-checkbox-label-sm">
-                <input type="checkbox" id="chk_bus" onchange="toggleBusRoutes()" class="fa-accent-primary"> 🚌 Bus Transport
+                <input type="checkbox" id="chk_bus" onchange="toggleBusRoutes()" class="fa-accent-primary"> <?php echo fa_icon('bus', '', 13); ?> Bus Transport
             </label>
             <label class="fa-checkbox-label fa-checkbox-label-sm">
-                <input type="checkbox" id="chk_train" class="fa-accent-primary"> 🚆 Railway Station
+                <input type="checkbox" id="chk_train" class="fa-accent-primary"> <?php echo fa_icon('train', '', 13); ?> Railway Station
             </label>
             <label class="fa-checkbox-label fa-checkbox-label-sm">
-                <input type="checkbox" id="chk_walk" class="fa-accent-primary"> 🚶 Walking to Campus
+                <input type="checkbox" id="chk_walk" class="fa-accent-primary"> <?php echo fa_icon('walk', '', 13); ?> Walking to Campus
             </label>
             <label class="fa-checkbox-label fa-checkbox-label-sm">
-                <input type="checkbox" id="chk_tuk" class="fa-accent-primary"> 🛺 Tuk / Rideshare
+                <input type="checkbox" id="chk_tuk" class="fa-accent-primary"> <?php echo fa_icon('rideshare', '', 13); ?> Tuk / Rideshare
             </label>
         </div>
 
         <!-- Dynamic Bus Routes -->
         <div id="busRoutesFilterBox" class="fa-bus-filter-box" class="fa-d-none">
-            <div class="fa-bus-filter-title">🚌 Select Active Regional Bus Routes:</div>
+            <div class="fa-bus-filter-title"><?php echo fa_icon('bus', '', 14); ?> Select Active Regional Bus Routes:</div>
             <div class="fa-bus-grid">
                 <label class="fa-bus-label">
                     <input type="checkbox" class="bus_route_chk fa-accent-secondary" value="Route 100 (Panadura - Pettah)"> Route 100 (Panadura - Pettah)
@@ -60,7 +60,7 @@
     <!-- Step 2: Student Amenities -->
     <div class="step-card">
         <div class="step-header">
-            <div class="step-icon-badge">🛒</div>
+            <div class="step-icon-badge"><?php echo fa_icon('cart', '', 18); ?></div>
             <div>
                 <h3 class="step-title">02. Student Amenities &amp; Convenience</h3>
                 <p class="step-desc">Check available services in this area.</p>
@@ -69,19 +69,19 @@
 
         <div class="fa-checkbox-grid">
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Supermarket (Keells / Cargills / Arpico within 500m)"> 🛒 Supermarket (500m)
+                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Supermarket (Keells / Cargills / Arpico within 500m)"> <?php echo fa_icon('cart', '', 13); ?> Supermarket (500m)
             </label>
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="amenity_chk fa-accent-primary" value="24/7 Pharmacy in walking distance"> 💊 24/7 Pharmacy
+                <input type="checkbox" class="amenity_chk fa-accent-primary" value="24/7 Pharmacy in walking distance"> <?php echo fa_icon('pharmacy', '', 13); ?> 24/7 Pharmacy
             </label>
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Cheap Student Food Spots &amp; Kade nearby"> 🍛 Student Food Spots
+                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Cheap Student Food Spots &amp; Kade nearby"> <?php echo fa_icon('food', '', 13); ?> Student Food Spots
             </label>
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Self-service Laundromat nearby"> 🧺 Laundromat
+                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Self-service Laundromat nearby"> <?php echo fa_icon('laundry', '', 13); ?> Laundromat
             </label>
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Bank ATMs (Commercial / Sampath / HNB)"> 🏧 Bank ATMs
+                <input type="checkbox" class="amenity_chk fa-accent-primary" value="Bank ATMs (Commercial / Sampath / HNB)"> <?php echo fa_icon('bank', '', 13); ?> Bank ATMs
             </label>
         </div>
 
@@ -92,7 +92,7 @@
     <!-- Step 3: Safety -->
     <div class="step-card">
         <div class="step-header">
-            <div class="step-icon-badge">🛡️</div>
+            <div class="step-icon-badge"><?php echo fa_icon('shield', '', 18); ?></div>
             <div>
                 <h3 class="step-title">03. Neighborhood Safety &amp; Conditions</h3>
                 <p class="step-desc">Select security conditions for this neighborhood.</p>
@@ -101,16 +101,16 @@
 
         <div class="fa-checkbox-grid">
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="safety_chk fa-accent-primary" value="Well-lit main roads with working streetlights"> 💡 Well-lit Main Roads
+                <input type="checkbox" class="safety_chk fa-accent-primary" value="Well-lit main roads with working streetlights"> <?php echo fa_icon('lightbulb', '', 13); ?> Well-lit Main Roads
             </label>
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="safety_chk fa-accent-primary" value="Regular night police patrols"> 🚓 Police Patrols
+                <input type="checkbox" class="safety_chk fa-accent-primary" value="Regular night police patrols"> <?php echo fa_icon('shield', '', 13); ?> Police Patrols
             </label>
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="safety_chk fa-accent-primary" value="Safe student residential zone"> 🟢 Safe Residential Zone
+                <input type="checkbox" class="safety_chk fa-accent-primary" value="Safe student residential zone"> <?php echo fa_icon('check-circle', '', 13, '#0f5132'); ?> Safe Residential Zone
             </label>
             <label class="fa-checkbox-label">
-                <input type="checkbox" class="safety_chk fa-accent-danger" value="Dark side lanes require caution after 10 PM"> ⚠️ Caution after 10 PM
+                <input type="checkbox" class="safety_chk fa-accent-danger" value="Dark side lanes require caution after 10 PM"> <?php echo fa_icon('alert', '', 13, '#c0392b'); ?> Caution after 10 PM
             </label>
         </div>
 
