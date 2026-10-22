@@ -1,0 +1,35 @@
+# VIVA: Centralized compatibility redirects for removed legacy PHP pages. New navigation should use MVC routes directly.
+Options -Indexes
+RewriteEngine On
+
+# Centralize retired Landlord handlers (never convert unsafe POST requests to GET).
+RewriteRule ^actions/(?:save_property|save_room|update_booking)\.php$ - [G,L,NC]
+
+# Only safe navigation methods may use legacy page redirects.
+RewriteCond %{REQUEST_METHOD} !^(GET|HEAD)$
+RewriteRule ^(?:dashboard|nav|register|add_property|add_room|edit_property|delete_property|delete_room|checklist|task_view)\.php$ - [R=405,L,NC]
+
+# The shared group login.php still redirects to modules/landlord/dashboard.php.
+# Use REQUEST_URI to preserve the application folder (not hard-coded to boardnest-merged).
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/dashboard\.php$ [NC]
+RewriteRule ^dashboard\.php$ %1/public/landlord/dashboard [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/nav\.php$ [NC]
+RewriteRule ^nav\.php$ %1/public/landlord/dashboard [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/register\.php$ [NC]
+RewriteRule ^register\.php$ %1/public/landlord/register [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/add_property\.php$ [NC]
+RewriteRule ^add_property\.php$ %1/public/landlord/property/new [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/add_room\.php$ [NC]
+RewriteRule ^add_room\.php$ %1/public/landlord/room/new [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/edit_property\.php$ [NC]
+RewriteRule ^edit_property\.php$ %1/public/landlord/property/edit [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/delete_property\.php$ [NC]
+RewriteRule ^delete_property\.php$ %1/public/landlord/properties [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/delete_room\.php$ [NC]
+RewriteRule ^delete_room\.php$ %1/public/landlord/rooms [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/checklist\.php$ [NC]
+RewriteRule ^checklist\.php$ %1/public/landlord/properties [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/modules/landlord/task_view\.php$ [NC]
+RewriteRule ^task_view\.php$ %1/public/landlord/verification [R=302,L,NE,NC]
+
+# All other old URLs naturally return 404, and the MVC folder denies direct access.

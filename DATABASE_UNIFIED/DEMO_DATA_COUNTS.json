@@ -1,0 +1,17 @@
+{
+  "landlords": 12,
+  "students": 36,
+  "agents": 4,
+  "properties": 18,
+  "rooms": 36,
+  "room_slots": 63,
+  "current_reservations": 20,
+  "historical_bookings": 32,
+  "property_images": 12,
+  "room_images": 16,
+  "conversations": 14,
+  "messages": 42,
+  "admins_existing_from_clean_schema": 1,
+  "seed_password": "BoardNestDemo#2026",
+  "images": "Existing supplied test_room JPEG photos reused as labeled demo placeholders"
+}

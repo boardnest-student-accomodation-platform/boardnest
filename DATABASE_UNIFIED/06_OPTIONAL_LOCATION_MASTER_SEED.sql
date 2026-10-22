@@ -1,0 +1,35 @@
+-- Optional location master seed. Import AFTER clean unified schema, one time or repeatedly.
+-- Inserts only absent name/state pairs. No user accounts or mock bookings.
+USE `boardnest`;
+INSERT INTO cities(name,state,country) SELECT 'Colombo','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Colombo' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Dehiwala-Mount Lavinia','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Dehiwala-Mount Lavinia' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Moratuwa','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Moratuwa' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Kotte','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Kotte' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Kelaniya','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Kelaniya' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Peliyagoda','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Peliyagoda' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Negombo','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Negombo' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Gampaha','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Gampaha' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Kadawatha','Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Kadawatha' AND state='Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Kandy','Central Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Kandy' AND state='Central Province');
+INSERT INTO cities(name,state,country) SELECT 'Peradeniya','Central Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Peradeniya' AND state='Central Province');
+INSERT INTO cities(name,state,country) SELECT 'Matale','Central Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Matale' AND state='Central Province');
+INSERT INTO cities(name,state,country) SELECT 'Nuwara Eliya','Central Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Nuwara Eliya' AND state='Central Province');
+INSERT INTO cities(name,state,country) SELECT 'Galle','Southern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Galle' AND state='Southern Province');
+INSERT INTO cities(name,state,country) SELECT 'Matara','Southern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Matara' AND state='Southern Province');
+INSERT INTO cities(name,state,country) SELECT 'Hambantota','Southern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Hambantota' AND state='Southern Province');
+INSERT INTO cities(name,state,country) SELECT 'Jaffna','Northern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Jaffna' AND state='Northern Province');
+INSERT INTO cities(name,state,country) SELECT 'Kilinochchi','Northern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Kilinochchi' AND state='Northern Province');
+INSERT INTO cities(name,state,country) SELECT 'Vavuniya','Northern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Vavuniya' AND state='Northern Province');
+INSERT INTO cities(name,state,country) SELECT 'Batticaloa','Eastern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Batticaloa' AND state='Eastern Province');
+INSERT INTO cities(name,state,country) SELECT 'Trincomalee','Eastern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Trincomalee' AND state='Eastern Province');
+INSERT INTO cities(name,state,country) SELECT 'Ampara','Eastern Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Ampara' AND state='Eastern Province');
+INSERT INTO cities(name,state,country) SELECT 'Kurunegala','North Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Kurunegala' AND state='North Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Chilaw','North Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Chilaw' AND state='North Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Puttalam','North Western Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Puttalam' AND state='North Western Province');
+INSERT INTO cities(name,state,country) SELECT 'Anuradhapura','North Central Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Anuradhapura' AND state='North Central Province');
+INSERT INTO cities(name,state,country) SELECT 'Polonnaruwa','North Central Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Polonnaruwa' AND state='North Central Province');
+INSERT INTO cities(name,state,country) SELECT 'Badulla','Uva Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Badulla' AND state='Uva Province');
+INSERT INTO cities(name,state,country) SELECT 'Bandarawela','Uva Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Bandarawela' AND state='Uva Province');
+INSERT INTO cities(name,state,country) SELECT 'Monaragala','Uva Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Monaragala' AND state='Uva Province');
+INSERT INTO cities(name,state,country) SELECT 'Ratnapura','Sabaragamuwa Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Ratnapura' AND state='Sabaragamuwa Province');
+INSERT INTO cities(name,state,country) SELECT 'Kegalle','Sabaragamuwa Province','Sri Lanka' WHERE NOT EXISTS (SELECT 1 FROM cities WHERE name='Kegalle' AND state='Sabaragamuwa Province');

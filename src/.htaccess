@@ -1,0 +1,5 @@
+# Backend implementations and unfinished stubs must not be served directly over HTTP.
+Options -Indexes
+<IfModule mod_authz_core.c>
+    Require all denied
+</IfModule>

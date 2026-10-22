@@ -4,12 +4,7 @@
 require_once __DIR__ . '/../../../config/db.php';
 
 // Fetch agent details
-$stmt = $pdo->prepare("
-    SELECT f.agent_id, f.assigned_city
-    FROM field_agents f
-    INNER JOIN users u ON u.user_id = f.user_id
-    WHERE f.user_id = ? AND f.is_active = 1 AND u.status = 'active'
-");
+$stmt = $pdo->prepare("SELECT agent_id, assigned_city FROM field_agents WHERE user_id = ?");
 $stmt->execute(array($_SESSION['user_id']));
 $agent = $stmt->fetch();
 

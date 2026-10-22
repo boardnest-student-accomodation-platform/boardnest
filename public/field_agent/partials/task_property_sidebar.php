@@ -19,7 +19,7 @@
     <div class="spec-grid">
         <div>
             <span class="spec-label">Property Type</span>
-            <span class="spec-value"><?php echo htmlspecialchars($task['structural_type']); ?></span>
+            <span class="spec-value"><?php echo htmlspecialchars(str_replace('_', ' ', ucfirst((string)($task['structural_type'] ?? 'boarding_house')))); ?></span>
         </div>
         <div>
             <span class="spec-label">Facilities Provided</span>

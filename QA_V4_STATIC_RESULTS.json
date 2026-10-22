@@ -1,0 +1,223 @@
+{
+  "static_passed": 43,
+  "static_total": 43,
+  "failed": [],
+  "mysql_runtime": "NOT RUN \u2014 MariaDB server and PHP pdo_mysql are not available in this packaging environment",
+  "checks": [
+    {
+      "name": "47 unique schema tables",
+      "passed": true,
+      "detail": "47 definitions"
+    },
+    {
+      "name": "All foreign-key target tables exist",
+      "passed": true,
+      "detail": "78 references"
+    },
+    {
+      "name": "No active schema triggers",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "No active schema views",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Project root and fresh installer exactly match",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Project root and tables-only installer exactly match",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Original 27-table group schema text is unmodified prefix",
+      "passed": true,
+      "detail": "16393 source bytes"
+    },
+    {
+      "name": "Unique current student and slot reservations",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "No trigger dependency in new PHP core",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Mock SQL contains no DROP/TRUNCATE",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo SQL imports via database transaction",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Mock landlords count",
+      "passed": true,
+      "detail": "12/12"
+    },
+    {
+      "name": "Mock students count",
+      "passed": true,
+      "detail": "36/36"
+    },
+    {
+      "name": "Mock field_agents count",
+      "passed": true,
+      "detail": "4/4"
+    },
+    {
+      "name": "Mock room_slots count",
+      "passed": true,
+      "detail": "63/63"
+    },
+    {
+      "name": "Mock bookings count",
+      "passed": true,
+      "detail": "32/32"
+    },
+    {
+      "name": "Mock slot_reservations count",
+      "passed": true,
+      "detail": "20/20"
+    },
+    {
+      "name": "Mock conversations count",
+      "passed": true,
+      "detail": "14/14"
+    },
+    {
+      "name": "Mock messages count",
+      "passed": true,
+      "detail": "42/42"
+    },
+    {
+      "name": "Mock physical slot IDs unique",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Mock room+slot numbers unique",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo reservations 1 per student",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo reservations 1 per slot",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo reservations match known slot IDs",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo bookings reference seeded slots",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo reservation-booking identity consistent",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo canonical booking status distribution",
+      "passed": true,
+      "detail": "{'confirmed': 14, 'pending': 6, 'completed': 5, 'cancelled': 7}"
+    },
+    {
+      "name": "Demo active booking count and reservation count agree",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo every current booking has reservation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo no closed booking has reservation",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo occupied bookings are confirmed",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo moved-out bookings are completed",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo rejected bookings are cancelled",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo booking action rows complete",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo bookings reserve exactly 20 slots",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Demo password is a bcrypt hash",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Mock JPEG assets exist",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "All PHP files parse",
+      "passed": true,
+      "detail": "158 files; failures: []"
+    },
+    {
+      "name": "Landlord JavaScript syntax",
+      "passed": true,
+      "detail": "2 checked"
+    },
+    {
+      "name": "PHP room create inserts physical slots",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PHP room rent history, locks and tx",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "PHP booking all four transitions",
+      "passed": true,
+      "detail": ""
+    },
+    {
+      "name": "Student booking writes all 4 entities transactionally",
+      "passed": true,
+      "detail": ""
+    }
+  ]
+}

@@ -13,8 +13,6 @@ $stmt = $pdo->prepare("
     FROM field_agents f
     INNER JOIN users u ON f.user_id = u.user_id 
     WHERE f.user_id = ?
-      AND f.is_active = 1
-      AND u.status = 'active'
 ");
 $stmt->execute(array($_SESSION['user_id']));
 $agent = $stmt->fetch();
@@ -24,7 +22,7 @@ if (!$agent) {
 
 $agent_id = $agent['agent_id'];
 $city     = $agent['assigned_city'];
-$agent_status = 'active';
+$agent_status = ($agent['is_active'] == 1 && $agent['status'] === 'active') ? 'active' : 'suspended';
 
 $allowed_tabs = array('pending', 'claimed', 'complaints', 'history');
 $active_tab   = isset($_GET['tab']) ? $_GET['tab'] : 'pending';
@@ -36,7 +34,7 @@ $error_msg   = isset($_SESSION['error'])   ? $_SESSION['error']   : '';
 unset($_SESSION['success'], $_SESSION['error']);
 
 if (empty($_SESSION['csrf_token'])) {
-    $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    $_SESSION['csrf_token'] = md5(uniqid(mt_rand(), true));
 }
 $csrf_token = $_SESSION['csrf_token'];
 

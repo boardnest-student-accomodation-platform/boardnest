@@ -1,0 +1,7 @@
+<?php /* VIVA NOTE: Complaint submission form. Only bookings owned by the landlord are valid targets; evidence is stored privately. */ ?><div class="toolbar"><p>Complaints must be associated with a student who booked one of your rooms.</p><a href="<?=e(url('/complaints'))?>">← Complaints</a></div>
+<section class="panel form-panel"><form method="post" action="<?=e(url('/complaint/save'))?>" enctype="multipart/form-data" class="stack"><?=csrf_field()?>
+<label>Booking / student<select name="booking_id" required><option value="">Choose a booking</option><?php foreach($bookings as $b):?><option value="<?=e($b['booking_id'])?>" <?=((int)($_GET['booking_id']??0)===(int)$b['booking_id'])?'selected':''?>><?=e($b['student_name'])?> — <?=e($b['property_title'])?> #<?=e($b['booking_id'])?></option><?php endforeach;?></select></label>
+<label>Complaint category<select name="category"><option value="property_damage">Property damage</option><option value="rent_dispute">Rent dispute</option><option value="conduct">Conduct</option><option value="safety">Safety</option><option value="other">Other</option></select></label>
+<label>Description<textarea name="description" required minlength="20" maxlength="4000" rows="6" placeholder="Describe the incident clearly and factually."></textarea></label>
+<label>Evidence (optional PDF / JPG / PNG, max 5 MB)<input type="file" name="evidence" accept="application/pdf,image/jpeg,image/png"></label>
+<button class="btn">Submit to Admin</button></form></section>

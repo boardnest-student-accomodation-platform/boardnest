@@ -63,7 +63,7 @@
                         <tr>
                             <td><strong>#VT-<?php echo $task['task_id']; ?></strong></td>
                             <td><?php echo htmlspecialchars($task['address']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($task['structural_type']); ?></span></td>
+                            <td><span class="tag-custom"><?php echo htmlspecialchars(str_replace('_', ' ', ucfirst((string)($task['structural_type'] ?? 'boarding_house')))); ?></span></td>
                             <td><span class="badge badge-warning">Unclaimed</span></td>
                             <td>
                                 <form action="actions/update_task.php" method="POST" class="fa-inline-form">
@@ -100,7 +100,7 @@
                         <tr>
                             <td><strong>#VT-<?php echo $task['task_id']; ?></strong></td>
                             <td><?php echo htmlspecialchars($task['address']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($task['structural_type']); ?></span></td>
+                            <td><span class="tag-custom"><?php echo htmlspecialchars(str_replace('_', ' ', ucfirst((string)($task['structural_type'] ?? 'boarding_house')))); ?></span></td>
                             <td>
                                 <div class="flex gap-2">
                                     <a href="task_view.php?task_id=<?php echo $task['task_id']; ?>" class="btn btn--primary btn--sm fa-btn-table">Open Task</a>
@@ -168,7 +168,7 @@
                         <tr>
                             <td><strong>#VT-<?php echo $task['task_id']; ?></strong></td>
                             <td><?php echo htmlspecialchars($task['address']); ?></td>
-                            <td><span class="tag-custom"><?php echo htmlspecialchars($task['structural_type']); ?></span></td>
+                            <td><span class="tag-custom"><?php echo htmlspecialchars(str_replace('_', ' ', ucfirst((string)($task['structural_type'] ?? 'boarding_house')))); ?></span></td>
                             <td><?php echo htmlspecialchars($task['submitted_at']); ?></td>
                             <td><a href="task_view.php?task_id=<?php echo $task['task_id']; ?>" class="btn btn--outline btn--sm fa-btn-table">View Report</a></td>
                         </tr>

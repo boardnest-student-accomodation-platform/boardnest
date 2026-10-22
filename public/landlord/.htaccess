@@ -1,0 +1,23 @@
+# VIVA: Apache front-controller rewrites route public Landlord URLs to index.php; static assets remain directly available.
+Options -Indexes
+DirectoryIndex index.php
+RewriteEngine On
+
+# Old direct form targets stay retired. No POST -> GET migration.
+RewriteRule ^actions/(?:save_property|save_room|update_booking)\.php$ - [G,L,NC]
+
+# Small alias set for links/bookmarks under public/landlord/.
+RewriteCond %{REQUEST_METHOD} !^(GET|HEAD)$
+RewriteRule ^(?:dashboard|checklist|task_view)\.php$ - [R=405,L,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/public/landlord/dashboard\.php$ [NC]
+RewriteRule ^dashboard\.php$ %1/public/landlord/dashboard [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/public/landlord/checklist\.php$ [NC]
+RewriteRule ^checklist\.php$ %1/public/landlord/properties [R=302,L,NE,NC]
+RewriteCond %{REQUEST_URI} ^(.*)/public/landlord/task_view\.php$ [NC]
+RewriteRule ^task_view\.php$ %1/public/landlord/verification [R=302,L,NE,NC]
+
+# The only PHP entry point in this directory is index.php.
+# Route virtual MVC paths while leaving CSS/JS/assets as real static files.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [L,QSA]

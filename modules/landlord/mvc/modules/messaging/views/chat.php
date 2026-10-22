@@ -1,0 +1,6 @@
+<?php /* VIVA NOTE: Chat screen. JavaScript polls messages, while the server checks conversation ownership. */ ?><div class="toolbar"><p>Chat with <strong><?=e($thread['student_name'])?></strong>. Messages refresh every 8 seconds.</p><a href="<?=e(url('/messages'))?>">← Inbox</a></div>
+<div class="panel chat-panel" id="chat-app" data-conversation="<?=e($thread['conversation_id'])?>" data-fetch="<?=e(url('/chat/poll',['id'=>$thread['conversation_id']]))?>" data-send="<?=e(url('/chat/send',['id'=>$thread['conversation_id']]))?>" data-user="<?=e($landlord['user_id'])?>">
+<div id="chat-messages" class="chat-messages" role="log" aria-live="polite">
+<?php foreach($messages as $m):?><article class="bubble <?=((int)$m['sender_user_id']===(int)$landlord['user_id'])?'mine':'theirs'?>"><span><?=e($m['message_text'])?></span><small><?=e(date_label($m['sent_at']))?></small></article><?php endforeach;?></div>
+<form id="chat-form" class="chat-form"><input type="hidden" name="_csrf" value="<?=e(\BoardNest\Core\CSRF::token())?>"><label for="message-input" class="sr-only">Message</label><input id="message-input" name="message" maxlength="2000" required autocomplete="off" placeholder="Type your message..."><button class="btn">Send ↗</button></form><p id="chat-error" class="hint" aria-live="polite"></p></div>
+<script defer src="<?=e(url('/assets/js/chat.js'))?>"></script>

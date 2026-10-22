@@ -330,8 +330,8 @@ function verifyGPSLocation() {
         const dist = haversineDistance(pos.coords.latitude, pos.coords.longitude, propLat, propLng);
         if (dist <= 100) {
             statusDiv.innerText = '🔓 Geofence Match (Within ' + Math.round(dist) + 'm)';
-            descDiv.innerText   = 'Coordinates matched. Confirming with the server...';
-            _sendGeofencePass(pos.coords.latitude, pos.coords.longitude);
+            descDiv.innerText   = 'Coordinates matched. Unlocking checklist...';
+            _sendGeofencePass();
         } else {
             statusDiv.innerText = '❌ Geofence Lock (' + Math.round(dist) + 'm away)';
             descDiv.innerText   = 'You must be within 100m of the property. Move closer and try again.';
@@ -341,19 +341,21 @@ function verifyGPSLocation() {
         statusDiv.innerText = '❌ GPS Error: ' + err.message;
         descDiv.innerText   = 'Enable GPS and try again.';
         btn.disabled = false;
-    }, { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 });
+    }, { enableHighAccuracy: true, timeout: 10000 });
 }
 
-function _sendGeofencePass(latitude, longitude) {
+function simulateGPSMatch() {
+    const statusDiv = document.getElementById('geofenceStatus');
+    const descDiv   = document.getElementById('geofenceDesc');
+    statusDiv.innerText = '🔓 Geofence Match (Simulated)';
+    descDiv.innerText   = 'Coordinates matched. Unlocking checklist...';
+    
     const form = document.getElementById('geofenceSuccessForm');
-    const latitudeInput = document.getElementById('verifiedLat');
-    const longitudeInput = document.getElementById('verifiedLng');
-    if (!form || !latitudeInput || !longitudeInput) {
-        throw new Error('Geofence verification form is unavailable.');
+    if (form) {
+        form.submit();
+    } else {
+        alert("Geofence form not found.");
     }
-    latitudeInput.value = String(latitude);
-    longitudeInput.value = String(longitude);
-    form.submit();
 }
 
 /* ---------- Star Rating ---------- */

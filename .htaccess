@@ -1,0 +1,5 @@
+# Protect schema, internal documents and backup artifacts if extracted in htdocs.
+Options -Indexes
+<FilesMatch "(?i)\.(?:sql|sqlite|bak|log|md|ini|env|lock|csv|zip)$">
+    Require all denied
+</FilesMatch>

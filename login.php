@@ -4,80 +4,54 @@ startSession();
 
 $error = '';
 
-$accountMessages = [
-    'suspended' => 'Your account has been suspended. Please contact BoardNest support.',
-    'rejected' => 'Your verification documents were rejected. Please register again with valid documents.',
-    'pending' => 'Your account is still awaiting approval.',
-    'banned' => 'This account is no longer permitted to access BoardNest.',
-    'profile_missing' => 'Your student profile could not be found. Please contact support.',
-];
-
-if (isset($_GET['account_status'], $accountMessages[$_GET['account_status']])) {
-    $error = $accountMessages[$_GET['account_status']];
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     require_once 'config/db.php';
 
-    $email = trim($_POST['email']);
-    $password = $_POST['password'];
+    $email = trim((string) ($_POST['email'] ?? ''));
+    $password = (string) ($_POST['password'] ?? '');
 
-    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ?");
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = ? AND status = 'active'");
     $stmt->execute([$email]);
     $user = $stmt->fetch();
 
     if ($user) {
         $isPasswordCorrect = false;
 
-        // 1. Password එක Hash එකක්දැයි පරීක්ෂා කිරීම (New Encrypted Passwords)
-        if (password_verify($password, $user['password_hash'])) {
+        // Password hashes only. Do not accept legacy plaintext database values:
+        // doing so would make credential storage insecure for every shared role.
+        if (password_verify($password, (string)$user['password_hash'])) {
             $isPasswordCorrect = true;
-        } 
-        // 2. Hash නොවන Plain Text Password එකක්දැයි පරීක්ෂා කිරීම (Old Passwords)
-        elseif ($password === $user['password_hash']) {
-            $isPasswordCorrect = true;
-
-            // Optional: Plain text එකෙන් Log වූ පසු එය ස්වයංක්‍රීයව Hash කර Update කිරීම
-            $newHashedPassword = password_hash($password, PASSWORD_DEFAULT);
-            $updateStmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
-            $updateStmt->execute([$newHashedPassword, $user['user_id']]);
+            if (password_needs_rehash((string)$user['password_hash'], PASSWORD_DEFAULT)) {
+                $newHash = password_hash($password, PASSWORD_DEFAULT);
+                $updateStmt = $pdo->prepare("UPDATE users SET password_hash = ? WHERE user_id = ?");
+                $updateStmt->execute([$newHash, $user['user_id']]);
+            }
         }
 
         // Password නිවැරදි නම් Session සාදා Direct කිරීම
         if ($isPasswordCorrect) {
-            if ($user['status'] !== 'active') {
-                $error = $accountMessages[$user['status']] ?? 'This account cannot sign in at the moment.';
-                $isPasswordCorrect = false;
-            } elseif ($user['role'] === 'field_agent') {
-                $agentStmt = $pdo->prepare("SELECT agent_id FROM field_agents WHERE user_id = ? AND is_active = 1");
-                $agentStmt->execute([$user['user_id']]);
-                if (!$agentStmt->fetch()) {
-                    $error = 'Your Field Agent profile is currently suspended.';
-                    $isPasswordCorrect = false;
-                }
+            // Rotate the session ID after authentication to reduce fixation risk.
+            session_regenerate_id(true);
+            $_SESSION['user_id']   = $user['user_id'];
+            $_SESSION['role']      = $user['role'];
+            $_SESSION['full_name'] = $user['full_name'];
+
+            // Redirect based on role
+            switch ($user['role']) {
+                case 'student':
+                    header('Location: public/student/dashboard.php');
+                    break;
+                case 'landlord':
+                    header('Location: public/landlord/dashboard');
+                    break;
+                case 'field_agent':
+                    header('Location: public/field_agent/dashboard.php');
+                    break;
+                case 'admin':
+                    header('Location: modules/admin/views/dashboard.php');
+                    break;
             }
-            if ($isPasswordCorrect) {
-                session_regenerate_id(true);
-                $_SESSION['user_id'] = $user['user_id'];
-                $_SESSION['role'] = $user['role'];
-                $_SESSION['full_name'] = $user['full_name'];
-                $_SESSION['status'] = $user['status'];
-                switch ($user['role']) {
-                    case 'student':
-                        header('Location: public/student/dashboard.php');
-                        break;
-                    case 'landlord':
-                        header('Location: modules/landlord/dashboard.php');
-                        break;
-                    case 'field_agent':
-                        header('Location: public/field_agent/dashboard.php');
-                        break;
-                    case 'admin':
-                        header('Location: modules/admin/views/dashboard.php');
-                        break;
-                }
-                exit();
-            }
+            exit();
         } else {
             $error = "Invalid email or password.";
         }
@@ -168,7 +142,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="password" name="password" required>
             <button type="submit">Login</button>
         </form>
-        <p>Don't have an account? <a href="public/student/register.php">Register as a student</a></p>
+        <p>New here? <a href="public/landlord/register">Register as a Landlord</a> or <a href="public/field_agent/register.php">apply as a Field Agent</a>.</p>
     </div>
 </body>
 </html>

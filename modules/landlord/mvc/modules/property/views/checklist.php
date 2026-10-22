@@ -1,0 +1,5 @@
+<?php /* VIVA NOTE: Property handover checklist form, separate from Field Agent facility verification. */ ?><div class="toolbar"><p>Move-in / handover checklist for <strong><?=e($property['title'])?></strong>. This differs from agent-verified neighbourhood facilities.</p><a href="<?=e(url('/property/show',['id'=>$property['property_id']]))?>">← Back</a></div>
+<section class="panel"><h3>Save a new checklist snapshot</h3><form class="stack" method="post" action="<?=e(url('/property/checklist/save',['id'=>$property['property_id']]))?>"><?=csrf_field()?>
+<label>Checklist items (one per line)<textarea name="items" required minlength="1" maxlength="4000" rows="7" placeholder="Keys provided&#10;Furniture inspected&#10;Water and electricity checked"><?=e($record['items']??'')?></textarea></label>
+<label>Additional notes<textarea name="notes" maxlength="2000" rows="3"><?=e($record['notes']??'')?></textarea></label><button class="btn">Save checklist</button></form>
+<?php if($record):?><p class="hint">Last checklist saved <?=e(date_label($record['created_at']))?></p><?php endif;?></section>
