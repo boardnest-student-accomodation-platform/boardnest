@@ -5,7 +5,7 @@ CREATE DATABASE IF NOT EXISTS boardnest;
 USE boardnest;
 
 -- Core users table (shared by all modules)
-CREATE TABLE users (
+CREATE TABLE IF NOT EXISTS users (
     user_id INT AUTO_INCREMENT PRIMARY KEY,
     full_name VARCHAR(100) NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
@@ -16,20 +16,23 @@ CREATE TABLE users (
 );
 
 -- Student extension table
-CREATE TABLE students (
+CREATE TABLE IF NOT EXISTS students (
     student_id INT AUTO_INCREMENT PRIMARY KEY,  /* problematic bc of dif formats in dif colleges*/
     user_id INT UNIQUE NOT NULL,
     nic_number VARCHAR(20),
     mobile VARCHAR(15),
     university VARCHAR(100),
     academic_year VARCHAR(20), /* should be auto incremented*/
+    registered_date DATE NULL,
+    is_senior_student TINYINT(1) DEFAULT 0,
+    is_field_agent TINYINT(1) DEFAULT 0,
     verf_tier ENUM('tier1','tier2') DEFAULT 'tier1',
     verf_deadline DATE,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Landlord extension table
-CREATE TABLE landlords (
+CREATE TABLE IF NOT EXISTS landlords (
     landlord_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
     nic_number VARCHAR(20),
@@ -42,36 +45,61 @@ CREATE TABLE landlords (
 );
 
 -- Field Agent extension table
-CREATE TABLE field_agents (
+CREATE TABLE IF NOT EXISTS field_agents (
     agent_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
     nic_number VARCHAR(20),
+    nic_front VARCHAR(255) NULL,
+    nic_back VARCHAR(255) NULL,
     mobile VARCHAR(15),
+    assigned_district VARCHAR(100) NULL,
     assigned_city VARCHAR(100),
     is_active TINYINT(1) DEFAULT 0,
-    recruit_mode ENUM('self_registered','admin_created') DEFAULT 'self_registered',
+    recruit_mode ENUM('self_registered','admin_created','senior_student') DEFAULT 'self_registered',
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Admin table
-CREATE TABLE admin (
+CREATE TABLE IF NOT EXISTS admin (
     admin_id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT UNIQUE NOT NULL,
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
 );
 
 -- Insert a default admin account (password: admin123)
-INSERT INTO users (full_name, email, password_hash, role, status)
+INSERT IGNORE INTO users (full_name, email, password_hash, role, status)
 VALUES ('Admin', 'admin@boardnest.lk', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', 'active');
 
-INSERT INTO admin (user_id) VALUES (LAST_INSERT_ID());
+INSERT IGNORE INTO admin (user_id)
+SELECT user_id FROM users WHERE email = 'admin@boardnest.lk';
+
+
+-- ========================================================
+-- GEOGRAPHIC REFERENCE TABLES (CITIES & UNIVERSITIES)
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS cities (
+    city_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    district VARCHAR(100) NOT NULL,
+    province VARCHAR(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS universities (
+    uni_id INT AUTO_INCREMENT PRIMARY KEY,
+    city_id INT NOT NULL,
+    uni_name VARCHAR(150) NOT NULL,
+    latitude DECIMAL(10, 8) NULL,
+    longitude DECIMAL(11, 8) NULL,
+    CONSTRAINT fk_uni_city FOREIGN KEY (city_id) REFERENCES cities(city_id) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 
 -- ========================================================
 -- PROPERTY AND LISTING TABLES
 -- ========================================================
 
-CREATE TABLE properties (
+CREATE TABLE IF NOT EXISTS properties (
     property_id INT AUTO_INCREMENT PRIMARY KEY,
     landlord_id INT NOT NULL,
     title VARCHAR(100) NULL,
@@ -89,35 +117,36 @@ CREATE TABLE properties (
     rent_amount DECIMAL(10,2) NULL,
     images TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (landlord_id) REFERENCES landlords(landlord_id) ON DELETE CASCADE
+    CONSTRAINT fk_prop_landlord FOREIGN KEY (landlord_id) REFERENCES landlords(landlord_id) ON DELETE CASCADE,
+    CONSTRAINT fk_prop_city FOREIGN KEY (city_id) REFERENCES cities(city_id) ON DELETE SET NULL ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE rooms (
+CREATE TABLE IF NOT EXISTS rooms (
     room_id INT AUTO_INCREMENT PRIMARY KEY,
     property_id INT NOT NULL,
     room_type VARCHAR(50),
     listing_id INT NULL,
     slot_cap TINYINT NOT NULL DEFAULT 1,
+    slot_capacity INT NOT NULL DEFAULT 1,
     partial_occupancy TINYINT(1) NOT NULL DEFAULT 0,
     deposit DECIMAL(10,2) NULL,
+    security_deposit DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+    price DECIMAL(10,2) NULL,
     sq_footage INT NULL,
     furnishing ENUM('furnished','semi_furnished','unfurnished') NULL,
     bathroom_type ENUM('attached','shared') NULL,
+    bathroom_access ENUM('attached', 'shared') NOT NULL DEFAULT 'shared',
     wifi TINYINT(1) NOT NULL DEFAULT 0,
+    wifi_available TINYINT(1) NOT NULL DEFAULT 0,
     house_rules TEXT NULL,
     gender_pref ENUM('male','female','any') NOT NULL DEFAULT 'any',
+    status ENUM('pending', 'under_verification', 'agent_on_site', 'awaiting_admin', 'suspended', 'verified') DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     UNIQUE KEY unique_listing_room (listing_id),
-    price DECIMAL(10,2) NULL,
-    slot_capacity INT NOT NULL DEFAULT 1,
-    security_deposit DECIMAL(10,2) NOT NULL DEFAULT 0.00,
-    bathroom_access ENUM('attached', 'shared') NOT NULL DEFAULT 'shared',
-    wifi_available TINYINT(1) NOT NULL DEFAULT 0,
-    status ENUM('pending', 'under_verification', 'agent_on_site', 'awaiting_admin', 'suspended', 'verified') DEFAULT 'pending',
     FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE listings (
+CREATE TABLE IF NOT EXISTS listings (
     listing_id INT AUTO_INCREMENT PRIMARY KEY,
     landlord_id INT NOT NULL,
     property_id INT NOT NULL,
@@ -132,7 +161,7 @@ CREATE TABLE listings (
     CONSTRAINT fk_listings_property FOREIGN KEY (property_id) REFERENCES properties(property_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE complaints (
+CREATE TABLE IF NOT EXISTS complaints (
     complaint_id INT AUTO_INCREMENT PRIMARY KEY,
     listing_id INT NOT NULL,
     complainant_user_id INT NOT NULL,
@@ -146,7 +175,7 @@ CREATE TABLE complaints (
     FOREIGN KEY (complainant_user_id) REFERENCES users(user_id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE TABLE complaint_investigations (
+CREATE TABLE IF NOT EXISTS complaint_investigations (
     investigation_id INT AUTO_INCREMENT PRIMARY KEY,
     complaint_id INT NOT NULL,
     field_agent_user_id INT NOT NULL,
@@ -164,7 +193,7 @@ CREATE TABLE complaint_investigations (
 -- ========================================================
 
 -- 1. Tasks assigned to Field Agents (Verification Queue)
-CREATE TABLE agent_tasks (
+CREATE TABLE IF NOT EXISTS agent_tasks (
     task_id INT AUTO_INCREMENT PRIMARY KEY,
     property_id INT NOT NULL,
     task_type ENUM('verification', 'complaint') DEFAULT 'verification',
@@ -177,7 +206,7 @@ CREATE TABLE agent_tasks (
 );
 
 -- 2. The Verification Reports submitted by Field Agents after inspection
-CREATE TABLE verification_reports (
+CREATE TABLE IF NOT EXISTS verification_reports (
     id INT AUTO_INCREMENT PRIMARY KEY,
     task_id INT UNIQUE NOT NULL,
     field_agent_user_id INT NOT NULL,
@@ -205,7 +234,7 @@ CREATE TABLE verification_reports (
 );
 
 -- 3. Area Reports submitted by Field Agents
-CREATE TABLE area_reports (
+CREATE TABLE IF NOT EXISTS area_reports (
     report_id INT AUTO_INCREMENT PRIMARY KEY,
     agent_id INT NOT NULL,
     city VARCHAR(100) NOT NULL,
@@ -217,7 +246,9 @@ CREATE TABLE area_reports (
     FOREIGN KEY (agent_id) REFERENCES field_agents(agent_id) ON DELETE CASCADE
 );
 
--- Admin owned tables
+-- ========================================================
+-- ADMIN OWNED TABLES
+-- ========================================================
 
 -- Announcements
 CREATE TABLE IF NOT EXISTS announcements (
@@ -292,7 +323,6 @@ CREATE TABLE IF NOT EXISTS listing_decisions (
         REFERENCES users(user_id)
         ON DELETE RESTRICT
         ON UPDATE CASCADE
-
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 -- Student module additions; retain existing field-agent data contracts.
@@ -327,6 +357,46 @@ CREATE TABLE IF NOT EXISTS room_slots (
     CONSTRAINT fk_slot_student
         FOREIGN KEY (student_id) REFERENCES students(student_id)
         ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- ========================================================
+-- BOOKINGS AND PAYMENTS (EER DIAGRAM COMPLIANT)
+-- ========================================================
+
+CREATE TABLE IF NOT EXISTS bookings (
+    booking_id INT AUTO_INCREMENT PRIMARY KEY,
+    student_id INT NOT NULL,
+    slot_id INT NULL,
+    listing_id INT NULL,
+    bk_status ENUM('pending', 'accepted', 'rejected', 'cancelled', 'completed') NOT NULL DEFAULT 'pending',
+    price_type ENUM('full', 'partial') NOT NULL DEFAULT 'full',
+    move_in DATE NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_booking_student FOREIGN KEY (student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_booking_slot FOREIGN KEY (slot_id) REFERENCES room_slots(slot_id) ON DELETE SET NULL ON UPDATE CASCADE,
+    CONSTRAINT fk_booking_listing FOREIGN KEY (listing_id) REFERENCES listings(listing_id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS group_bookings (
+    group_id INT AUTO_INCREMENT PRIMARY KEY,
+    coordinator_student_id INT NOT NULL,
+    booking_id INT NULL,
+    grp_status ENUM('forming', 'confirmed', 'cancelled') NOT NULL DEFAULT 'forming',
+    total_slots INT NOT NULL DEFAULT 1,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_grp_coordinator FOREIGN KEY (coordinator_student_id) REFERENCES students(student_id) ON DELETE CASCADE ON UPDATE CASCADE,
+    CONSTRAINT fk_grp_booking FOREIGN KEY (booking_id) REFERENCES bookings(booking_id) ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS payments (
+    payment_id INT AUTO_INCREMENT PRIMARY KEY,
+    landlord_id INT NOT NULL,
+    amount DECIMAL(10, 2) NOT NULL,
+    pay_status ENUM('pending', 'completed', 'failed', 'refunded') NOT NULL DEFAULT 'pending',
+    pay_type ENUM('subscription_standard', 'subscription_pro', 'other') NOT NULL DEFAULT 'subscription_pro',
+    payment_reference VARCHAR(100) NULL,
+    paid_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_payment_landlord FOREIGN KEY (landlord_id) REFERENCES landlords(landlord_id) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 CREATE TABLE IF NOT EXISTS listing_photos (
